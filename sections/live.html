@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Absa · Vault22 modules</title>
+<style>
+  /* Faithful re-implementations of the Vault22 modules, Absa-skinned. */
+  :root{
+    --crimson:#95052A; --crimson-d:#77021E; --red:#DC0032; --red-h:#B8002A;
+    --bg:#F4F1F2; --card:#FFFFFF; --ink:#12100F; --muted:#6B6B6B; --line:#ECE7E8;
+    --rose:#FCEEF1; --rose-2:#F7E4E9; --green:#168335; --amber:#9A5B00;
+    --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:26px 30px 60px}
+  .view{display:none} .view.active{display:block}
+  h1.title{font-size:30px;font-weight:800;letter-spacing:-.4px}
+  .sub{color:var(--muted);font-size:14px;margin-top:5px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 15px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.12s}
+  .btn:hover{background:#F7F2F3}
+  .btn.primary{background:var(--red);color:#fff;border-color:var(--red)}
+  .btn.primary:hover{background:var(--red-h)}
+  .btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+  .btn.dark{background:var(--crimson);color:#fff;border-color:var(--crimson)}
+  .btn.sm{padding:6px 11px;font-size:12.5px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:20px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(30px);background:#12100F;color:#fff;padding:12px 20px;border-radius:12px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:400;display:flex;align-items:center;gap:9px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast svg{width:17px;height:17px;stroke:#4ED07A;fill:none;stroke-width:2.4}
+  /* tabs */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 18px;border-bottom:1px solid var(--line);padding-bottom:0}
+  .tab{padding:9px 16px;border-radius:20px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:transparent}
+  .tab.active{background:var(--red);color:#fff}
+  /* chips */
+  .chips{display:flex;gap:9px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:22px;padding:7px 15px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+  .chip.on{background:var(--crimson);color:#fff;border-color:var(--crimson)}
+  /* stat tiles */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 17px}
+  .stat .k{font-size:11.5px;font-weight:700;letter-spacing:.4px;color:var(--muted);text-transform:uppercase}
+  .stat .v{font-size:22px;font-weight:800;margin-top:5px}
+  /* modal / drawer */
+  .ov{position:fixed;inset:0;background:rgba(18,16,15,.45);display:none;z-index:300}
+  .ov.show{display:block}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:440px;max-width:94vw;background:#fff;box-shadow:-16px 0 44px rgba(0,0,0,.16);
+    transform:translateX(100%);transition:transform .25s;overflow-y:auto;z-index:301;padding:26px 26px 40px}
+  .drawer.show{transform:translateX(0)}
+  .modalbox{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;max-width:94vw;max-height:88vh;overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 24px 64px rgba(0,0,0,.24);z-index:301;padding:24px;display:none}
+  .modalbox.show{display:block}
+  .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .dh h3{font-size:19px;font-weight:800}
+  .x{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:15px;color:var(--muted);display:grid;place-items:center}
+  label.fl{display:block;font-size:12.5px;font-weight:700;color:#3a3a3a;margin:14px 0 6px}
+  .inp{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;background:#fff}
+  .inp:focus{outline:none;border-color:var(--crimson)}
+  .up{border:1.5px dashed #D9CDD1;border-radius:12px;padding:16px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer}
+  /* generic list rows */
+  .lrow{display:flex;align-items:center;gap:14px;padding:13px 16px;border:1px solid var(--line);border-radius:13px;background:#fff;margin-bottom:9px}
+  .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:none;font-size:17px;background:var(--rose)}
+  .up-badge{font-size:10px}
+  .sec-h{font-size:16px;font-weight:800;margin:26px 0 12px}
+  .dbld{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-top:1px solid #F4EFF1;font-size:13.5px}
+  .dbld a{color:var(--crimson);font-weight:600;cursor:pointer}
+  .actc{padding:15px 16px;cursor:pointer;transition:.12s}
+  .actc:hover{border-color:var(--crimson);box-shadow:0 6px 18px rgba(149,5,42,.08)}
+  .actc .ah{display:flex;justify-content:space-between;font-size:10.5px;font-weight:800;letter-spacing:.4px;color:var(--muted)}
+  .actc .at{font-weight:800;font-size:14px;margin:8px 0 5px}
+  .actc .ad{font-size:12px;color:var(--muted);line-height:1.4}
+  .debtcard{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:#fff}
+  .debtcard .dc-amt{font-weight:800}
+  .ff-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .ff-bar{height:8px;border-radius:6px;background:#EFEAEC;overflow:hidden;margin:9px 0}
+  .ff-bar>i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#DC0032,#95052A)}
+  .ffb{font-size:11px;font-weight:800;padding:4px 9px;border-radius:20px}
+  .ok{background:#E4F3E9;color:#168335}.warn{background:#FBEAD0;color:#9A5B00}.bad{background:#FCEEF1;color:#DC0032}
+  .step-dots{display:flex;gap:7px;align-items:center;justify-content:center;margin-bottom:16px}
+  .step-dots i{width:9px;height:9px;border-radius:50%;background:#D9CDD1;display:block}
+  .step-dots i.on{background:var(--crimson)}
+  .cur-opt{display:flex;align-items:center;gap:14px;border:1.5px solid var(--line);border-radius:12px;padding:15px 18px;margin-bottom:11px;cursor:pointer}
+  .cur-opt.sel{border-color:var(--crimson);background:var(--rose)}
+  .cur-opt .cs{width:44px;height:44px;border-radius:50%;background:#EEF1F7;display:grid;place-items:center;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ TRANSACTIONS ============ -->
+  <section class="view" id="v-transactions">
+    <div class="row" style="margin-bottom:16px">
+      <h1 class="title">Transactions</h1>
+    </div>
+    <div class="row" style="gap:10px;margin-bottom:14px">
+      <div style="flex:1;min-width:220px;position:relative">
+        <input class="inp" id="txSearch" placeholder="🔍  Search" oninput="renderTx()" style="padding-left:14px">
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="btn sm" onclick="txSelectAll()">Select All</button>
+        <button class="btn sm" onclick="toast('Marked as seen')">Mark as Seen</button>
+        <button class="btn sm" onclick="toast('Rename merchant')">Rename</button>
+        <button class="btn sm" onclick="toast('Categorise selected')">Categorize</button>
+        <button class="btn sm" onclick="toast('Edit merchant')">Edit Merchant</button>
+        <button class="btn sm" onclick="toast('Tag selected')">Tag</button>
+        <button class="btn sm" onclick="toast('Exporting CSV…')">Export CSV</button>
+        <button class="btn sm primary" onclick="toast('Filters')">⚙ Filter</button>
+      </div>
+    </div>
+    <div class="chips" id="txTabs" style="margin-bottom:16px"></div>
+    <div class="card" style="padding:16px 18px;margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:11px">
+        <span style="width:90px;font-size:12.5px;color:var(--muted);font-weight:600">Money In</span>
+        <div style="flex:1;height:14px;border-radius:8px;overflow:hidden;display:flex">
+          <i style="width:70%;background:#168335"></i><i style="width:16%;background:#4A6FE0"></i><i style="width:14%;background:#9aa"></i></div>
+        <b style="font-size:13.5px" data-zar="655463">R655,463</b>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="width:90px;font-size:12.5px;color:var(--muted);font-weight:600">Money Out</span>
+        <div style="flex:1;height:14px;border-radius:8px;overflow:hidden;display:flex">
+          <i style="width:34%;background:#4A6FE0"></i><i style="width:22%;background:#E0A21A"></i><i style="width:20%;background:#8B5CF6"></i><i style="width:14%;background:#DC0032"></i><i style="width:10%;background:#9aa"></i></div>
+        <b style="font-size:13.5px" data-zar="486210">R486,210</b>
+      </div>
+    </div>
+    <div id="txList"></div>
+    <div style="text-align:center;color:var(--muted);font-size:12.5px;padding:16px 0" id="txCount"></div>
+  </section>
+
+  <!-- ============ MY WEALTH ============ -->
+  <section class="view" id="v-wealth">
+    <div class="row" style="margin-bottom:6px">
+      <div><h1 class="title">My Wealth</h1>
+        <p class="sub">Track all your assets and liabilities to see your complete financial picture</p></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm" onclick="openLink('account')">⬇ Upload statement</button>
+        <button class="btn sm" onclick="toast('Import history')">↺ Import history</button>
+        <button class="btn sm ghost" onclick="toast('1 deactivated account')">✕ Deactivated accounts (1)</button>
+      </div>
+    </div>
+    <div class="card" style="padding:22px 24px;margin:16px 0 22px">
+      <div class="row" style="margin-bottom:6px">
+        <div><div style="font-size:16px;font-weight:800">Net Worth History</div>
+          <div style="color:var(--green);font-weight:700;font-size:14px;margin-top:3px"><span data-zar="914218">R914,218</span> <span style="color:var(--muted);font-weight:500">(+5,861.6%)</span></div></div>
+        <div class="chips" id="nwRange"></div>
+      </div>
+      <div id="nwChart" style="height:210px;margin-top:12px"></div>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      <h2 class="sec-h" style="margin:0">Account Groups</h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn sm" onclick="toast('Refreshing account balances…')">↻ Update Accounts</button>
+        <button class="btn sm primary" onclick="openLink('account')">+ Add Account</button>
+      </div>
+    </div>
+    <div id="wealthGroups"></div>
+  </section>
+
+  <!-- ============ CRYPTO ============ -->
+  <section class="view" id="v-crypto">
+    <h1 class="title" style="margin-bottom:16px">Crypto Portfolio</h1>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:start">
+      <div>
+        <div id="cxWelcome" class="card" style="padding:26px 28px;background:linear-gradient(120deg,#5C0620,#95052A 55%,#DC0032);color:#fff;border:0">
+          <div style="font-size:24px;font-weight:800;max-width:320px;line-height:1.15">Welcome to Crypto Portfolio</div>
+          <p style="font-size:13.5px;opacity:.9;margin:12px 0 18px;max-width:340px">Track and manage your cryptocurrency holdings with AI-powered portfolio analysis and insights.</p>
+          <button class="btn" style="background:#fff;color:var(--crimson);border:0;font-weight:700" onclick="openLink('crypto')">Link your Holdings</button>
+        </div>
+        <div id="cxHoldings" style="display:none"></div>
+      </div>
+      <div class="card" style="padding:18px 20px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:12px">Top 10 Cryptocurrencies</div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px" id="cxTop"></table>
+        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px">Data updates every 60 seconds · Powered by CoinGecko</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEBT MANAGEMENT ============ -->
+  <section class="view" id="v-debt">
+    <div class="row" style="margin-bottom:16px">
+      <h1 class="title">Debt Management</h1>
+      <button class="btn dark sm" onclick="openAddDebt()">+ Add Debt</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+      <div class="card" style="padding:18px 20px;background:linear-gradient(120deg,#FCEEF1,#F7E4E9);border-color:#F1D6DD">
+        <div style="font-size:11.5px;font-weight:800;letter-spacing:.4px;color:var(--crimson)">AVAILABLE CASH</div>
+        <div style="font-size:26px;font-weight:800;margin:6px 0" data-zar="146820">R146,820</div>
+        <div style="font-size:12.5px;color:var(--muted)">Across 2 linked accounts</div></div>
+      <div class="card" style="padding:18px 20px">
+        <div style="font-size:11.5px;font-weight:800;letter-spacing:.4px;color:var(--muted)">EST. MONTHLY SPARE CASH</div>
+        <div style="font-size:26px;font-weight:800;margin:6px 0" data-zar="11540">R11,540</div>
+        <div style="font-size:12.5px;color:var(--muted)">Avg of last 3 months · income minus core expenses</div></div>
+    </div>
+    <div class="stat-grid" style="margin-bottom:18px">
+      <div class="stat"><div class="k">Total Debt</div><div class="v" style="color:var(--red)" data-zar="349630">R349,630</div></div>
+      <div class="stat"><div class="k">Monthly Min</div><div class="v" data-zar="9925">R9,925</div></div>
+      <div class="stat"><div class="k">Active</div><div class="v">6</div></div>
+      <div class="stat"><div class="k">Paid Off</div><div class="v">0</div></div>
+      <div class="stat"><div class="k">Highest Rate</div><div class="v" style="color:var(--red)">24.5%</div></div>
+      <div class="stat"><div class="k">Weighted APR</div><div class="v" style="color:var(--crimson)">12.8%</div></div>
+    </div>
+    <div class="card" style="padding:16px 20px;margin-bottom:16px">
+      <div style="font-weight:800;font-size:14.5px">📋 Build your debt picture</div>
+      <div style="font-size:12.5px;color:var(--muted);margin:3px 0 10px">Complete your debt profile to see how best to clear it.</div>
+      <div class="dbld"><span>🔗 2 accounts linked</span><a onclick="openLink('account')">Link another →</a></div>
+      <div class="dbld"><span>📄 Upload your loan statements</span><a onclick="toast('Upload statement')">Upload statement →</a></div>
+      <div class="dbld"><span>📑 Upload credit reports</span><span style="color:var(--muted)">Coming soon</span></div>
+      <div class="dbld"><span>🧾 Apply for a credit report</span><a onclick="toast('Redirecting to Experian')">Go to Experian →</a></div>
+    </div>
+    <div class="card" style="padding:20px 22px;margin-bottom:16px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--rose);display:grid;place-items:center;font-size:20px">🪙</div>
+      <div style="flex:1;min-width:240px">
+        <div style="font-size:11.5px;font-weight:800;color:var(--crimson);letter-spacing:.4px">REFINANCE OFFER</div>
+        <div style="font-size:16px;font-weight:800;margin:2px 0 4px">Old Mutual Personal Loan</div>
+        <div style="font-size:13px;color:#4a4a4a;margin-bottom:12px">Your most expensive debt is at 25% APR. A consolidation loan could lower what you pay in interest.</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+          <div class="stat" style="padding:10px 14px"><div class="k">Borrow up to</div><div style="font-weight:800">R250,000</div></div>
+          <div class="stat" style="padding:10px 14px"><div class="k">Repay over</div><div style="font-weight:800">12 to 60 months</div></div>
+          <div class="stat" style="padding:10px 14px"><div class="k">They call back</div><div style="font-weight:800">In 48 hours</div></div>
+        </div>
+        <button class="btn primary sm" onclick="toast('Checking your offer…')">Check your offer →</button>
+        <div style="font-size:10.5px;color:#a9a9a9;margin-top:10px">Subject to the National Credit Act, No 34 of 2005. Checking your offer does not affect your credit score.</div>
+      </div>
+    </div>
+    <div style="font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:.4px;margin:6px 0 4px">NEXT BEST ACTIONS</div>
+    <div style="font-size:16px;font-weight:800;margin-bottom:10px">Debt action centre</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:18px">
+      <div class="card actc" onclick="toast('Consolidation options')"><div class="ah"><span>CONSOLIDATION</span><b style="color:var(--green)">R546/mo</b></div><div class="at">Check consolidation options</div><div class="ad">Compare one lower monthly payment against your current.</div></div>
+      <div class="card actc" onclick="toast('Refinance options')"><div class="ah"><span>REFINANCE</span><b style="color:var(--red)">High APR</b></div><div class="at">Look for a lower rate</div><div class="ad">You have at least one debt above 15% APR. Compare loans.</div></div>
+      <div class="card actc" onclick="toast('Crisis profiler')"><div class="ah"><span>CRISIS</span><b>Profiler</b></div><div class="at">Check urgent risk</div><div class="ad">Answer four questions to decide whether negotiation helps.</div></div>
+      <div class="card actc" onclick="toast('Lender call scripts')"><div class="ah"><span>SUPPORT</span><b>NCR guide</b></div><div class="at">Prepare for lender calls</div><div class="ad">Use call scripts, NCR context and escalation steps.</div></div>
+      <div class="card actc" onclick="showDebtTab('Payoff Calculator')"><div class="ah"><span>CALCULATOR</span><b>Public tool</b></div><div class="at">Share a payoff scenario</div><div class="ad">Model Snowball vs Avalanche with the public calculator.</div></div>
+    </div>
+    <div class="card" style="padding:20px 22px;margin-bottom:16px;background:linear-gradient(120deg,#231018,#3A0C1C);border:0;color:#fff">
+      <div style="font-size:16px;font-weight:800">Your debt picture is complete</div>
+      <div style="font-size:13px;opacity:.85;margin:4px 0"><span data-zar="349630">R349,630</span> across 4 lenders</div>
+      <div style="font-size:13px;color:#FFC44D;margin-bottom:12px">At minimum payments, you'd pay for 30 years</div>
+      <button class="btn primary sm" onclick="showDebtTab('Payoff Strategy')">Pick a strategy →</button>
+    </div>
+    <div class="card" style="padding:16px 20px;margin-bottom:6px;border-left:4px solid var(--crimson)">
+      <div style="font-weight:800;font-size:14.5px">🏷️ Understanding Store Credit Rates in SA</div>
+      <div style="font-size:13px;color:#4a4a4a;margin:6px 0">Your debt at 24.5% APR is above 20%. In South Africa, the NCR caps credit card rates at ~29%. Store cards often charge the maximum, so even small extra payments dramatically reduce total interest.</div>
+      <div style="font-weight:700;font-size:13px">Monthly interest on R85,000: R1,735</div>
+      <button class="btn sm" style="margin-top:8px" onclick="this.closest('.card').style.display='none'">Got it</button>
+    </div>
+    <div class="tabs" id="debtTabs"></div>
+    <div id="debtTabContent"></div>
+  </section>
+
+  <!-- ============ FAMILY CIRCLE ============ -->
+  <section class="view" id="v-family">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+      <h1 class="title">Family Circle</h1><span class="pill" style="background:#E7E9EE;color:#5b6470">Beta</span></div>
+    <div id="familyOnboard">
+      <div style="max-width:560px;margin:40px auto;text-align:center">
+        <div style="width:170px;height:170px;border-radius:50%;background:#E7EBF0;display:grid;place-items:center;margin:0 auto 26px;font-size:64px">👨‍👩‍👧‍👦</div>
+        <div style="font-size:30px;font-weight:800;color:var(--crimson-d)">Better Together</div>
+        <p style="font-size:15px;color:var(--muted);margin:12px 0 26px">Connect your family's finances in one place. Budget together, save together, grow together.</p>
+        <button class="btn primary" style="width:100%;max-width:440px;padding:15px;font-size:15px" onclick="famWizard(1)">Create Your Family Circle</button>
+        <div style="margin-top:14px"><a onclick="toast('Enter your invite code')" style="text-decoration:underline;color:var(--ink);cursor:pointer;font-size:14px">I have an invite code</a></div>
+      </div>
+    </div>
+    <div id="familyWizard" style="display:none;max-width:640px;margin:24px auto"></div>
+    <div id="familyHome" style="display:none"></div>
+  </section>
+
+  <!-- ============ FINANCIAL FITNESS ============ -->
+  <section class="view" id="v-fitness">
+    <div class="row" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:12px"><h1 class="title">Financial Fitness</h1><span class="pill" style="background:#E7E9EE;color:#5b6470">Beta</span></div>
+      <button class="btn primary sm" onclick="toast('Ask Tara to improve your score')">Improve score</button>
+    </div>
+    <div class="card" style="padding:26px 28px;margin-bottom:20px;background:linear-gradient(120deg,#95052A,#DC0032);color:#fff;border:0;display:flex;gap:26px;align-items:center;flex-wrap:wrap">
+      <div style="width:132px;height:132px;border-radius:50%;background:conic-gradient(#fff 0 66%,rgba(255,255,255,.25) 66% 100%);display:grid;place-items:center;flex:none">
+        <div style="width:104px;height:104px;border-radius:50%;background:#95052A;display:grid;place-items:center;text-align:center"><div><div style="font-size:30px;font-weight:800">660</div><div style="font-size:11px;opacity:.8">/1000</div></div></div></div>
+      <div><div style="font-size:13px;opacity:.85;letter-spacing:.5px">FITNESS TIER</div>
+        <div style="font-size:32px;font-weight:800;margin:2px 0 6px">Expert</div>
+        <div style="font-size:14px;opacity:.92;max-width:520px">You're in great financial shape. Keeping your savings rate up and closing your last cover gap would push you toward a perfect score.</div>
+        <div style="margin-top:10px;font-size:12.5px;opacity:.85">▲ +22 points in the last 90 days</div></div>
+    </div>
+    <h2 class="sec-h">Your score breakdown</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px" id="ffFactors"></div>
+    <h2 class="sec-h">Level up, quick wins</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px" id="ffActions"></div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg><span id="toastMsg">Done</span></div>
+<div class="ov" id="ov" onclick="closeAll()"></div>
+
+<script>
+/* ---------------- infra: router, currency, toast ---------------- */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  var el=document.getElementById(id); if(el) el.classList.add('active');
+  window.scrollTo({top:0});
+}
+var _tt;
+function toast(m){var t=document.getElementById('toast');document.getElementById('toastMsg').textContent=m;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(function(){t.classList.remove('show')},2200);}
+window.toast=toast;
+/* currency (base ZAR), mirrors reports.html so the shell pill drives it */
+window.__rates={ZAR:1,USD:0.055,AED:0.20,GBP:0.043,EUR:0.051};
+window.__syms={ZAR:'R',USD:'$',AED:'AED ',GBP:'£',EUR:'€'};
+window.__curKey='ZAR';
+window.setCurrency=function(k){window.__curKey=k;var r=window.__rates[k]||1,s=window.__syms[k]||'R';
+  document.querySelectorAll('[data-zar]').forEach(function(el){var z=parseFloat(el.getAttribute('data-zar'))||0,dec=el.getAttribute('data-dec')?2:0;
+    var neg=z<0?'-':'';el.textContent=neg+s+Math.abs(z*r).toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec});});};
+function fmtZ(z,dec){var k=window.__curKey,r=window.__rates[k]||1,s=window.__syms[k]||'R';var neg=z<0?'-':'';
+  return neg+s+Math.abs(z*r).toLocaleString('en-US',{minimumFractionDigits:dec?2:0,maximumFractionDigits:dec?2:0});}
+function closeAll(){document.querySelectorAll('.drawer.show,.modalbox.show').forEach(function(e){e.classList.remove('show')});document.getElementById('ov').classList.remove('show');}
+window.closeAll=closeAll;
+
+/* show functions the shell calls */
+function showTransactions(){showView('v-transactions');renderTx();}
+function showWealth(){showView('v-wealth');renderWealth();applyCur();}
+function showCrypto(){showView('v-crypto');renderCrypto();applyCur();}
+window.showTransactions=showTransactions;window.showWealth=showWealth;window.showCrypto=showCrypto;
+function applyCur(){if(window.setCurrency)window.setCurrency(window.__curKey);}
+
+/* ================= TRANSACTIONS ================= */
+var TX_TABS=['Current budget','Unseen','Uncategorised','Pending','Suspicious'];
+var txTab='Current budget';
+var CAT_COLORS={'Debt':'#DC0032','Day-to-day':'#4A6FE0','Income':'#168335','Exceptions':'#E0871A','Invest-save-repay':'#0E9C86','Transfers':'#8A8F98','Recurring':'#8B5CF6'};
+var TX=[
+ {d:'July 1, 2026',items:[
+   {m:'Salary · Absa Corp',c:'Income',s:'Salaries & Wages',a:63400,ic:'💼'},
+   {m:'Woolworths',c:'Day-to-day',s:'Groceries',a:-1284.50,ic:'🛒'},
+   {m:'Engen Petrol - Full Tank',c:'Day-to-day',s:'Transport & Fuel',a:-940.00,ic:'⛽'},
+   {m:'Vodacom Airtime',c:'Day-to-day',s:'Airtime & Data',a:-399.00,ic:'📱'},
+   {m:'Home Loan Repayment',c:'Debt',s:'Home Loan',a:-9800.00,ic:'🏠'}]},
+ {d:'June 30, 2026',items:[
+   {m:'ATM Cash Withdrawal',c:'Day-to-day',s:'Cash',a:-1500.00,ic:'🏧'},
+   {m:'Checkers Sixty60',c:'Day-to-day',s:'Groceries',a:-742.30,ic:'🛒'},
+   {m:'Netflix',c:'Recurring',s:'Subscriptions',a:-199.00,ic:'🎬'},
+   {m:'Old Mutual Premium',c:'Recurring',s:'Insurance',a:-1250.00,ic:'🛡️'},
+   {m:'Credit Card Cashback',c:'Income',s:'Rewards',a:1367.83,ic:'💳'}]},
+ {d:'June 28, 2026',items:[
+   {m:'Discovery Health',c:'Recurring',s:'Medical',a:-2675.00,ic:'⚕️'},
+   {m:'Uber',c:'Day-to-day',s:'Transport & Fuel',a:-156.00,ic:'🚗'},
+   {m:'Nando\'s',c:'Day-to-day',s:'Eating Out & Takeaways',a:-312.40,ic:'🍽️'},
+   {m:'EFT to Savings',c:'Transfers',s:'Internal Transfer',a:-5000.00,ic:'🔁'},
+   {m:'Shared Weekend Villa',c:'Exceptions',s:'Shared Expenses',a:-6164.01,ic:'🏖️'}]},
+ {d:'June 27, 2026',items:[
+   {m:'Freelance Project Payment',c:'Income',s:'Other Income',a:12000.00,ic:'💻'},
+   {m:'Takealot',c:'Day-to-day',s:'Shopping',a:-1899.00,ic:'📦'},
+   {m:'Investec - Net Salary',c:'Income',s:'Salaries & Wages',a:38000.00,ic:'🏦'},
+   {m:'Emergency Fund Deposit',c:'Invest-save-repay',s:'Other Savings',a:-78486.25,ic:'💰'}]}
+];
+function renderTx(){
+  var tabsEl=document.getElementById('txTabs');
+  if(tabsEl && !tabsEl.dataset.done){tabsEl.dataset.done='1';
+    tabsEl.innerHTML=TX_TABS.map(function(t){return '<div class="chip '+(t===txTab?'on':'')+'" onclick="setTxTab(this)">'+t+'</div>';}).join('');}
+  var q=(document.getElementById('txSearch')||{}).value||'';q=q.toLowerCase();
+  var list=document.getElementById('txList');var n=0;
+  list.innerHTML=TX.map(function(g){
+    var rows=g.items.filter(function(t){return !q||t.m.toLowerCase().indexOf(q)>=0||t.s.toLowerCase().indexOf(q)>=0;});
+    if(!rows.length)return '';
+    n+=rows.length;
+    return '<div style="font-size:12.5px;font-weight:700;color:var(--muted);margin:16px 0 8px">'+g.d+'</div>'+
+      rows.map(function(t){var inc=t.a>0;var col=CAT_COLORS[t.c]||'#8A8F98';
+        var amt=fmtZParts(t.a);
+        return '<div class="lrow" style="padding:11px 15px">'+
+          '<input type="checkbox" style="width:17px;height:17px;accent-color:var(--crimson)">'+
+          '<span style="color:var(--green)">✓</span>'+
+          '<div class="ic" style="background:#F1ECEE;font-size:15px">'+t.ic+'</div>'+
+          '<div style="flex:1"><div style="font-weight:600;font-size:14px">'+t.m+'</div>'+
+            '<div style="font-size:12px;margin-top:2px"><span style="display:inline-flex;align-items:center;gap:5px;color:'+col+';font-weight:600"><span style="width:7px;height:7px;border-radius:50%;background:'+col+';display:inline-block"></span>'+t.c+'</span> <span style="color:#9a9a9a">· '+t.s+'</span></div></div>'+
+          '<div style="font-weight:800;font-size:14.5px;white-space:nowrap;color:'+(inc?'var(--green)':'var(--ink)')+'">'+amt+'</div></div>';
+      }).join('');
+  }).join('');
+  document.getElementById('txCount').textContent='Showing '+n+' of 257 transactions';
+}
+function fmtZParts(a){ // amount with cents (respect currency)
+  var k=window.__curKey,r=window.__rates[k]||1,s=window.__syms[k]||'R';var v=a*r;var neg=v<0?'-':(a>0?'+':'');
+  var abs=Math.abs(v);var whole=Math.floor(abs);var cents=Math.round((abs-whole)*100);
+  return neg+s+whole.toLocaleString('en-US')+'.'+(cents<10?'0':'')+cents;
+}
+function setTxTab(el){document.querySelectorAll('#txTabs .chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on');txTab=el.textContent;renderTx();}
+window.setTxTab=setTxTab;
+function txSelectAll(){document.querySelectorAll('#txList input[type=checkbox]').forEach(function(c){c.checked=true});toast('All transactions selected');}
+window.txSelectAll=txSelectAll;
+
+/* ================= MY WEALTH ================= */
+var NW_RANGES=['1M','3M','6M','1Y','ALL'];var nwRange='ALL';
+var WEALTH_GROUPS=[
+ {name:'Credit',ic:'💳',accs:[{n:'Absa Credit Card',sub:'•••• 1188',v:-24861},{n:'Store Card',sub:'Woolworths',v:-5000}],neg:true},
+ {name:'Vehicles',ic:'🚗',accs:[{n:'Vehicle',sub:'TransUnion estimate',v:59}]},
+ {name:'Investments',ic:'📈',accs:[{n:'Vault22 Wealth Portfolio',sub:'ETFs, stocks & model portfolios',v:418300},{n:'Absa Online Share Trading',sub:'21 holdings',v:33263257}]},
+ {name:'Loans',ic:'💸',accs:[{n:'Absa Home Loan',sub:'•••• 9902',v:-1000000}],neg:true},
+ {name:'Bank',ic:'🏦',accs:[{n:'Absa Cheque Account',sub:'•••• 4821',v:82420},{n:'Absa Savings Pocket',sub:'•••• 7730',v:55600},{n:'Vault22 Wallet',sub:'Cash to invest',v:8800},{n:'Nedbank Savings',sub:'•••• 3301',v:820000},{n:'Capitec',sub:'•••• 7788',v:4847}]},
+ {name:'Rewards',ic:'🎁',accs:[{n:'Absa Rewards',sub:'Points balance',v:961}]},
+ {name:'Retirement',ic:'🏛️',accs:[{n:'Absa Retirement Annuity',sub:'•••• 2201',v:9000}]},
+ {name:'Property',ic:'🏠',accs:[{n:'Primary residence',sub:'Manually valued',v:2668}]},
+ {name:'Other',ic:'🌍',accs:[{n:'Other',sub:'Manual',v:-96}],neg:true}
+];
+function grpTotal(g){return g.accs.reduce(function(s,a){return s+a.v;},0);}
+function renderWealth(){
+  var rg=document.getElementById('nwRange');
+  if(rg && !rg.dataset.done){rg.dataset.done='1';rg.innerHTML=NW_RANGES.map(function(r){return '<div class="chip '+(r===nwRange?'on':'')+'" onclick="setNwRange(this)" style="padding:5px 12px">'+r+'</div>';}).join('');}
+  drawNwChart();
+  var box=document.getElementById('wealthGroups');
+  box.innerHTML=WEALTH_GROUPS.map(function(g,i){
+    var tot=grpTotal(g);
+    return '<div class="card" style="margin-bottom:13px;overflow:hidden">'+
+      '<div style="display:flex;align-items:center;gap:15px;padding:16px 20px;cursor:pointer" onclick="toggleGrp('+i+')">'+
+      '<div class="ic" style="width:44px;height:44px">'+g.ic+'</div>'+
+      '<div style="flex:1"><div style="font-weight:800;font-size:16px">'+g.name+'</div><div style="font-size:12.5px;color:var(--muted)">'+g.accs.length+' account'+(g.accs.length>1?'s':'')+'</div></div>'+
+      '<div style="font-weight:800;font-size:20px;color:'+(tot<0?'var(--red)':'var(--ink)')+'" data-zar="'+tot+'">'+fmtZ(tot)+'</div>'+
+      '<span id="chev'+i+'" style="color:var(--muted);font-size:13px;margin-left:6px">▾</span></div>'+
+      '<div id="grp'+i+'" style="display:none;border-top:1px solid var(--line)">'+
+        g.accs.map(function(a){return '<div style="display:flex;align-items:center;gap:14px;padding:12px 20px 12px 24px;border-bottom:1px solid #F4EFF1">'+
+          '<div style="flex:1"><div style="font-weight:600;font-size:14px">'+a.n+'</div><div style="font-size:12px;color:var(--muted)">'+a.sub+'</div></div>'+
+          '<div style="font-weight:700;color:'+(a.v<0?'var(--red)':'var(--ink)')+'" data-zar="'+a.v+'">'+fmtZ(a.v)+'</div></div>';}).join('')+
+      '</div></div>';
+  }).join('');
+}
+function toggleGrp(i){var el=document.getElementById('grp'+i),ch=document.getElementById('chev'+i);var open=el.style.display==='block';el.style.display=open?'none':'block';ch.textContent=open?'▾':'▴';}
+window.toggleGrp=toggleGrp;
+function setNwRange(el){document.querySelectorAll('#nwRange .chip').forEach(function(c){c.classList.remove('on')});el.classList.add('on');nwRange=el.textContent;drawNwChart();}
+window.setNwRange=setNwRange;
+function drawNwChart(){
+  var el=document.getElementById('nwChart');if(!el)return;
+  var pts=[2,3,3,4,5,6,7,8,9,10,11,12,13,30,42,44,46,45,47,50,49,52,54,53,56];
+  if(nwRange==='1M')pts=pts.slice(-6);else if(nwRange==='3M')pts=pts.slice(-10);else if(nwRange==='6M')pts=pts.slice(-16);else if(nwRange==='1Y')pts=pts.slice(-20);
+  var w=1120,h=210,max=Math.max.apply(null,pts),min=0;
+  var step=w/(pts.length-1);
+  var d=pts.map(function(p,i){return (i===0?'M':'L')+(i*step).toFixed(1)+','+(h-8-(p-min)/(max-min)*(h-30)).toFixed(1);}).join(' ');
+  var area=d+' L'+w+','+h+' L0,'+h+' Z';
+  el.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="none" style="width:100%;height:100%">'+
+    '<defs><linearGradient id="nwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DC0032" stop-opacity=".22"/><stop offset="1" stop-color="#DC0032" stop-opacity="0"/></linearGradient></defs>'+
+    '<path d="'+area+'" fill="url(#nwg)"/><path d="'+d+'" fill="none" stroke="#95052A" stroke-width="2.5"/></svg>';
+}
+
+/* ================= CRYPTO ================= */
+var TOP10=[['1','Bitcoin','BTC',61955.00],['2','Ethereum','ETH',1740.62],['3','Tether','USDT',0.999],['4','BNB','BNB',566.11],['5','USDC','USDC',1.000],['6','XRP','XRP',1.11],['7','Solana','SOL',81.49],['8','TRON','TRX',0.320],['9','Figure Heloc','FIGR',1.01],['10','Dogecoin','DOGE',0.164]];
+function renderCrypto(){
+  var t=document.getElementById('cxTop');
+  t.innerHTML='<thead><tr style="text-align:left;color:var(--muted);font-size:11px;border-bottom:1px solid var(--line)"><th style="padding:8px 4px">#</th><th>Name</th><th>Abbr.</th><th style="text-align:right">Price</th></tr></thead><tbody>'+
+    TOP10.map(function(c){return '<tr style="border-bottom:1px solid #F4EFF1"><td style="padding:11px 4px;color:var(--muted)">'+c[0]+'</td><td style="font-weight:700">'+c[1]+'</td><td style="color:var(--muted)">'+c[2]+'</td><td style="text-align:right;font-weight:700">$'+c[3].toLocaleString('en-US',{minimumFractionDigits:c[3]<10?3:2,maximumFractionDigits:c[3]<10?3:2})+'</td></tr>';}).join('')+'</tbody>';
+}
+
+/* ================= LINK ACCOUNT (shared: Wealth Add Account + Crypto Link) ================= */
+var PROVIDERS=['Absa','Absa Sample','Absa Online Share Trading','Absa Wealth & Investment','FNB','Capitec','Standard Bank','Nedbank','Allan Gray','Easy Equities','Old Mutual','10X Investments','22seven','Investec','Discovery Bank','TymeBank','Luno','VALR','Binance','Coinbase'];
+function openLink(kind){
+  var m=ensureModal();
+  document.getElementById('lmT').textContent=kind==='crypto'?'Link Your Holdings':'Link Your Account';
+  document.getElementById('lmSub').textContent='Search for your bank, broker'+(kind==='crypto'?' or exchange':' or financial institution');
+  renderProviders('');
+  document.getElementById('linkModal').classList.add('show');document.getElementById('ov').classList.add('show');
+}
+window.openLink=openLink;
+function ensureModal(){
+  if(document.getElementById('linkModal'))return;
+  var d=document.createElement('div');d.className='modalbox';d.id='linkModal';
+  d.innerHTML='<div class="dh"><div><h3 id="lmT">Link Your Account</h3><div class="sub" id="lmSub"></div></div><button class="x" onclick="closeAll()">✕</button></div>'+
+    '<input class="inp" id="lmSearch" placeholder="🔍  Search for your bank…" oninput="renderProviders(this.value)">'+
+    '<div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;margin:16px 0 8px">Service Providers</div>'+
+    '<div id="lmList" style="max-height:340px;overflow-y:auto"></div>';
+  document.body.appendChild(d);
+}
+function renderProviders(q){
+  q=(q||'').toLowerCase();
+  var el=document.getElementById('lmList');if(!el)return;
+  el.innerHTML=PROVIDERS.filter(function(p){return !q||p.toLowerCase().indexOf(q)>=0;}).map(function(p){
+    return '<div class="lrow" style="cursor:pointer;padding:12px 14px" onclick="pickProvider(\''+p.replace(/'/g,"")+'\')"><div class="ic" style="background:#EEF1F7">🏦</div><div style="flex:1;font-weight:600;font-size:14px">'+p+'</div><span style="color:var(--muted)">›</span></div>';
+  }).join('')||'<div style="color:var(--muted);font-size:13px;padding:12px">No providers match.</div>';
+}
+window.renderProviders=renderProviders;
+function pickProvider(p){closeAll();toast(p+' connecting securely…');}
+window.pickProvider=pickProvider;
+
+/* ================= DEBT ================= */
+var DEBT_TABS=['My Debts (6)','Payoff Strategy','DTI Ratio','Payoff Calculator','Payoff Table','Progress History'];
+var debtTab='My Debts (6)';
+var DEBTS=[
+ {ab:'SC',n:'Woolworths Store Card',t:'Store Credit · Woolworths',bal:6200,rate:22.9,min:450,mo:450,start:'1 Jan 2024'},
+ {ab:'CL',n:'WesBank Vehicle Finance',t:'Car Loan · WesBank',bal:210000,rate:13.5,min:4800,mo:4800,start:'1 Jun 2021'},
+ {ab:'PL',n:'African Bank Personal Loan',t:'Personal Loan · African Bank',bal:85000,rate:24.5,min:2900,mo:2900,start:'1 Sept 2022'},
+ {ab:'CC',n:'Standard Bank Credit Card',t:'Credit Card · Standard Bank',bal:42500,rate:21.0,min:1275,mo:1500,start:'1 Mar 2023'},
+ {ab:'HL',n:'Home Loan SBSA',t:'Home Loan',bal:1200000,rate:11.5,min:0,mo:0,start:''},
+ {ab:'CC',n:'Capitec Credit Card',t:'Credit Card',bal:5000,rate:18.5,min:250,mo:500,start:'Payment day: 15'}
+];
+function showDebt(){showView('v-debt');renderDebtTabs();showDebtTab(debtTab);applyCur();}
+window.showDebt=showDebt;
+function renderDebtTabs(){var el=document.getElementById('debtTabs');el.innerHTML=DEBT_TABS.map(function(t){return '<button class="tab '+(t===debtTab?'active':'')+'" onclick="showDebtTab(\''+t+'\')">'+t+'</button>';}).join('');}
+function showDebtTab(t){debtTab=t;
+  document.querySelectorAll('#debtTabs .tab').forEach(function(b){b.classList.toggle('active',b.textContent===t);});
+  var c=document.getElementById('debtTabContent');
+  if(t.indexOf('My Debts')===0){
+    c.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'+DEBTS.map(function(d){
+      return '<div class="debtcard"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div class="ic" style="width:38px;height:38px;font-size:13px;font-weight:800;color:var(--crimson)">'+d.ab+'</div>'+
+        '<div style="flex:1"><div style="font-weight:800;font-size:14.5px">'+d.n+' <span class="pill" style="background:#EEF1F7;color:#5b6470;font-size:10px">ZAR</span></div><div style="font-size:12px;color:var(--muted)">'+d.t+'</div></div>'+
+        '<span style="color:var(--muted);cursor:pointer" onclick="toast(\'Edit debt\')">✎</span> <span style="color:var(--muted);cursor:pointer" onclick="toast(\'Delete debt\')">🗑</span></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:12.5px">'+
+        '<div><div style="color:var(--muted)">Balance</div><div class="dc-amt" style="color:var(--red)" data-zar="'+d.bal+'">'+fmtZ(d.bal)+'</div></div>'+
+        '<div><div style="color:var(--muted)">Interest Rate</div><div class="dc-amt" style="color:var(--amber)">'+d.rate+'%</div></div>'+
+        '<div><div style="color:var(--muted)">Min Payment</div><div class="dc-amt" data-zar="'+d.min+'">'+fmtZ(d.min)+'</div></div>'+
+        '<div><div style="color:var(--muted)">Monthly Payment</div><div class="dc-amt" data-zar="'+d.mo+'">'+fmtZ(d.mo)+'</div></div>'+
+        '</div>'+(d.start?'<div style="font-size:11.5px;color:#a9a9a9;margin-top:10px">'+(d.start.indexOf('Payment')===0?d.start:'Start: '+d.start)+'</div>':'')+'</div>';
+    }).join('')+'</div>';
+  } else if(t==='Payoff Strategy'){
+    c.innerHTML='<div class="card" style="padding:18px 20px;margin-bottom:14px;background:linear-gradient(120deg,#95052A,#DC0032);color:#fff;border:0">'+
+      '<div style="font-size:11px;font-weight:800;letter-spacing:.4px;opacity:.85">TARA · DEBT STRATEGY</div>'+
+      '<div style="font-size:18px;font-weight:800;margin:4px 0 4px">I recommend the Avalanche method</div>'+
+      '<div style="font-size:13px;opacity:.92">Targeting your highest interest rate first clears your debt for the least total interest.</div></div>'+
+      '<div class="chips" style="margin-bottom:14px"><div class="chip on">Avalanche</div><div class="chip">Snowball</div></div>'+
+      '<div class="stat-grid" style="margin-bottom:16px">'+
+      '<div class="stat"><div class="k">Total Debt</div><div class="v" data-zar="349630">'+fmtZ(349630)+'</div></div>'+
+      '<div class="stat"><div class="k">Monthly Payment</div><div class="v" data-zar="9925">'+fmtZ(9925)+'</div></div>'+
+      '<div class="stat"><div class="k">Months to Payoff</div><div class="v" style="color:var(--amber)">48</div></div>'+
+      '<div class="stat"><div class="k">Total Interest</div><div class="v" style="color:var(--red)" data-zar="88985">'+fmtZ(88985)+'</div></div></div>'+
+      '<div class="card" style="padding:14px 18px;border-left:4px solid var(--crimson)"><div style="font-size:11px;font-weight:800;color:var(--crimson);letter-spacing:.4px">VAULT22 RECOMMENDATION</div><div style="font-weight:700;margin:4px 0">Raise your monthly payment first</div><div style="font-size:12.5px;color:var(--muted)">At least one payment is too low to clear principal reliably. Increase payments before comparing strategies.</div></div>'+
+      '<h2 class="sec-h">Payoff Order (Avalanche)</h2>'+
+      DEBTS.slice().sort(function(a,b){return b.rate-a.rate;}).map(function(d,i){return '<div class="lrow"><div class="ic" style="width:32px;height:32px;font-weight:800;color:var(--crimson)">'+(i+1)+'</div><div style="flex:1"><div style="font-weight:700;font-size:14px">'+d.n+' <span class="pill" style="background:#EEF1F7;color:#5b6470;font-size:9.5px">ZAR</span></div><div style="font-size:12px;color:var(--muted)">Balance '+fmtZ(d.bal)+' · Rate '+d.rate+'%</div></div><div style="font-weight:800" data-zar="'+d.mo+'">'+fmtZ(d.mo)+'</div><span style="color:var(--muted);font-size:12px">/month</span></div>';}).join('');
+  } else if(t==='DTI Ratio'){
+    c.innerHTML='<div class="card" style="padding:22px;text-align:center"><div style="font-size:13px;color:var(--muted);font-weight:700">Debt-to-Income Ratio</div><div style="font-size:46px;font-weight:800;color:var(--green);margin:6px 0">34%</div><div style="font-size:13px;color:var(--muted)">Comfortably within the NCA 43% limit. Lenders view a DTI under 36% as healthy.</div><div class="ff-bar" style="max-width:420px;margin:16px auto 0;height:12px"><i style="width:34%"></i></div></div>';
+  } else if(t==='Payoff Calculator'){
+    c.innerHTML='<div class="card" style="padding:22px"><div style="font-weight:800;font-size:15px;margin-bottom:12px">Payoff calculator</div><label class="fl">Extra monthly payment (ZAR)</label><input class="inp" id="dcExtra" type="range" min="0" max="10000" step="500" value="2000" oninput="dcCalc()"><div id="dcOut" style="margin-top:16px"></div></div>';
+    dcCalc();
+  } else if(t==='Payoff Table'){
+    c.innerHTML='<div class="card" style="padding:0;overflow:hidden"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="background:#FAF6F7;text-align:left"><th style="padding:12px 16px">Debt</th><th>Balance</th><th>Rate</th><th>Payoff (months)</th><th style="text-align:right">Interest</th></tr></thead><tbody>'+DEBTS.map(function(d){var mo=d.mo>0?Math.ceil(d.bal/d.mo):'-';var interest=Math.round(d.bal*d.rate/100*(typeof mo==='number'?mo/12:1));return '<tr style="border-top:1px solid var(--line)"><td style="padding:11px 16px;font-weight:600">'+d.n+'</td><td data-zar="'+d.bal+'">'+fmtZ(d.bal)+'</td><td>'+d.rate+'%</td><td>'+mo+'</td><td style="text-align:right;color:var(--red)" data-zar="'+interest+'">'+fmtZ(interest)+'</td></tr>';}).join('')+'</tbody></table></div>';
+  } else {
+    c.innerHTML='<div class="card" style="padding:22px"><div style="font-weight:800;margin-bottom:8px">Progress History</div><div style="font-size:13px;color:var(--muted)">You have not recorded any repayments yet. As you clear debt, your progress and interest saved will appear here.</div></div>';
+  }
+  applyCur();
+}
+window.showDebtTab=showDebtTab;
+function dcCalc(){var extra=+((document.getElementById('dcExtra')||{}).value||0);var base=48;var months=Math.max(8,Math.round(base-extra/300));var saved=Math.round(extra*months*0.35);
+  document.getElementById('dcOut').innerHTML='<div class="stat-grid"><div class="stat"><div class="k">New payoff time</div><div class="v">'+months+' mo</div></div><div class="stat"><div class="k">Interest saved</div><div class="v" style="color:var(--green)">'+fmtZ(saved)+'</div></div><div class="stat"><div class="k">Extra / month</div><div class="v" data-zar="'+extra+'">'+fmtZ(extra)+'</div></div></div>';applyCur();}
+window.dcCalc=dcCalc;
+/* Add Debt drawer */
+var DEBT_TYPES=[['💳','Credit Card'],['💰','Personal Loan'],['🏠','Home Loan'],['🚙','Auto Loan'],['🚗','Car Loan'],['🎓','Student Loan'],['⚕️','Medical Debt'],['🛒','Store Credit'],['📋','Other']];
+function openAddDebt(){
+  if(!document.getElementById('addDebtDrawer')){var d=document.createElement('div');d.className='drawer';d.id='addDebtDrawer';
+    d.innerHTML='<div class="dh"><h3>Add New Debt</h3><button class="x" onclick="closeAll()">✕</button></div>'+
+      '<label class="fl">Name *</label><input class="inp" placeholder="e.g. Absa Credit Card">'+
+      '<label class="fl">Debt Type *</label><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+DEBT_TYPES.map(function(t,i){return '<div class="cur-opt" style="flex-direction:column;gap:5px;padding:11px 6px;text-align:center;'+(i===0?'border-color:var(--crimson);background:var(--rose)':'')+'" onclick="this.parentElement.querySelectorAll(\'.cur-opt\').forEach(function(x){x.style.borderColor=\'\';x.style.background=\'\'});this.style.borderColor=\'#95052A\';this.style.background=\'#FCEEF1\'"><span style="font-size:18px">'+t[0]+'</span><span style="font-size:10.5px;font-weight:700">'+t[1]+'</span></div>';}).join('')+'</div>'+
+      '<label class="fl">Currency</label><select class="inp"><option>Default (ZAR)</option><option>USD</option><option>AED</option></select>'+
+      '<div style="display:flex;gap:12px"><div style="flex:1"><label class="fl">Current Balance *</label><input class="inp" type="number" placeholder="0"></div><div style="flex:1"><label class="fl">Original Amount</label><input class="inp" type="number" placeholder="0"></div></div>'+
+      '<div style="display:flex;gap:12px"><div style="flex:1"><label class="fl">Annual Interest Rate (%) *</label><input class="inp" type="number" placeholder="0"></div><div style="flex:1"><label class="fl">Min Payment</label><input class="inp" type="number" placeholder="0"></div></div>'+
+      '<label class="fl">Monthly Payment</label><input class="inp" type="number" placeholder="0">'+
+      '<a style="display:inline-block;margin:14px 0;color:var(--crimson);font-weight:600;cursor:pointer" onclick="toast(\'Optional fields\')">+ Show optional fields</a>'+
+      '<div style="display:flex;gap:10px;margin-top:8px"><button class="btn primary" style="flex:1" onclick="closeAll();toast(\'Debt added\')">Add Debt</button><button class="btn" onclick="closeAll()">Cancel</button></div>';
+    document.body.appendChild(d);}
+  document.getElementById('addDebtDrawer').classList.add('show');document.getElementById('ov').classList.add('show');
+}
+window.openAddDebt=openAddDebt;
+
+/* ================= FAMILY CIRCLE ================= */
+function showFamily(){showView('v-family');
+  document.getElementById('familyOnboard').style.display=window.__famCreated?'none':'block';
+  document.getElementById('familyWizard').style.display='none';
+  document.getElementById('familyHome').style.display=window.__famCreated?'block':'none';
+  if(window.__famCreated)renderFamilyHome();}
+window.showFamily=showFamily;
+var famStep=1,famName='',famCur='ZAR';
+var FAM_CURS=[['R','ZAR - South African Rand'],['AED','AED - UAE Dirham'],['$','USD - US Dollar'],['£','GBP - British Pound'],['€','EUR - Euro']];
+function famWizard(step){famStep=step;
+  document.getElementById('familyOnboard').style.display='none';
+  var w=document.getElementById('familyWizard');w.style.display='block';
+  var dots='<div class="step-dots">'+[1,2,3,4].map(function(i){return '<i class="'+(i<=step?'on':'')+'"></i>';}).join('')+'<span style="font-size:12.5px;color:var(--muted);margin-left:8px">Step '+step+' of 4</span></div>';
+  var body='';
+  if(step===1){body='<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--crimson-d)">What should we call your family?</div><p class="sub" style="margin:8px 0 20px">This is how your circle appears to everyone you invite.</p><input class="inp" id="famNameIn" placeholder="Enter family name" value="'+famName+'" style="max-width:420px;margin:0 auto;display:block"></div>';}
+  else if(step===2){body='<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--crimson-d)">What\'s your household currency?</div><p class="sub" style="margin:8px 0 20px">This will be the default currency for family budgets and goals. Members can still use their own currency.</p>'+FAM_CURS.map(function(c,i){return '<div class="cur-opt '+((c[0]===({R:'R',ZAR:'R'}[famCur]||famCur)||c[1].indexOf(famCur)>=0)?'sel':'')+'" onclick="famPickCur('+i+')"><div class="cs">'+c[0]+'</div><div style="font-weight:600">'+c[1]+'</div></div>';}).join('')+'</div>';}
+  else if(step===3){body='<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--crimson-d)">Invite your family</div><p class="sub" style="margin:8px 0 20px">Add the people you want in your circle. They get an invite to join.</p><input class="inp" placeholder="Name (e.g. Sipho)" style="max-width:420px;margin:0 auto 10px;display:block"><input class="inp" placeholder="Email or phone" style="max-width:420px;margin:0 auto 10px;display:block"><select class="inp" style="max-width:420px;margin:0 auto;display:block"><option>Partner</option><option>Teen</option><option>Child</option><option>Parent</option></select></div>';}
+  else {body='<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--crimson-d)">You\'re all set</div><p class="sub" style="margin:8px 0 20px">Review and create your family circle.</p><div class="card" style="padding:18px;text-align:left;max-width:420px;margin:0 auto"><div style="font-weight:700">'+(famName||'The Absa Household')+'</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Currency: '+famCur+' · 1 member (you)</div></div></div>';}
+  var nav='<div style="display:flex;gap:10px;justify-content:center;margin-top:24px">'+(step>1?'<button class="btn" onclick="famBack()">Back</button>':'<button class="btn" onclick="showFamily()">Cancel</button>')+
+    '<button class="btn primary" onclick="famNext()">'+(step===4?'Create circle':'Next')+'</button></div>';
+  w.innerHTML=dots+body+nav;
+}
+window.famWizard=famWizard;
+function famPickCur(i){famCur=['ZAR','AED','USD','GBP','EUR'][i];famWizard(2);}
+window.famPickCur=famPickCur;
+function famBack(){if(famStep>1)famWizard(famStep-1);}
+window.famBack=famBack;
+function famNext(){if(famStep===1){famName=(document.getElementById('famNameIn')||{}).value||'The Absa Household';}
+  if(famStep<4){famWizard(famStep+1);}else{window.__famCreated=true;showFamily();toast('Family circle created');}}
+window.famNext=famNext;
+function renderFamilyHome(){
+  var el=document.getElementById('familyHome');
+  el.innerHTML='<div class="row" style="margin:10px 0 16px"><div><div style="font-size:20px;font-weight:800">'+(famName||'The Absa Household')+'</div><div class="sub">One shared household budget, contributions, allowances and shared goals.</div></div><button class="btn primary sm" onclick="famInvite()">+ Invite member</button></div>'+
+    '<div class="stat-grid" style="margin-bottom:18px"><div class="stat"><div class="k">Members</div><div class="v">4</div></div><div class="stat"><div class="k">Pooled income</div><div class="v" data-zar="78200">'+fmtZ(78200)+'</div></div><div class="stat"><div class="k">Shared expenses</div><div class="v" data-zar="41900">'+fmtZ(41900)+'</div></div><div class="stat"><div class="k">Shared goals</div><div class="v">2</div></div></div>'+
+    '<h2 class="sec-h">Members & contributions</h2>'+
+    [['A','Aishani','Owner','Contributes '+fmtZ(42500)+'/mo · 54% of pool',54],['S','Sipho','Partner','Contributes '+fmtZ(35700)+'/mo · 46% of pool',46],['L','Lerato','Teen · Allowance '+fmtZ(1500)+'/mo','Spent '+fmtZ(980)+' of '+fmtZ(1500),65],['T','Thabo','Child · Allowance '+fmtZ(600)+'/mo','Spent '+fmtZ(240)+' of '+fmtZ(600),40]].map(function(m){
+      return '<div class="lrow"><div class="ic" style="background:var(--crimson);color:#fff;font-weight:800;border-radius:50%">'+m[0]+'</div><div style="flex:1"><b>'+m[1]+'</b> · '+m[2]+'<div style="font-size:12.5px;color:var(--muted)">'+m[3]+'</div><div class="ff-bar" style="max-width:340px"><i style="width:'+m[4]+'%"></i></div></div></div>';
+    }).join('')+
+    '<h2 class="sec-h">Shared household budget</h2><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">'+
+    [['🏠','Home & utilities','Rent, water, electricity',22400,23000],['🛒','Groceries & food','Shared household',11800,12000],['🎓','School & kids','Fees, transport, activities',7700,8000]].map(function(b){return '<div class="card" style="padding:16px 18px"><div style="display:flex;align-items:center;gap:11px;margin-bottom:8px"><div class="ic">'+b[0]+'</div><div><div style="font-weight:700;font-size:14px">'+b[1]+'</div><div style="font-size:12px;color:var(--muted)">'+b[2]+'</div></div></div><div style="font-weight:800;font-size:18px" data-zar="'+b[3]+'">'+fmtZ(b[3])+'</div><div style="font-size:12px;color:var(--muted)">of '+fmtZ(b[4])+' budget</div></div>';}).join('')+'</div>';
+  applyCur();
+}
+function famInvite(){openLink&&0;var m=document.getElementById('linkModal');/* reuse simple toast form */toast('Invite a family member');}
+window.famInvite=famInvite;
+
+/* ================= FINANCIAL FITNESS ================= */
+var FF_FACTORS=[
+ ['Savings rate','ok','Strong · 22%','82','Saving 22% of income, above the 20% target.'],
+ ['Debt-to-income','ok','Healthy · 34%','78','Comfortably within the NCA 43% limit.'],
+ ['Emergency fund','ok','4.2 months','70','At target of 3 to 6 months of expenses.'],
+ ['Protection / cover','warn','1 gap','58','Add income protection to close your last cover gap.'],
+ ['Diversification','ok','Excellent','88','Spread across ETFs, a model portfolio and retirement.'],
+ ['Budget adherence','ok','On track','84','Within budget 5 of the last 6 months.']
+];
+var FF_ACTIONS=[
+ ['🛡️','Close your last cover gap','Add income protection. Your fastest remaining score lift.','Get a quote'],
+ ['🐖','Automate a top-up','Sweep R2,000/mo into Smart Saver to lift your buffer.','Start auto-save'],
+ ['📈','Rebalance annually','Review your model portfolio to keep diversification high.','Review portfolio']
+];
+function showFitness(){showView('v-fitness');
+  document.getElementById('ffFactors').innerHTML=FF_FACTORS.map(function(f){return '<div class="ff-card"><div style="display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px"><span>'+f[0]+'</span><span class="ffb '+f[1]+'">'+f[2]+'</span></div><div class="ff-bar"><i style="width:'+f[3]+'%"></i></div><div style="font-size:12.5px;color:var(--muted)">'+f[4]+'</div></div>';}).join('');
+  document.getElementById('ffActions').innerHTML=FF_ACTIONS.map(function(a){return '<div class="ff-card"><div style="font-size:22px">'+a[0]+'</div><div style="font-weight:700;font-size:14px;margin:6px 0 4px">'+a[1]+'</div><div style="font-size:12.5px;color:var(--muted);line-height:1.4">'+a[2]+'</div><button class="btn primary sm" style="margin-top:10px" onclick="toast(\''+a[3]+'\')">'+a[3]+'</button></div>';}).join('');
+}
+window.showFitness=showFitness;
+</script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Absa · Powered by Vault22</title>
+<style>
+  :root{
+    --absa-crimson:#95052A; --absa-crimson-dark:#77021E;
+    --absa-red:#DC0032; --absa-red-hover:#B8002A;
+    --absa-bg:#F8F6F6; --absa-card:#FFFFFF; --absa-ink:#1A1A1A; --absa-muted:#6B6B6B; --absa-line:#ECE7E8;
+    --sidebar-w:270px; --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--font);background:var(--absa-bg);color:var(--absa-ink);display:flex;overflow:hidden}
+
+  /* SIDEBAR - single, Absa-skinned, Vault22 live-app IA */
+  .sidebar{
+    width:var(--sidebar-w);min-width:var(--sidebar-w);height:100vh;
+    background:linear-gradient(180deg,var(--absa-crimson) 0%,#8A0426 60%,var(--absa-crimson-dark) 100%);
+    color:#fff;display:flex;flex-direction:column;padding:20px 16px;z-index:10;
+  }
+  .logo{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
+  .logo .mark{width:50px;height:50px;flex:none;border-radius:13px;background:#fff;object-fit:contain;padding:4px}
+  .logo .logo-word{color:#fff;font-size:22px;font-weight:800;letter-spacing:-.5px}
+  .nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto}
+  .nav::-webkit-scrollbar{width:0}
+  .nav-label{font-size:10.5px;font-weight:700;letter-spacing:1px;opacity:.6;padding:14px 14px 5px;text-transform:uppercase}
+  .nav-item{
+    display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:10px;
+    color:#fff;cursor:pointer;font-size:14.5px;font-weight:500;border:none;background:transparent;
+    text-align:left;width:100%;transition:background .13s;position:relative;
+  }
+  .nav-item svg{width:19px;height:19px;flex:none;stroke:#fff;stroke-width:2;fill:none}
+  .nav-item:hover{background:rgba(255,255,255,.10)}
+  .nav-item.active{background:var(--absa-card);color:var(--absa-crimson);font-weight:600}
+  .nav-item.active svg{stroke:var(--absa-crimson)}
+  .nav-item .sub{font-size:11px;opacity:.6;font-weight:400;margin-left:2px}
+  .nav-item.active .sub{color:var(--absa-muted)}
+  .nav-item .badge{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.4px;background:var(--absa-red);padding:3px 6px;border-radius:20px;color:#fff}
+  .nav-bottom{border-top:1px solid rgba(255,255,255,.16);padding-top:8px;margin-top:6px}
+
+  /* MAIN */
+  .main{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{height:60px;min-height:60px;background:var(--absa-card);border-bottom:1px solid var(--absa-line);
+    display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:relative}
+  /* Breadcrumb removed: every section now carries its own page title, so the
+     "Home > Section" crumb was redundant. Kept in DOM (hidden) so shell JS refs hold. */
+  .topbar .crumb{visibility:hidden;font-size:14px;color:var(--absa-muted);display:flex;align-items:center;gap:0}
+  .topbar .crumb .cr-home{cursor:pointer;color:var(--absa-muted);font-weight:500}
+  .topbar .crumb .cr-home:hover{color:var(--absa-crimson)}
+  .topbar .crumb.at-home .cr-home{color:var(--absa-ink);font-weight:700;cursor:default}
+  .topbar .crumb .sep{margin:0 8px;color:#C9BFC2}
+  .topbar .crumb b{color:var(--absa-ink);font-weight:700}
+  .topbar .user{display:flex;align-items:center;gap:10px}
+  .topbar .region{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--absa-muted);
+    border:1px solid var(--absa-line);border-radius:20px;padding:6px 12px;margin-right:4px}
+  .topbar .region b{color:var(--absa-ink)}
+  .topbar .avatar{width:34px;height:34px;border-radius:50%;background:#8a5a3c;border:2px solid #fff;box-shadow:0 0 0 1px var(--absa-line)}
+  .topbar .chev{color:var(--absa-muted)}
+  .topbar .user{cursor:pointer;padding:6px 8px;border-radius:10px;transition:background .12s}
+  .topbar .user:hover{background:#F7F2F3}
+  .udrop{position:absolute;top:58px;right:20px;width:290px;background:#fff;border:1px solid var(--absa-line);
+    border-radius:14px;box-shadow:0 16px 44px rgba(0,0,0,.16);padding:10px;z-index:50;display:none}
+  .udrop.open{display:block}
+  .udrop-head{display:flex;align-items:center;gap:11px;padding:8px 8px 12px;border-bottom:1px solid var(--absa-line);margin-bottom:6px}
+  .udrop-lbl{font-size:10.5px;font-weight:700;letter-spacing:.6px;color:var(--absa-muted);text-transform:uppercase;padding:8px 10px 4px}
+  .udrop-item{display:flex;align-items:center;gap:11px;width:100%;border:none;background:none;text-align:left;
+    padding:10px 10px;border-radius:9px;font-size:13.5px;font-weight:500;color:var(--absa-ink);cursor:pointer}
+  .udrop-item span{width:20px;text-align:center}
+  .udrop-item:hover{background:#FCEEF1;color:var(--absa-crimson)}
+  .udrop-sep{height:1px;background:var(--absa-line);margin:6px 4px}
+  .tctrls{display:flex;align-items:center;gap:10px}
+  .tctl{position:relative}
+  .tpill{display:flex;align-items:center;gap:7px;border:1px solid var(--absa-line);background:#fff;border-radius:22px;
+    padding:7px 13px;font-size:13px;font-weight:600;color:var(--absa-ink);cursor:pointer;white-space:nowrap}
+  .tpill:hover{background:#F7F2F3}
+  .tpill .flags{font-size:15px;letter-spacing:-3px;margin-right:4px}
+  .tpill .chev{width:15px;height:15px;color:var(--absa-muted);stroke:currentColor}
+  .tmenu{position:absolute;top:44px;right:0;background:#fff;border:1px solid var(--absa-line);border-radius:12px;
+    box-shadow:0 14px 40px rgba(0,0,0,.14);padding:8px;z-index:60;display:none;min-width:220px}
+  .tmenu.open{display:block}
+  .tmenu .mlbl{font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--absa-muted);text-transform:uppercase;padding:6px 10px 5px}
+  .tmenu .mi{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13.5px}
+  .tmenu .mi:hover{background:#FCEEF1}
+  .tmenu .mi .sym{min-width:34px;font-weight:800;color:var(--absa-crimson)}
+  .tmenu .mi .fl{font-size:17px}
+  .tmenu .mi.sel{background:#FCEEF1;font-weight:700}
+  .tmenu .mi .ck{margin-left:auto;color:var(--absa-red);font-weight:800}
+
+  .content{flex:1;overflow:hidden;position:relative;background:var(--absa-bg)}
+  .frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#fff}
+  .frame.active{display:block}
+
+  /* Coming-soon (only for items with no built screen) */
+  #soon{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--absa-bg)}
+  #soon.active{display:flex}
+  #soon .ic{width:66px;height:66px;border-radius:18px;background:linear-gradient(135deg,var(--absa-red),var(--absa-crimson));display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  #soon .ic svg{width:32px;height:32px;stroke:#fff;stroke-width:2;fill:none}
+  #soon h2{font-size:21px;margin-bottom:8px}
+  #soon p{color:var(--absa-muted);max-width:400px;font-size:14px}
+
+  /* Loading shimmer while an app boots */
+  #boot{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:var(--absa-bg);z-index:3}
+  #boot.on{display:flex}
+  #boot .sp{width:40px;height:40px;border:4px solid #EAD9DE;border-top-color:var(--absa-red);border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="logo">
+      <img class="mark" src="absa-logo.jpg" alt="Absa" />
+      <span class="logo-word">Absa</span>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-key="home">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg> Home</button>
+      <button class="nav-item" data-key="transactions">
+        <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Transactions</button>
+      <button class="nav-item" data-key="budget">
+        <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7"/><rect x="13" y="7" width="3" height="11"/></svg> Budget</button>
+      <button class="nav-item" data-key="investments">
+        <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-8"/><path d="M20 7h-5M20 7v5"/></svg> Investments</button>
+      <button class="nav-item" data-key="wealth">
+        <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg> My Wealth <span class="sub">· Accounts</span></button>
+      <button class="nav-item" data-key="fitness">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l2 6 4-14 2 8h6"/></svg> Financial Fitness</button>
+      <button class="nav-item" data-key="family">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20a6 6 0 0112 0M14 20a5 5 0 017-4.6"/></svg> Family Circle</button>
+      <button class="nav-item" data-key="goals">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg> Goals</button>
+      <button class="nav-item" data-key="debt">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg> Debt</button>
+      <button class="nav-item" data-key="insurance">
+        <svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg> Insurance</button>
+      <button class="nav-item" data-key="crypto">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 8h5a2.5 2.5 0 010 5H9zM9 13h5.5a2.5 2.5 0 010 5H9zM10 6v2M13 6v2M10 18v2M13 18v2"/></svg> Crypto Portfolio</button>
+      <button class="nav-item" data-key="insights">
+        <svg viewBox="0 0 24 24"><path d="M21 12A9 9 0 103 12a9 9 0 0018 0z"/><path d="M12 12V3a9 9 0 019 9z"/></svg> Insights</button>
+
+      <div class="nav-label">Account</div>
+      <button class="nav-item" data-key="updates">
+        <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg> Product Updates <span class="badge">NEW</span></button>
+      <button class="nav-item" data-key="profile">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg> Profile</button>
+    </nav>
+
+    <div class="nav-bottom">
+      <button class="nav-item" data-key="settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg> Settings</button>
+      <button class="nav-item" data-key="logout">
+        <svg viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M11 8l-4 4 4 4M7 12h9"/></svg> Log out</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <nav class="crumb" aria-label="Breadcrumb"><span class="cr-home" id="crHome">Home</span><span id="crRest"></span></nav>
+      <div class="tctrls">
+        <div class="tctl"><button class="tpill" id="curPill" onclick="toggleCur(event)"></button>
+          <div class="tmenu" id="curMenu"></div></div>
+        <div class="tctl"><button class="tpill" id="regPill" onclick="toggleReg(event)"></button>
+          <div class="tmenu" id="regMenu"></div></div>
+        <div class="user" id="userBtn">
+          <span style="font-size:14px;font-weight:600">Aishani Atri</span>
+          <div class="avatar"></div>
+          <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="udrop" id="udrop">
+        <div class="udrop-head"><div class="avatar" style="width:42px;height:42px"></div>
+          <div><div style="font-weight:700;font-size:14px">Aishani Atri</div><div style="font-size:12px;color:var(--absa-muted)">aishani.atri@absa.co.ke</div></div></div>
+        <div class="udrop-lbl">User Reports</div>
+        <button class="udrop-item" data-rep="profile"><span>🧾</span> User Profile Report</button>
+        <button class="udrop-item" data-rep="spending"><span>📊</span> Monthly Spending Report</button>
+        <button class="udrop-item" data-rep="bank"><span>🏦</span> Client Financial Intelligence</button>
+        <button class="udrop-item" data-rep="all"><span>📁</span> All reports</button>
+        <div class="udrop-sep"></div>
+        <button class="udrop-item" data-nav="profile"><span>⚙️</span> Profile & Settings</button>
+        <button class="udrop-item" data-nav="logout"><span>↩︎</span> Log out</button>
+      </div>
+    </div>
+
+    <div class="content" id="content">
+      <div id="boot"><div class="sp"></div></div>
+      <iframe class="frame" id="fr-goals"   data-app="goals"></iframe>
+      <iframe class="frame" id="fr-budget"  data-app="budget"></iframe>
+      <iframe class="frame" id="fr-reports" data-app="reports"></iframe>
+      <iframe class="frame" id="fr-live"    data-app="live"></iframe>
+      <div id="soon">
+        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
+        <h2 id="soon-t">Coming soon</h2>
+        <p id="soon-d">This capability is part of the Vault22 roadmap for Absa and will be enabled in a later phase.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ---- routing table: menu key -> which app + which inner screen ---- */
+  const ROUTE = {
+    // GOALS PROTOTYPE = SOURCE OF TRUTH: every native goals screen routes to the real goals.html
+    home:         {app:'goals',   drive:'home',        label:'Home'},
+    transactions: {app:'live',    drive:'transactions',label:'Transactions'},
+    budget:       {app:'budget',  drive:null,          label:'Budget'},
+    investments:  {app:'goals',   drive:'investments', label:'Investments'},
+    wealth:       {app:'live',    drive:'wealth',      label:'My Wealth'},
+    fitness:      {app:'live',    drive:'fitness',     label:'Financial Fitness'},
+    family:       {app:'live',    drive:'family',      label:'Family Circle'},
+    goals:        {app:'goals',   drive:'goals',       label:'Goals'},
+    debt:         {app:'live',    drive:'debt',        label:'Debt'},
+    insurance:    {app:'reports', drive:'insurance',   label:'Insurance'},
+    crypto:       {app:'live',    drive:'crypto',      label:'Crypto Portfolio'},
+    insights:     {app:'reports', drive:'insights',    label:'Insights'},
+    updates:      {app:'reports', drive:'updates',     label:'Product Updates'},
+    profile:      {app:'goals',   drive:'profile',     label:'Profile'},
+  };
+  const BUILD = Date.now();  // cache-bust: always fetch the latest section files
+  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD};
+
+  /* CSS injected into every embedded app: hide its OWN sidebar + topbar so only the Absa rail shows */
+  const HIDE_CHROME = `
+    .sidebar,aside.sidebar{width:0!important;min-width:0!important;max-width:0!important;
+      padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
+    .topbar,header.topbar,.header,.app-header{display:none!important}
+    .logo,.header-logo,.logomark,.app-logo,.v22-logo,.brand-logo{display:none!important}
+    .main,main.content{margin:0!important;width:auto!important;max-width:none!important;flex:1 1 auto!important;display:block!important}
+    .page,.content,main,.view.active{margin-left:auto!important;margin-right:auto!important;max-width:1180px!important;width:100%!important;padding-left:30px!important;padding-right:30px!important;box-sizing:border-box!important}
+    .app,.layout,.shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
+    body{overflow-x:hidden}
+    /* ONE consistent navigation pattern across every embedded app:
+       page title only, no breadcrumbs. Drill-in screens keep their own
+       "back" button. This hides the goals ".breadcrumbs" (e.g. Investments >
+       US Stocks & ETFs) and the budget top-level ".bcrumb-row" + report
+       ".crumbrow" breadcrumbs. (budget ".crumb" is a subtitle, left intact.) */
+    .breadcrumbs,.bcrumb-row,.crumbrow{display:none!important}
+    /* Insurance & Insights are top-level sidebar destinations in this shell, so
+       their in-app "back" arrow (which returned to the reports app's orphan home)
+       is removed - top-level pages get a title only, no back. */
+    #view-insurance .back,#view-insights .back{display:none!important}
+  `;
+
+  const frames = {
+    goals:  document.getElementById('fr-goals'),
+    budget: document.getElementById('fr-budget'),
+    reports:document.getElementById('fr-reports'),
+    live:   document.getElementById('fr-live'),
+  };
+  const loaded = {goals:false, budget:false, reports:false, live:false};
+  const boot = document.getElementById('boot');
+  const soon = document.getElementById('soon');
+  const crHome = document.getElementById('crHome');
+  const crRest = document.getElementById('crRest');
+  const crumbEl = document.querySelector('.topbar .crumb');
+  crHome.addEventListener('click', ()=>{ if(!crumbEl.classList.contains('at-home')) go('home'); });
+  const crumb = {  // breadcrumb: "Home" or "Home › Section"
+    set textContent(v){
+      if(!v || v==='Home'){ crumbEl.classList.add('at-home'); crRest.innerHTML=''; }
+      else { crumbEl.classList.remove('at-home'); crRest.innerHTML='<span class="sep">›</span><b>'+v+'</b>'; }
+    }
+  };
+  const items = document.querySelectorAll('.nav-item');
+
+  function injectChrome(app){
+    try{
+      const doc = frames[app].contentDocument;
+      if(!doc) return;
+      if(!doc.getElementById('absa-hide')){
+        const st = doc.createElement('style');
+        st.id='absa-hide'; st.textContent=HIDE_CHROME;
+        doc.head.appendChild(st);
+      }
+      if(app==='goals') injectGoalsBack(doc);
+    }catch(e){}
+  }
+
+  /* The goals app used breadcrumbs as its ONLY drill-in navigation. We hide all
+     breadcrumbs for a consistent "title-only" look, so every goals drill-in
+     screen needs the same "back" affordance the budget/reports drill-ins have.
+     Insert an Absa "‹ Back" button before any (hidden) breadcrumb that has a
+     clickable parent crumb, wired to it. Top-level screens (e.g. Wallet, whose
+     parent crumb is NOT clickable) get no button. */
+  function injectGoalsBack(doc){
+    try{
+      if(!doc.getElementById('absa-back-style')){
+        const st=doc.createElement('style'); st.id='absa-back-style';
+        st.textContent='.absa-back{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:#95052A;font-weight:600;font-size:14px;cursor:pointer;padding:2px 0 4px;margin:0 0 4px;font-family:inherit}.absa-back:hover{text-decoration:underline}';
+        doc.head.appendChild(st);
+      }
+      const place=()=>{
+        doc.querySelectorAll('.breadcrumbs').forEach(bc=>{
+          if(bc.dataset.absaBack) return;
+          bc.dataset.absaBack='1';
+          // skip if a native back button already exists nearby (e.g. the goals
+          // Shell's ".kyc-back" on KYC / Add-money / Withdraw screens) -> no dup
+          let anc=bc;
+          for(let i=0;i<4 && anc;i++){ if(anc.querySelector && anc.querySelector('.kyc-back, .btn-back, .back-btn')) return; anc=anc.parentElement; }
+          const links=[...bc.querySelectorAll('span,a')].filter(s=>!s.classList.contains('crumb-active') &&
+            (typeof s.onclick==='function' || /cursor\s*:\s*pointer/.test(s.getAttribute('style')||'')));
+          if(!links.length) return;                 // top-level: no clickable parent -> no back button
+          const parent=links[links.length-1];       // immediate parent level
+          const btn=doc.createElement('button'); btn.className='absa-back'; btn.textContent='‹ Back';
+          btn.addEventListener('click',()=>parent.click());
+          bc.parentNode.insertBefore(btn, bc);
+        });
+      };
+      if(!doc.__absaBackObs){
+        const obs=new MutationObserver(()=>place());
+        obs.observe(doc.body,{childList:true,subtree:true});
+        doc.__absaBackObs=obs;
+      }
+      place();
+    }catch(e){}
+  }
+
+  /* drive an app to a given inner screen (best-effort, retries while it boots) */
+  function drive(app, key, tries){
+    tries = tries==null?18:tries;
+    if(key==null) return;
+    let ok=false;
+    try{
+      const fr=frames[app], w=fr.contentWindow, doc=fr.contentDocument;
+      if(app==='goals'){
+        const labelMap={home:'Home',transactions:'Transactions',budget:'Budget',investments:'Investments',
+          wealth:'My Wealth',fitness:'Financial Fitness',goals:'Goals',debt:'Debt',crypto:'Crypto',
+          insights:'Insights',updates:'Product Updates',profile:'Profile'};
+        const want=(labelMap[key]||'').toLowerCase();
+        const els=doc.querySelectorAll('.sidebar .nav-item, .sidebar button, .sidebar a');
+        for(const el of els){ if(el.textContent.trim().toLowerCase().startsWith(want)){ el.click(); ok=true; break; } }
+      } else if(app==='reports'){
+        if(key==='insights' && w.showInsightsPage){ w.showInsightsPage(); ok=true; }
+        else if(key==='goals' && w.showGoals){ w.showGoals(); ok=true; }
+        else if(key==='home' && w.showHome){ w.showHome(); ok=true; }
+        else if(key==='insurance' && w.showInsurance){ w.showInsurance(); ok=true; }
+        else if(key==='debt' && w.showReport){ w.showReport('bank'); ok=true; }
+        else if(key==='fitness' && w.showFitness){ w.showFitness(); ok=true; }
+        else if(key==='family' && w.showFamily){ w.showFamily(); ok=true; }
+        else if(key==='transactions' && w.showTransactions){ w.showTransactions(); ok=true; }
+        else if(key==='wealth' && w.showWealth){ w.showWealth(); ok=true; }
+        else if(key==='crypto' && w.showCrypto){ w.showCrypto(); ok=true; }
+        else if(key==='updates' && w.showUpdates){ w.showUpdates(); ok=true; }
+        else { const g=doc.querySelector('[data-go="'+key+'"]'); if(g){ g.click(); ok=true; } else ok=true; }
+      } else if(app==='live'){
+        const fnMap={transactions:'showTransactions',wealth:'showWealth',fitness:'showFitness',
+          family:'showFamily',debt:'showDebt',crypto:'showCrypto'};
+        const fn=fnMap[key];
+        if(fn && typeof w[fn]==='function'){ w[fn](); ok=true; }
+      } else { ok=true; }
+    }catch(e){}
+    if(!ok && tries>0){ setTimeout(()=>drive(app,key,tries-1),160); }
+  }
+
+  function ensureLoaded(app, cb){
+    const fr=frames[app];
+    if(loaded[app]){ cb&&cb(); return; }
+    boot.classList.add('on');
+    fr.addEventListener('load', ()=>{
+      loaded[app]=true;
+      injectChrome(app);
+      setTimeout(()=>injectChrome(app),300);   // re-assert after first render
+      setTimeout(()=>injectChrome(app),900);
+      boot.classList.remove('on');
+      cb&&cb();
+    }, {once:true});
+    fr.src = SRC[app];
+  }
+
+  function activate(key){
+    const r = ROUTE[key];
+    items.forEach(i=>i.classList.toggle('active', i.dataset.key===key));
+    // stubs / non-content keys
+    if(key==='settings'||key==='logout'){ if(key==='logout'){ go('home'); } return; }
+    if(!r){ Object.values(frames).forEach(f=>f.classList.remove('active')); soon.classList.add('active'); crumb.textContent='Coming soon'; return; }
+    soon.classList.remove('active');
+    crumb.textContent = r.label;
+    // show only the target app frame
+    Object.values(frames).forEach(f=>f.classList.remove('active'));
+    ensureLoaded(r.app, ()=>{
+      frames[r.app].classList.add('active');
+      injectChrome(r.app);
+      drive(r.app, r.drive);
+    });
+    if(loaded[r.app]){ frames[r.app].classList.add('active'); injectChrome(r.app); drive(r.app, r.drive); }
+  }
+
+  function go(key){ const b=document.querySelector('.nav-item[data-key="'+key+'"]'); if(b) b.click(); }
+  window.go = go;  // let embedded home cards drive the Absa sidebar
+
+  // ---- currency + region selector (mirrors budget prototype) ----
+  const CUR={ZAR:{sym:'R',pill:'R&nbsp;ZAR',name:'S. African Rand'},USD:{sym:'$',pill:'$&nbsp;USD',name:'US Dollar'},
+    AED:{sym:'AED',pill:'AED',name:'UAE Dirham'},GBP:{sym:'£',pill:'£&nbsp;GBP',name:'British Pound'},EUR:{sym:'€',pill:'€&nbsp;EUR',name:'Euro'}};
+  const REGIONS=[['🇿🇦','South Africa'],['🇻🇳','Vietnam'],['🇸🇬','Singapore'],['🇦🇪','United Arab Emirates'],['🇬🇧','United Kingdom'],['🌍','Global']];
+  const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+  let curCur='ZAR';
+  const activeRegions=new Set(['South Africa','Vietnam','Singapore','United Arab Emirates','United Kingdom','Global']);
+  const curPill=document.getElementById('curPill'), curMenu=document.getElementById('curMenu');
+  const regPill=document.getElementById('regPill'), regMenu=document.getElementById('regMenu');
+
+  function renderCur(){
+    curPill.innerHTML=CUR[curCur].pill+' '+chev;
+    curMenu.innerHTML='<div class="mlbl">Display currency</div>'+Object.keys(CUR).map(k=>
+      `<div class="mi ${k===curCur?'sel':''}" data-cur="${k}"><span class="sym">${CUR[k].sym}</span> ${CUR[k].name} ${k===curCur?'<span class="ck">✓</span>':''}</div>`).join('');
+    curMenu.querySelectorAll('.mi').forEach(mi=>mi.addEventListener('click',()=>setCurrency(mi.dataset.cur)));
+  }
+  function renderReg(){
+    const on=REGIONS.filter(r=>activeRegions.has(r[1]));
+    const extra=on.length>3?on.length-3:0;
+    regPill.innerHTML=`<span class="flags">${on.slice(0,3).map(r=>r[0]).join('')}</span>${extra?'+'+extra+' regions':on.length+' region'+(on.length!==1?'s':'')} `+chev;
+    regMenu.innerHTML='<div class="mlbl">Markets</div>'+REGIONS.map(r=>
+      `<div class="mi ${activeRegions.has(r[1])?'sel':''}" data-reg="${r[1]}"><span class="fl">${r[0]}</span> ${r[1]} ${activeRegions.has(r[1])?'<span class="ck">✓</span>':''}</div>`).join('');
+    regMenu.querySelectorAll('.mi').forEach(mi=>mi.addEventListener('click',(e)=>{e.stopPropagation();
+      const nm=mi.dataset.reg; if(activeRegions.has(nm)){ if(activeRegions.size>1) activeRegions.delete(nm); } else activeRegions.add(nm); renderReg(); regMenu.classList.add('open'); }));
+  }
+  function setCurrency(k){ curCur=k; renderCur(); closeTMenus();
+    Object.keys(frames).forEach(a=>{ try{ const w=frames[a].contentWindow; if(w&&typeof w.setCurrency==='function') w.setCurrency(k); }catch(e){} }); }
+  function closeTMenus(){ curMenu.classList.remove('open'); regMenu.classList.remove('open'); }
+  function toggleCur(e){ e.stopPropagation(); regMenu.classList.remove('open'); curMenu.classList.toggle('open'); }
+  function toggleReg(e){ e.stopPropagation(); curMenu.classList.remove('open'); regMenu.classList.toggle('open'); }
+  window.toggleCur=toggleCur; window.toggleReg=toggleReg;
+  document.addEventListener('click',(e)=>{ if(!e.target.closest('.tctl')) closeTMenus(); });
+  renderCur(); renderReg();
+
+  // ---- top-right User Reports dropdown ----
+  const userBtn=document.getElementById('userBtn'), udrop=document.getElementById('udrop');
+  userBtn.addEventListener('click',(e)=>{ e.stopPropagation(); udrop.classList.toggle('open'); });
+  document.addEventListener('click',(e)=>{ if(!udrop.contains(e.target)) udrop.classList.remove('open'); });
+
+  function openReports(rep){
+    Object.values(frames).forEach(f=>f.classList.remove('active'));
+    soon.classList.remove('active');
+    items.forEach(i=>i.classList.remove('active'));
+    crumb.textContent = 'User Reports';
+    ensureLoaded('reports', ()=>{
+      frames.reports.classList.add('active'); injectChrome('reports');
+      let seeded=false;
+      const run=()=>{ try{
+        const w=frames.reports.contentWindow;
+        if(rep==='all'){ w.showReports && w.showReports(); return; }
+        if(w.showReport){
+          // seed the reports LIST once so the report's back arrow returns to the
+          // list, never the reports app's orphan "home" (not an Absa page).
+          if(!seeded && w.showReports){ w.showReports(); seeded=true; }
+          w.showReport(rep);
+        } else if(w.showReports){ w.showReports(); }
+      }catch(e){} };
+      setTimeout(run,180); setTimeout(run,600);
+    });
+  }
+
+  udrop.querySelectorAll('.udrop-item').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      udrop.classList.remove('open');
+      if(btn.dataset.rep){ openReports(btn.dataset.rep); }
+      else if(btn.dataset.nav){ go(btn.dataset.nav); }
+    });
+  });
+
+  items.forEach(b=> b.addEventListener('click', ()=>activate(b.dataset.key)) );
+
+  // hash deep-link + default landing
+  function routeHash(){ const k=(location.hash||'').replace('#',''); if(k && ROUTE[k]) go(k); }
+  window.addEventListener('hashchange', routeHash);
+  // preload the three apps in the background so switching is instant
+  ['reports','budget','live','goals'].forEach(a=> ensureLoaded(a) );
+  activate((location.hash||'').replace('#','') || 'home');
+</script>
+</body>
+</html>
