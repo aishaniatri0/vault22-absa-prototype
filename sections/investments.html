@@ -328,8 +328,8 @@ svg{flex:none}
 .minhint{font-size:13px;color:var(--muted);margin:8px 2px 14px}
 .minerr{display:flex;align-items:flex-start;gap:6px;color:#C21D3C;font-size:13px;margin:8px 2px 14px;line-height:1.4}
 .minerr svg{width:15px;height:15px;margin-top:1px;flex:none}
-.chips2{display:flex;gap:10px}
-.chip2{flex:1;padding:11px 0;border-radius:999px;background:#EFF0F2;font-size:14px;font-weight:600;text-align:center;transition:.15s}
+.chips2{display:flex;gap:10px;justify-content:space-between}
+.chip2{flex:0 1 auto;padding:11px 26px;border-radius:999px;background:#EFF0F2;font-size:14px;font-weight:600;text-align:center;transition:.15s}
 .chip2:hover{background:#E6E7EA}.chip2.on{background:var(--absa);color:#fff}
 .seg2{display:flex;background:#fff;border:1px solid var(--line-2);border-radius:999px;padding:5px;gap:4px}
 .seg2 button{flex:1;padding:11px;border-radius:999px;font-size:14px;font-weight:700;color:var(--absa);font-family:inherit;transition:.16s;background:none}
@@ -689,7 +689,9 @@ function calShift(n){ S.calMonth+=n; if(S.calMonth<0){S.calMonth=11;S.calYear--;
 /* BUY */
 const CAP=10000000; // max single buy (matches OTT "maximum of UGX 10,000,000")
 const FEE=0;        // Absa MMF has no admin or platform fee
-function recNextDate(){ const r=S.recurring; if(r.freq==='Weekly') return 'Next '+(r.dayOfWeek||'Tuesday'); if(r.dateStr){ const p=r.dateStr.split(' '); return p[0]+' '+(p[1]||'').slice(0,3)+' '+(p[2]||''); } return '—'; }
+const WD=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function nextWeekdayDate(name){ const t=WD.indexOf(name); if(t<0) return '—'; const base=new Date(2026,6,6); let add=(t-base.getDay()+7)%7; if(add===0) add=7; const d=new Date(2026,6,6+add); return d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3)+' '+d.getFullYear(); }
+function recNextDate(){ const r=S.recurring; if(r.freq==='Weekly') return nextWeekdayDate(r.dayOfWeek||'Tuesday'); if(r.dateStr){ const p=r.dateStr.split(' '); return p[0]+' '+(p[1]||'').slice(0,3)+' '+(p[2]||''); } return '—'; }
 function recDayLabel(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'Tuesday')) : ('Every '+ordinal(+(r.dayOfMonth||20))); }
 /* live transaction summary (Buy / Sell / Recurring) — shown on the form before confirmation */
 function summaryCard(o){
@@ -724,9 +726,8 @@ function dwBuy(){
   // ---- step 2: confirm ----
   if(b.step===2) return dh('Confirm buy order',2,"S.buy.step=1;renderDrawer()")+`<div class="db">
     <div class="dcard"><div class="cardh">One-time payment</div>
-      <div class="crow"><span class="k">Investment amount</span><span class="v dnum">${ugx(b.amount)}</span></div>
-      ${FEE>0?`<div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(FEE)}</span></div>`:''}
-      <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total to be debited</span><span class="v dnum">${ugx(b.amount+FEE)}</span></div>
+      <div class="crow"><span class="k">Buy type</span><span class="v">One-time</span></div>
+      <div class="crow"><span class="k">Buy amount</span><span class="v dnum">${ugx(b.amount)}</span></div>
       <div class="crow"><span class="k">To investment</span><span class="v">${esc(f.name)}</span></div>
       <div class="crow"><span class="k">From account</span><span class="v">${acctLine(a)}</span></div>
     </div>
@@ -788,8 +789,6 @@ function dwSell(){
       <div class="crow"><span class="k">Sell type</span><span class="v">${s.mode==='full'?'Full':'Partial'}</span></div>
       <div class="crow"><span class="k">Sell amount</span><span class="v dnum">${ugx(amount)}</span></div>
       ${s.mode==='partial'?`<div class="crow"><span class="k">Remaining amount</span><span class="v dnum">${ugx(f.available-amount)}</span></div>`:''}
-      ${FEE>0?`<div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(FEE)}</span></div>`:''}
-      <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total to be credited</span><span class="v dnum">${ugx(Math.max(0,amount-FEE))}</span></div>
       <div class="crow"><span class="k">From investment</span><span class="v">${esc(f.name)}</span></div>
       <div class="crow"><span class="k">To account</span><span class="v">${acctLine(a)}</span></div>
     </div>
@@ -862,10 +861,9 @@ function dwRecSetup(){
     <div class="dcard"><div class="cardh">Recurring payment</div>
       <div class="crow"><span class="k">Buy frequency</span><span class="v">${esc(r.freq)}</span></div>
       <div class="crow"><span class="k">${r.freq==='Weekly'?'Day of the week':'Day of the month'}</span><span class="v">${recDayLabel(r)}</span></div>
-      <div class="crow"><span class="k">Next debit date</span><span class="v">${recNextDate()}</span></div>
-      <div class="crow"><span class="k">Investment amount</span><span class="v dnum">${ugx(r.amount)}</span></div>
-      ${FEE>0?`<div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(FEE)}</span></div>`:''}
-      <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total to be debited</span><span class="v dnum">${ugx(r.amount+FEE)}</span></div>
+      ${r.freq!=='Weekly'?`<div class="crow"><span class="k">Next payment date</span><span class="v">${recNextDate()}</span></div>`:''}
+      <div class="crow"><span class="k">Buy amount</span><span class="v dnum">${ugx(r.amount)}</span></div>
+      <div class="crow"><span class="k">To investment</span><span class="v">${esc(f.name)}</span></div>
       <div class="crow"><span class="k">From account</span><span class="v">${acctLine(a)}</span></div>
     </div>
     <div class="dfoot"><button class="dbtn" onclick="activateRecurring()">Set up recurring payment</button></div></div>`;
