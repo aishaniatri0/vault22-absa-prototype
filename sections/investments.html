@@ -160,9 +160,34 @@ h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.3px}
 .rseg{display:flex;background:#F1F1F2;border-radius:999px;padding:5px;margin-bottom:22px}
 .rseg button{flex:1;padding:11px;border-radius:999px;font-size:14px;font-weight:600;color:var(--ink-2);transition:.18s;font-family:inherit}
 .rseg button.on{background:var(--absa);color:#fff}
-.day-input{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:0 16px;margin-bottom:22px}
-.day-input select{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--ink);background:none;padding:16px 0;appearance:none;-webkit-appearance:none;cursor:pointer}
+/* account selector dropdown */
+.acct-wrap{position:relative;margin-bottom:18px}
+.acct-wrap .acct{margin-bottom:0;cursor:pointer}
+.acct-wrap.open .acct{border-color:var(--absa)}
+.acct-list{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow-lg);z-index:5;overflow:hidden}
+.acct-opt{display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;border-bottom:1px solid var(--line)}
+.acct-opt:last-child{border-bottom:none}
+.acct-opt:hover{background:var(--tile)}
+.acct-opt.on{background:var(--absa);color:#fff}
+.acct-opt .an{font-weight:700;font-size:14px}.acct-opt .am{font-size:12px;opacity:.85}
+.acct-opt .ab{margin-left:auto;font-weight:700;font-size:13.5px}
+/* day / date pickers */
+.day-input{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:16px;margin-bottom:8px;cursor:pointer}
+.day-input.open{border-color:var(--absa)}
+.day-input .val{flex:1;font-size:15px;color:var(--ink)} .day-input .val.ph{color:var(--muted)}
 .day-input .cal{color:var(--absa)}.day-input .cal svg{width:20px;height:20px}
+.picker{background:#fff;border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden}
+.picker .opt{padding:15px 18px;font-size:15px;border-bottom:1px solid var(--line);cursor:pointer}
+.picker .opt:last-child{border:none}.picker .opt:hover{background:var(--tile)}.picker .opt.on{background:var(--absa);color:#fff;font-weight:600}
+.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:14px}
+.daygrid .d{aspect-ratio:1;display:grid;place-items:center;border-radius:9px;font-size:14px;cursor:pointer;transition:.12s}
+.daygrid .d:hover{background:var(--tile)}.daygrid .d.on{background:var(--absa);color:#fff;font-weight:700}
+.daygrid .d.mut{color:var(--muted-2);cursor:default}.daygrid .d.mut:hover{background:none}
+.daygrid .hd{aspect-ratio:auto;font-size:11px;color:var(--muted);font-weight:600;cursor:default}.daygrid .hd:hover{background:none}
+.calhead{display:flex;align-items:center;justify-content:center;gap:20px;padding:14px 16px 4px;font-weight:700}
+.calhead button{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--absa)}.calhead button:hover{background:var(--tile)}
+.qbanner{display:flex;align-items:center;gap:10px;background:#EAF2FB;border:1px solid #CFE1F5;border-radius:12px;padding:12px 14px;font-size:13.5px;color:#1B4E86;margin-bottom:14px}
+.qbanner svg{width:18px;flex:none;color:#2C6BB0}
 .sumc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:2px 18px}
 .sl{display:flex;justify-content:space-between;padding:14px 0;font-size:14px;border-bottom:1px solid var(--line)}.sl:last-child{border:none}.sl.tot{font-weight:700}.sl .k{color:var(--muted)}
 .success{text-align:center;padding:34px 18px}
@@ -226,11 +251,19 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 /* ---------- state ---------- */
 const S={
   view:'landing', cat:'unit', panel:null,   // dashboard inline panel: transactions|statements|recurring|account
-  fund:{ id:'IN00000079', name:'ABSA Shilingi Fund Portfolio', short:'ABSA Shilingi Fund', kind:'Money Market Fund',
+  fund:{ id:'IN00000079', name:'ABSA Shilingi Fund Portfolio', short:'Absa Shilingi Fund', kind:'Money Market Fund',
+    productName:'Sanlam Money Market Fund', manager:'Managed by Sanlam Investments East Africa',
+    objectives:'The Sanlam Money Market Fund aims to provide investors with capital preservation, liquidity and competitive returns by investing in high-quality short-term money market instruments.',
     yield:12.5, fundSize:'UGX 85B', rating:'AAA', access:'1 - 2 days',
     available:0, current:0, invested:0, purchase:0, interest:0, units:0, pl:0, plPct:0 },
-  from:{ name:'Absa Business Access Account', mask:'1359', balance:183706603 },
-  recurring:{ active:false, step:0, amount:0, freq:'Weekly', dayOfWeek:'', dayOfMonth:'' },
+  accounts:[
+    {name:'Absa Business Access Account', mask:'1359', balance:183706603},
+    {name:'STAFF SAVINGS - NILE BANK', mask:'5962', balance:41383502854},
+    {name:'STAFF SAVE AS YOU EARN', mask:'9851', balance:9900823}
+  ],
+  fromIdx:0, acctOpen:false, dayOpen:false, calMonth:6, calYear:2026,   // calMonth 0-based (6=July)
+  get from(){ return this.accounts[this.fromIdx]; },
+  recurring:{ active:false, step:0, amount:0, freq:'Weekly', dayOfWeek:'', dayOfMonth:'', dateStr:'' },
   txns:[],
   drawer:null,   // buy|sell|detail|recsetup
   buy:{step:1,amount:0}, sell:{step:1,amount:0}, detailTC:false, detailProduct:null
@@ -351,7 +384,7 @@ function inlinePanel(){
     </div><div class="hr"></div>
     <div class="kvcol"><div><div class="k">Purchase value</div><div class="v sm dnum">${ugx(f.purchase)}</div></div>
       <div><div class="k">Units</div><div class="v sm">${f.units}</div></div></div>
-    <div class="about-row" onclick="openDetail({...S.fund,kind:'Money Market Fund'})"><div class="ic">${IC.doc}</div><div style="flex:1"><div style="font-weight:700;font-size:14px">About ${esc(f.name)}</div><div class="muted" style="font-size:12.5px">Learn more about this investment</div></div><span class="link">${IC.chevR}</span></div>`;
+    <div class="about-row" onclick="openDetail({...S.fund})"><div class="ic">${IC.doc}</div><div style="flex:1"><div style="font-weight:700;font-size:14px">About ${esc(f.short)}</div><div class="muted" style="font-size:12.5px">Learn more about this investment</div></div><span class="link">${IC.chevR}</span></div>`;
   } else if(S.panel==='transactions'){
     body = f.txns0?'':(S.txns.length?txnList():`<div class="ip-empty"><div class="ill">${IC.emptycard}</div><p>No transactions yet</p><div class="s">Your buy and sell activity will appear here.</div></div>`);
     if(S.txns.length) body=txnList();
@@ -379,7 +412,7 @@ function txnList(){
 }
 
 /* ---------- DRAWER ---------- */
-function openDrawer(kind){ S.drawer=kind; if(kind==='buy')S.buy={step:1,amount:0}; if(kind==='sell')S.sell={step:1,amount:0}; if(kind==='recsetup'){S.recurring.step=1;} renderDrawer(); $('#scrim').classList.add('show'); $('#drawer').classList.add('show'); }
+function openDrawer(kind){ S.drawer=kind; S.acctOpen=false; S.dayOpen=false; if(kind==='buy')S.buy={step:1,amount:0}; if(kind==='sell')S.sell={step:1,amount:0}; if(kind==='recsetup'){S.recurring.step=1;} renderDrawer(); $('#scrim').classList.add('show'); $('#drawer').classList.add('show'); }
 function dirty(){ return (S.drawer==='buy'&&(S.buy.amount>0||S.buy.step>1)) || (S.drawer==='sell'&&(S.sell.amount>0||S.sell.step>1)) || (S.drawer==='recsetup'&&(S.recurring.amount>0||S.recurring.step>1)); }
 function tryClose(){ if(dirty()){ $('#dlgScrim').classList.add('show'); } else closeDrawer(); }
 function confirmLeave(){ closeDlg(); closeDrawer(); }
@@ -387,6 +420,48 @@ function closeDlg(){ $('#dlgScrim').classList.remove('show'); }
 function closeDrawer(){ $('#scrim').classList.remove('show'); $('#drawer').classList.remove('show'); S.drawer=null; }
 function renderDrawer(){ const m={buy:dwBuy,sell:dwSell,detail:dwDetail,recsetup:dwRecSetup}; $('#dwin').innerHTML=(m[S.drawer]||(()=>''))(); }
 function dh(title,prog,back){ return `<div class="dh">${back?`<button class="b" onclick="${back}">${IC.back}</button>`:'<span style="width:34px"></span>'}<h3>${esc(title)}</h3><button class="b" onclick="tryClose()">${IC.x}</button></div>${prog!=null?`<div class="dprog"><i style="width:${prog}%"></i></div>`:''}`; }
+
+/* ---- account selector (Buy / Sell / Recurring) ---- */
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function acctSelector(label){
+  const a=S.from;
+  return `${label?`<div class="fl">${label}</div>`:''}<div class="acct-wrap ${S.acctOpen?'open':''}">
+    <div class="acct" style="margin-bottom:0;cursor:pointer" onclick="S.acctOpen=!S.acctOpen;S.dayOpen=false;renderDrawer()">
+      <div><div class="an">${esc(a.name)}</div><div class="am">••••${a.mask}</div></div>
+      <div class="ab dnum">${ugx0(a.balance)}</div><span class="cv" style="display:inline-flex;transition:.2s;transform:rotate(${S.acctOpen?180:0}deg)">${IC.chevD}</span></div>
+    ${S.acctOpen?`<div class="acct-list">${S.accounts.map((x,i)=>`<div class="acct-opt ${i===S.fromIdx?'on':''}" onclick="event.stopPropagation();S.fromIdx=${i};S.acctOpen=false;renderDrawer()"><div><div class="an">${esc(x.name)}</div><div class="am">••••${x.mask}</div></div><div class="ab dnum">${ugx0(x.balance)}</div></div>`).join('')}</div>`:''}
+  </div>`;
+}
+/* ---- recurring day / date picker (per frequency) ---- */
+function dayPicker(){
+  const r=S.recurring;
+  if(r.freq==='Weekly'){
+    return `<div class="fl">Day of the week</div>
+      <div class="day-input ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfWeek?'':'ph'}">${r.dayOfWeek||'e.g. Monday'}</span><span class="cal">${IC.cal}</span></div>
+      ${S.dayOpen?`<div class="picker">${WEEKDAYS.map(d=>`<div class="opt ${r.dayOfWeek===d?'on':''}" onclick="S.recurring.dayOfWeek='${d}';S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div>`:''}`;
+  }
+  if(r.freq==='Monthly'){
+    return `<div class="fl">Day of the month</div>
+      <div class="day-input ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month':'e.g. 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
+      ${S.dayOpen?`<div class="picker"><div class="daygrid">${Array.from({length:28},(_,i)=>i+1).map(d=>`<div class="d ${(''+r.dayOfMonth)===(''+d)?'on':''}" onclick="S.recurring.dayOfMonth=${d};S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div></div>`:''}`;
+  }
+  return `<div class="qbanner">${IC.info}<span>You will automatically buy units every 3 months.</span></div>
+    ${calendarHtml()}
+    <div class="day-input" style="margin-top:10px"><span class="val ${r.dateStr?'':'ph'}">${r.dateStr||'DD/MM/YYYY'}</span><span class="cal">${IC.cal}</span></div>`;
+}
+function calendarHtml(){
+  const y=S.calYear,m=S.calMonth, sel=S.recurring.dateStr;
+  const startMon=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate(), prevDim=new Date(y,m,0).getDate();
+  const cells=[];
+  for(let i=0;i<startMon;i++) cells.push({d:prevDim-startMon+1+i,mut:1});
+  for(let d=1;d<=dim;d++) cells.push({d,mut:0});
+  let tail=1; while(cells.length%7) cells.push({d:tail++,mut:1});
+  const hd=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return `<div class="picker"><div class="calhead"><button onclick="calShift(-1)">${IC.back}</button><span>${MONTHS[m]} ${y}</span><button onclick="calShift(1)">${IC.chevR}</button></div>
+    <div class="daygrid">${hd.map(h=>`<div class="hd">${h}</div>`).join('')}
+    ${cells.map(c=>{ if(c.mut) return `<div class="d mut">${c.d}</div>`; const ds=String(c.d).padStart(2,'0')+'/'+String(m+1).padStart(2,'0')+'/'+y; return `<div class="d ${sel===ds?'on':''}" onclick="S.recurring.dateStr='${ds}';S.recurring.dayOfMonth=${c.d};renderDrawer()">${c.d}</div>`;}).join('')}</div></div>`;
+}
+function calShift(n){ S.calMonth+=n; if(S.calMonth<0){S.calMonth=11;S.calYear--;} if(S.calMonth>11){S.calMonth=0;S.calYear++;} renderDrawer(); }
 
 /* BUY */
 function dwBuy(){
@@ -400,8 +475,7 @@ function dwBuy(){
       <div class="disc"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8"/></svg><span>You authorise ABSA to debit ${ugx(b.amount)} and purchase units in the ${esc(f.short)}. Illustrative prototype.</span></div></div>
     <div class="df"><button class="btn btn-primary btn-lg btn-block" onclick="confirmBuy()">Confirm &amp; pay</button></div>`;
   return dh('Buy units',33)+`<div class="db">
-    <div class="fl">From account</div>
-    <div class="acct"><div><div class="an">${esc(S.from.name)}</div><div class="am">••••${S.from.mask}</div></div><div class="ab dnum">${ugx0(S.from.balance)}</div><span class="cv">${IC.chevD}</span></div>
+    ${acctSelector('From account')}
     <div class="fl">Buy amount</div>
     <div class="amt"><span class="c">UGX</span><input id="bAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0.00" value="${b.amount?b.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onBuy(this.value)"></div>
     <div class="chips">${chips.map(c=>`<button class="chip ${b.amount===c?'on':''}" onclick="S.buy.amount=${c};renderDrawer()">${c/1000}K</button>`).join('')}</div>
@@ -421,6 +495,7 @@ function dwSell(){
   const ok=s.amount>0&&s.amount<=f.available;
   return dh('Sell units',33)+`<div class="db"><div class="fl">Available to sell</div><div class="acct"><div><div class="an dnum">${ugx(f.available)}</div><div class="am">${esc(f.short)}</div></div><button class="link" style="margin-left:auto" onclick="S.sell.amount=${f.available};renderDrawer()">Sell all</button></div>
     <div class="fl">Sell amount</div><div class="amt"><span class="c">UGX</span><input id="sAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0.00" value="${s.amount?s.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onSell(this.value)"></div>
+    ${acctSelector('To account')}
     <div class="sumc"><div class="sl tot"><span>You receive</span><span class="dnum" id="sRecv">${ugx(s.amount)}</span></div></div></div>
     <div class="df"><button class="btn btn-primary btn-lg btn-block" id="sCont" ${ok?'':'disabled'} onclick="S.sell.step=2;renderDrawer()">Continue</button></div>`;
 }
@@ -430,18 +505,20 @@ function confirmSell(){const n=S.sell.amount;S.fund.available-=n;S.fund.current-
 /* UNIT TRUST DETAILS (drawer) */
 function openDetail(prod){ S.drawer='detail'; S.detailProduct=prod; S.detailTC=false; renderDrawer(); $('#scrim').classList.add('show'); $('#drawer').classList.add('show'); }
 function dwDetail(){
-  const p=S.detailProduct||BALANCED;
-  const feats=[['Daily Interest Accrual','Interest calculated and credited daily',IC.daily],['Capital Preservation','Low-risk investment in quality instruments',IC.shield],['High Liquidity','Access your funds within 1-2 business days',IC.liq],['Professional Management',"Managed by ABSA's experienced investment team",IC.team]];
+  const p=S.detailProduct||S.fund;
+  const pn=p.productName||p.name, mgr=p.manager||p.kind, obj=p.objectives||'';
+  const feats=[['Daily interest accrual','Interest calculated and credited daily',IC.daily],['Capital preservation','Low-risk investment in quality instruments',IC.shield],['High liquidity','Access your funds within 1-2 business days',IC.liq],['Professional management',"Managed by Sanlam's experienced team",IC.team]];
   return `<div class="dh"><button class="b" onclick="closeDrawer()">${IC.back}</button><h3>Unit trust details</h3><button class="b" onclick="closeDrawer()">${IC.x}</button></div>
   <div class="db" style="padding:0">
     <div class="utd-hero"><div class="art">${IC.safe}</div><span class="dot" style="top:34px;left:24%">+</span><span class="dot" style="top:60px;right:20%">+</span><span class="dot" style="bottom:34px;left:44%">•</span></div>
     <div class="utd-card">
-      <div class="utd-fund"><div class="lg">${IC.fund}</div><div><div style="font-weight:700;font-size:18px">${esc(p.name)}</div><div class="muted" style="font-size:13px">${esc(p.kind)}</div></div></div>
+      <div class="utd-fund"><div class="lg">${IC.fund}</div><div><div style="font-weight:700;font-size:18px">${esc(pn)}</div><div class="muted" style="font-size:13px">${esc(mgr)}</div></div></div>
       <div class="utd-stats"><div><div class="k">Annual yield</div><div class="v">${p.yield}%</div></div><div><div class="k">Fund size</div><div class="v">${esc(p.fundSize)}</div></div><div><div class="k">Credit rating</div><div class="v">${esc(p.rating)}</div></div><div><div class="k">Access</div><div class="v">${esc(p.access)}</div></div></div>
     </div>
-    <div style="padding:22px"><h3 style="font-size:16px;margin-bottom:6px">Key Features</h3>${feats.map(ft=>`<div class="feat"><div class="ic">${ft[2]}</div><div><div class="ft">${ft[0]}</div><div class="fd">${ft[1]}</div></div></div>`).join('')}</div>
-    <div style="padding:0 22px 12px"><h3 style="font-size:16px;margin-bottom:6px">Fee Structure</h3><div class="kv"><span class="k">Management Fee</span><span class="v">1.0% p.a.</span></div><div class="kv"><span class="k">Entry Fee</span><span class="v">None</span></div><div class="kv"><span class="k">Exit Fee</span><span class="v">None</span></div></div>
-    <div style="padding:0 22px 12px"><h3 style="font-size:16px;margin-bottom:6px">Fund Documents</h3><div class="doc-row" onclick="toast('Fund Factsheet opened')"><div class="ic">PDF</div><div style="flex:1"><div style="font-weight:600;font-size:14px">Fund Factsheet</div><div class="muted" style="font-size:12px">Monthly performance &amp; portfolio</div></div><span class="link">${IC.chevR}</span></div></div>
+    ${obj?`<div style="padding:22px 22px 4px"><h3 style="font-size:16px;color:var(--absa);margin-bottom:8px">Investment objectives</h3><p style="font-size:13.5px;color:var(--ink-2);line-height:1.6;margin:0">${esc(obj)}</p></div>`:''}
+    <div style="padding:18px 22px 4px"><h3 style="font-size:16px;color:var(--absa);margin-bottom:6px">Key features</h3>${feats.map(ft=>`<div class="feat"><div class="ic">${ft[2]}</div><div><div class="ft">${ft[0]}</div><div class="fd">${ft[1]}</div></div></div>`).join('')}</div>
+    <div style="padding:12px 22px 4px"><h3 style="font-size:16px;color:var(--absa);margin-bottom:6px">Fee structure</h3><div class="kv"><span class="k">Management fee</span><span class="v">1.0% p.a.</span></div><div class="kv"><span class="k">Entry fee</span><span class="v">None</span></div><div class="kv"><span class="k">Exit fee</span><span class="v">None</span></div></div>
+    <div style="padding:8px 22px 4px"><div class="doc-row" onclick="toast('Factsheet opened')"><div class="ic">PDF</div><div style="flex:1"><div style="font-weight:600;font-size:14px">View factsheet</div></div><span class="link">${IC.chevR}</span></div></div>
     <div style="padding:0 22px 8px"><div class="tc"><div class="cb ${S.detailTC?'on':''}" id="tcBox" onclick="S.detailTC=!S.detailTC;document.getElementById('tcBox').classList.toggle('on',S.detailTC);document.getElementById('oi').disabled=!S.detailTC">${IC.check}</div><div style="font-size:14px">I accept the <span class="link" onclick="toast('Terms and conditions')">Terms and conditions</span></div></div></div>
   </div>
   <div class="df"><button class="btn btn-primary btn-lg btn-block" id="oi" ${S.detailTC?'':'disabled'} onclick="openInvestment()">Open investment</button></div>`;
@@ -451,23 +528,20 @@ function openInvestment(){ closeDrawer(); go('dashboard'); toast('Investment ope
 /* RECURRING SETUP (drawer) */
 const WEEKDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
-function recSchedule(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'week')) : (r.freq+' on the '+(r.dayOfMonth?ordinal(+r.dayOfMonth):'set day')); }
-function recValid(r){ return r.amount>=MIN && (r.freq==='Weekly'?!!r.dayOfWeek:!!r.dayOfMonth); }
+function recSchedule(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'week')) : r.freq==='Monthly'?('Monthly on the '+(r.dayOfMonth?ordinal(+r.dayOfMonth):'set day')) : ('Quarterly from '+(r.dateStr||'set date')); }
+function recValid(r){ return r.amount>=MIN && (r.freq==='Weekly'?!!r.dayOfWeek : r.freq==='Monthly'?!!r.dayOfMonth : !!r.dateStr); }
 function dwRecSetup(){
   const r=S.recurring,chips=[10000,50000,100000,500000];
   if(r.step===3) return dh('Recurring payment',100)+`<div class="db"><div class="success"><svg class="sic" viewBox="0 0 110 110" fill="none"><circle cx="55" cy="55" r="50" stroke="#158B3A" stroke-width="5"/><path d="M33 56l15 15 29-31" stroke="#158B3A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg><h4>Recurring payment set up</h4><p class="muted" style="max-width:300px;margin:0 auto">${ugx(r.amount)} will be invested ${recSchedule(r).toLowerCase()} into the ${esc(S.fund.short)} from your ${esc(S.from.name)} ••••${S.from.mask}.</p></div></div><div class="df"><button class="btn btn-primary btn-lg btn-block" onclick="finishRecSetup()">Done</button></div>`;
   if(r.step===2) return dh('Recurring payment',100,"S.recurring.step=1;renderDrawer()")+`<div class="db"><h3 style="margin:0 0 16px">Confirm recurring payment</h3><div class="sumc"><div class="sl"><span class="k">Fund</span><span>${esc(S.fund.short)}</span></div><div class="sl"><span class="k">Buy amount</span><span class="dnum">${ugx(r.amount)}</span></div><div class="sl"><span class="k">Frequency</span><span>${esc(r.freq)}</span></div><div class="sl"><span class="k">Schedule</span><span>${recSchedule(r)}</span></div><div class="sl"><span class="k">From account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div><div class="sl tot"><span>Total debit</span><span class="dnum">${ugx(r.amount)}</span></div></div><div class="disc"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8"/></svg><span>You authorise ABSA to debit ${ugx(r.amount)} ${recSchedule(r).toLowerCase()} and invest it in the ${esc(S.fund.short)}. Cancel anytime.</span></div></div><div class="df"><button class="btn btn-primary btn-lg btn-block" onclick="activateRecurring()">Confirm &amp; set up</button></div>`;
-  const dayField = r.freq==='Weekly'
-    ? `<div class="fl">Day of the week</div><div class="day-input"><select onchange="S.recurring.dayOfWeek=this.value;refreshRec()"><option value="" ${!r.dayOfWeek?'selected':''} disabled>e.g. Monday</option>${WEEKDAYS.map(d=>`<option ${r.dayOfWeek===d?'selected':''}>${d}</option>`).join('')}</select><span class="cal">${IC.cal}</span></div>`
-    : `<div class="fl">Day of the month</div><div class="day-input"><select onchange="S.recurring.dayOfMonth=this.value;refreshRec()"><option value="" ${!r.dayOfMonth?'selected':''} disabled>e.g. 15th</option>${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}" ${(''+r.dayOfMonth)===(''+d)?'selected':''}>${ordinal(d)}</option>`).join('')}</select><span class="cal">${IC.cal}</span></div>`;
   return dh('Recurring payment',50)+`<div class="db">
     <div class="fl" style="font-size:15px;font-weight:700;color:var(--ink)">How often do you want to buy units?</div>
-    <div class="rseg">${['Weekly','Monthly','Quarterly'].map(f=>`<button class="${r.freq===f?'on':''}" onclick="S.recurring.freq='${f}';renderDrawer()">${f}</button>`).join('')}</div>
-    <div class="fl">From account</div><div class="acct"><div><div class="an">${esc(S.from.name)}</div><div class="am">••••${S.from.mask}</div></div><div class="ab dnum">${ugx0(S.from.balance)}</div><span class="cv">${IC.chevD}</span></div>
+    <div class="rseg">${['Weekly','Monthly','Quarterly'].map(f=>`<button class="${r.freq===f?'on':''}" onclick="S.recurring.freq='${f}';S.dayOpen=false;renderDrawer()">${f}</button>`).join('')}</div>
+    ${acctSelector('From account')}
     <div class="fl">Buy amount</div><div class="amt"><span class="c">UGX</span><input id="rAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0.00" value="${r.amount?r.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onRec(this.value)"></div>
     <div class="chips">${chips.map(c=>`<button class="chip ${r.amount===c?'on':''}" onclick="S.recurring.amount=${c};renderDrawer()">${c/1000}K</button>`).join('')}</div>
     <div class="hint">Minimum of ${ugx(MIN)}</div>
-    ${dayField}
+    ${dayPicker()}
     <div class="sumc"><div class="sl"><span class="k">Buy amount</span><span class="dnum" id="rSum">${ugx(r.amount)}</span></div><div class="sl tot"><span>Total debit</span><span class="dnum" id="rTot">${ugx(r.amount)}</span></div></div>
   </div><div class="df"><button class="btn btn-primary btn-lg btn-block" id="rCont" ${recValid(r)?'':'disabled'} onclick="S.recurring.step=2;renderDrawer()">Continue</button></div>`;
 }
