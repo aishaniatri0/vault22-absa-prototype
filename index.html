@@ -40,6 +40,17 @@
   .nav-item.active .sub{color:var(--absa-muted)}
   .nav-item .badge{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.4px;background:var(--absa-red);padding:3px 6px;border-radius:20px;color:#fff}
   .nav-bottom{border-top:1px solid rgba(255,255,255,.16);padding-top:8px;margin-top:6px}
+  /* Investments left-sidebar sub-navigation (Trade / Absa MMF / Market Forecast) */
+  .nav-item .nav-chev{margin-left:auto;width:15px;height:15px;stroke:#fff;stroke-width:2.2;fill:none;opacity:.65;transition:transform .2s}
+  .nav-item.parent-open{background:rgba(255,255,255,.10)}
+  .nav-item.parent-open .nav-chev{transform:rotate(180deg)}
+  .nav-sub{display:none;flex-direction:column;gap:1px;margin:2px 0 6px;padding-left:6px}
+  .nav-sub.open{display:flex}
+  .nav-subitem{display:flex;align-items:center;gap:12px;padding:9px 14px 9px 24px;border-radius:10px;color:rgba(255,255,255,.85);cursor:pointer;font-size:13.5px;font-weight:500;background:transparent;border:none;text-align:left;width:100%;transition:background .13s;font-family:inherit}
+  .nav-subitem .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);flex:none;transition:background .13s}
+  .nav-subitem:hover{background:rgba(255,255,255,.10)}
+  .nav-subitem.on{background:var(--absa-card);color:var(--absa-crimson);font-weight:700}
+  .nav-subitem.on .dot{background:var(--absa-crimson)}
 
   /* MAIN */
   .main{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -138,7 +149,8 @@
       <button class="nav-item" data-key="budget">
         <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7"/><rect x="13" y="7" width="3" height="11"/></svg> Budget</button>
       <button class="nav-item" data-key="investments">
-        <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-8"/><path d="M20 7h-5M20 7v5"/></svg> Investments</button>
+        <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-8"/><path d="M20 7h-5M20 7v5"/></svg> Investments <svg class="nav-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="nav-sub" id="invSub"></div>
       <button class="nav-item" data-key="marketplace">
         <svg viewBox="0 0 24 24"><path d="M4 8h16l-1 4a3 3 0 01-3 2.4H8A3 3 0 015 12z"/><path d="M4 8l1.2-3h13.6L20 8M6 20h12M9 16v4M15 16v4"/></svg> Marketplace <span class="badge">NEW</span></button>
       <button class="nav-item" data-key="wealth">
@@ -516,13 +528,14 @@
   function activate(key){
     const r = ROUTE[key];
     items.forEach(i=>i.classList.toggle('active', i.dataset.key===key));
+    if(key!=='investments') closeInvSub();   // collapse the Investments sub-nav when leaving
     // stubs / non-content keys
     if(key==='settings'||key==='logout'){ if(key==='logout'){ go('home'); } return; }
     if(!r){ Object.values(frames).forEach(f=>f.classList.remove('active')); soon.classList.add('active'); crumb.textContent='Coming soon'; return; }
     soon.classList.remove('active');
     crumb.textContent = r.label;
     // Investments: show the sub-nav tab bar matching the live app and default to Wallet
-    if(key==='investments'){ renderInvTabs(); showInvTab('trade'); return; }
+    if(key==='investments'){ openInvSub(); showInvTab('trade'); return; }
     document.getElementById('invTabs').classList.remove('on');
     // show only the target app frame
     Object.values(frames).forEach(f=>f.classList.remove('active'));
@@ -541,11 +554,23 @@
     {id:'forecast',  label:'Market Forecast',app:'forecast',  drive:null,           ic:'<path d="M4 16l5-6 3 3 4-6 4 5"/><path d="M3 20h18"/>'},
   ];
   let invTab='trade';
+  // Sub-nav now lives in the LEFT sidebar, nested under "Investments"
   function renderInvTabs(){
-    const bar=document.getElementById('invTabs');
-    bar.classList.add('on');
-    bar.innerHTML = '<div class="inv-seg" role="tablist">'+INV_TABS.map(t=>`<button class="inv-tab${t.id===invTab?' on':''}" role="tab" aria-selected="${t.id===invTab}" data-inv="${t.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${t.ic}</svg><span>${t.label}</span></button>`).join('')+'</div>';
-    bar.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>showInvTab(b.dataset.inv));
+    const sub=document.getElementById('invSub');
+    if(!sub) return;
+    sub.innerHTML = INV_TABS.map(t=>`<button class="nav-subitem${t.id===invTab?' on':''}" data-inv="${t.id}"><span class="dot"></span><span>${t.label}</span></button>`).join('');
+    sub.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>showInvTab(b.dataset.inv));
+  }
+  function openInvSub(){
+    const sub=document.getElementById('invSub'); if(sub) sub.classList.add('open');
+    const inv=document.querySelector('.nav-item[data-key="investments"]');
+    if(inv){ inv.classList.remove('active'); inv.classList.add('parent-open'); }
+    renderInvTabs();
+  }
+  function closeInvSub(){
+    const sub=document.getElementById('invSub'); if(sub) sub.classList.remove('open');
+    const inv=document.querySelector('.nav-item[data-key="investments"]');
+    if(inv) inv.classList.remove('parent-open');
   }
   function showInvTab(id){
     invTab=id; renderInvTabs();
