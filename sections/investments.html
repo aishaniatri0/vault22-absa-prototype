@@ -355,11 +355,18 @@ svg{flex:none}
 .daypop .o{padding:13px 16px;font-size:14.5px;border-bottom:1px solid var(--line);cursor:pointer}
 .daypop .o:last-child{border:none}.daypop .o:hover{background:var(--tile)}.daypop .o.on{background:var(--absa);color:#fff}
 .daypop.grid{max-height:none}
-.dompop-h{font-size:12.5px;font-weight:600;color:var(--muted);padding:14px 16px 4px}
-.domgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:8px 14px 6px}
-.dom{aspect-ratio:1;display:grid;place-items:center;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:.12s}
-.dom:hover{background:var(--tile)}.dom.on{background:var(--absa);color:#fff}
-.dompop-n{font-size:11.5px;color:var(--muted);line-height:1.45;padding:6px 16px 14px}
+.calhead2{display:flex;align-items:center;justify-content:space-between;padding:13px 14px 8px;font-weight:700;font-size:14.5px}
+.calhead2 button{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--absa)}
+.calhead2 button svg{width:18px;height:18px}
+.calhead2 button:hover{background:var(--tile)}
+.caldow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 14px 4px}
+.caldow span{text-align:center;font-size:11px;color:var(--muted);font-weight:600}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 14px 8px}
+.calgrid span{aspect-ratio:1;display:grid;place-items:center;font-size:13.5px;font-weight:600;color:var(--ink-2);border-radius:9px}
+.calgrid span.cd{cursor:pointer;transition:.12s}
+.calgrid span.cd:hover{background:var(--tile)}
+.calgrid span.cd.on{background:var(--absa);color:#fff}
+.dompop-n{font-size:11.5px;color:var(--muted);line-height:1.45;padding:4px 16px 14px}
 /* transactions grouped list */
 .txg{font-size:13px;font-weight:600;color:var(--muted);margin:16px 0 4px}.txg:first-child{margin-top:0}
 .txr{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}
@@ -643,20 +650,46 @@ function dayPicker(){
       <div class="dayin" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfWeek?'':'ph'}">${r.dayOfWeek||'e.g. Monday'}</span><span class="cal">${IC.chevD}</span></div>
       ${S.dayOpen?`<div class="daypop">${WEEKDAYS.map(d=>`<div class="o ${r.dayOfWeek===d?'on':''}" onclick="S.recurring.dayOfWeek='${d}';S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div>`:''}`;
   }
-  // Monthly + Quarterly: "Day of the month" -> calendar-style day-of-month grid picker
+  // Monthly + Quarterly: "Day of the month" -> calendar with month name, days 1-28 only
   return `<div class="fl">Day of the month</div>
-    <div class="dayin ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month':'e.g. 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
-    ${S.dayOpen?`<div class="daypop grid">
-      <div class="dompop-h">Select a day of the month</div>
-      <div class="domgrid">${Array.from({length:31},(_,i)=>i+1).map(d=>`<div class="dom ${(''+r.dayOfMonth)===(''+d)?'on':''}" onclick="event.stopPropagation();S.recurring.dayOfMonth=${d};S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div>
-      <div class="dompop-n">Payments run on this day every ${r.freq==='Quarterly'?'3 months':'month'}. For the 29th-31st, the last day is used in shorter months.</div>
-    </div>`:''}`;
+    <div class="dayin ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month · '+MONTHS[S.calMonth]+' '+S.calYear:'e.g. 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
+    ${S.dayOpen?calendarPicker():''}`;
 }
+function calendarPicker(){
+  const y=S.calYear, m=S.calMonth, r=S.recurring;
+  const startMon=(new Date(y,m,1).getDay()+6)%7;   // Monday=0
+  const hd=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  const cells=[];
+  for(let i=0;i<startMon;i++) cells.push(null);
+  for(let d=1;d<=28;d++) cells.push(d);             // OTT: only 1-28 selectable
+  return `<div class="daypop grid">
+    <div class="calhead2"><button onclick="event.stopPropagation();calShift(-1)">${IC.back}</button><span>${MONTHS[m]} ${y}</span><button onclick="event.stopPropagation();calShift(1)">${IC.chevR}</button></div>
+    <div class="caldow">${hd.map(h=>`<span>${h}</span>`).join('')}</div>
+    <div class="calgrid">${cells.map(c=> c==null?'<span></span>':`<span class="cd ${(''+r.dayOfMonth)===(''+c)?'on':''}" onclick="event.stopPropagation();pickDom(${c})">${c}</span>`).join('')}</div>
+    <div class="dompop-n">Runs on the ${r.dayOfMonth?ordinal(+r.dayOfMonth):'selected day'} every ${r.freq==='Quarterly'?'3 months':'month'}.</div>
+  </div>`;
+}
+function pickDom(d){ S.recurring.dayOfMonth=d; S.recurring.dateStr=d+' '+MONTHS[S.calMonth]+' '+S.calYear; S.dayOpen=false; renderDrawer(); }
+function calShift(n){ S.calMonth+=n; if(S.calMonth<0){S.calMonth=11;S.calYear--;} if(S.calMonth>11){S.calMonth=0;S.calYear++;} renderDrawer(); }
 
 /* BUY */
 const CAP=10000000; // max single buy (matches OTT "maximum of UGX 10,000,000")
-function recNextDate(){ const r=S.recurring; if(r.freq==='Quarterly'||r.freq==='Monthly'){ return '20 Apr 2026'; } return 'Next '+(r.dayOfWeek||'Tuesday'); }
+const FEE=500;      // admin fee per transaction (matches OTT transaction details)
+function recNextDate(){ const r=S.recurring; if(r.freq==='Weekly') return 'Next '+(r.dayOfWeek||'Tuesday'); if(r.dateStr){ const p=r.dateStr.split(' '); return p[0]+' '+(p[1]||'').slice(0,3)+' '+(p[2]||''); } return '—'; }
 function recDayLabel(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'Tuesday')) : ('Every '+ordinal(+(r.dayOfMonth||20))); }
+/* live transaction summary (Buy / Sell / Recurring) — shown on the form before confirmation */
+function summaryCard(o){
+  const fee = o.amount>0?FEE:0, credit = o.kind==='credit';
+  const total = credit ? Math.max(0,o.amount-fee) : o.amount+fee;
+  return `<div class="dcard"><div class="cardh">Transaction summary</div>
+    <div class="crow"><span class="k">${credit?'Sell amount':'Investment amount'}</span><span class="v dnum">${ugx(o.amount)}</span></div>
+    <div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(fee)}</span></div>
+    <div class="crow" style="border-top:1px solid var(--line);padding-top:13px;margin-top:2px"><span class="k" style="color:var(--ink);font-weight:700">Total to be ${credit?'credited':'debited'}</span><span class="v dnum" style="font-size:15.5px">${ugx(total)}</span></div>
+    <div class="crow"><span class="k">${credit?'To account':'From account'}</span><span class="v">${acctLine(o.account)}</span></div>
+    ${o.freq?`<div class="crow"><span class="k">Payment frequency</span><span class="v">${esc(o.freq)}</span></div>`:''}
+    ${o.next?`<div class="crow"><span class="k">Next debit date</span><span class="v">${o.next}</span></div>`:''}
+  </div>`;
+}
 function buyValid(){ const b=S.buy; return b.amount>=MIN && b.amount<=Math.min(b.recurring?CAP:CAP,S.from.balance) && (!b.recurring||recValid({...S.recurring,amount:b.amount})); }
 function acctLine(a){ return `${esc(a.name)}<span class="sub">••••${esc(a.mask)}</span>`; }
 function dwBuy(){
@@ -676,7 +709,9 @@ function dwBuy(){
   // ---- step 2: confirm ----
   if(b.step===2) return dh('Confirm buy order',2,"S.buy.step=1;renderDrawer()")+`<div class="db">
     <div class="dcard"><div class="cardh">One-time payment</div>
-      <div class="crow"><span class="k">Buy amount</span><span class="v dnum">${ugx(b.amount)}</span></div>
+      <div class="crow"><span class="k">Investment amount</span><span class="v dnum">${ugx(b.amount)}</span></div>
+      <div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(FEE)}</span></div>
+      <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total to be debited</span><span class="v dnum">${ugx(b.amount+FEE)}</span></div>
       <div class="crow"><span class="k">To investment</span><span class="v">${esc(f.name)}</span></div>
       <div class="crow"><span class="k">From account</span><span class="v">${acctLine(a)}</span></div>
     </div>
@@ -698,6 +733,7 @@ function dwBuy(){
       ${err?`<div class="minerr" id="bErr">${IC.warn}<span>${err}</span></div>`:`<div class="minhint" id="bHint">Minimum of ${ugx(MIN)}</div>`}
       <div class="chips2">${chips.map(c=>`<button class="chip2 ${b.amount===c?'on':''}" onclick="S.buy.amount=${c};renderDrawer()">${c/1000}k</button>`).join('')}</div>
     </div>
+    ${summaryCard({amount:b.amount,account:a,kind:'debit'})}
     <div class="dfoot"><button class="dbtn" id="bCont" ${buyValid()?'':'disabled'} onclick="S.buy.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 /* recurring config card (shared: inside Buy toggle, and standalone recurring setup) */
@@ -715,7 +751,7 @@ function recurringCard(amount){
 }
 function refocus(id){const el=$('#'+id);if(el){el.focus();const L=el.value.length;try{el.setSelectionRange(L,L);}catch(e){}}}
 function onBuy(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.buy.amount=n;renderDrawer();refocus('bAmt');}
-function confirmBuy(){const n=S.buy.amount;S.from.balance-=n;S.fund.available+=n;S.fund.current+=n;S.fund.invested+=n;S.fund.purchase+=n;S.fund.units+=Math.round(n/10);if(S.buy.recurring){Object.assign(S.recPlan,{active:true,amount:n,freq:S.recurring.freq,dayOfWeek:S.recurring.dayOfWeek,dayOfMonth:S.recurring.dayOfMonth,failed:false});}S.buy.step=3;renderDrawer();}
+function confirmBuy(){const n=S.buy.amount;S.from.balance-=(n+FEE);S.fund.available+=n;S.fund.current+=n;S.fund.invested+=n;S.fund.purchase+=n;S.fund.units+=Math.round(n/10);if(S.buy.recurring){Object.assign(S.recPlan,{active:true,amount:n,freq:S.recurring.freq,dayOfWeek:S.recurring.dayOfWeek,dayOfMonth:S.recurring.dayOfMonth,failed:false});}S.buy.step=3;renderDrawer();}
 
 /* SELL */
 function sellValid(){ const s=S.sell,f=S.fund; if(s.mode==='full') return f.available>0; return s.amount>0 && s.amount<=(f.available-MIN); }
@@ -736,6 +772,8 @@ function dwSell(){
       <div class="crow"><span class="k">Sell type</span><span class="v">${s.mode==='full'?'Full':'Partial'}</span></div>
       <div class="crow"><span class="k">Sell amount</span><span class="v dnum">${ugx(amount)}</span></div>
       ${s.mode==='partial'?`<div class="crow"><span class="k">Remaining amount</span><span class="v dnum">${ugx(f.available-amount)}</span></div>`:''}
+      <div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(FEE)}</span></div>
+      <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total to be credited</span><span class="v dnum">${ugx(Math.max(0,amount-FEE))}</span></div>
       <div class="crow"><span class="k">From investment</span><span class="v">${esc(f.name)}</span></div>
       <div class="crow"><span class="k">To account</span><span class="v">${acctLine(a)}</span></div>
     </div>
@@ -755,10 +793,11 @@ function dwSell(){
       <div class="chips2" style="margin-top:12px">${chips.map(c=>`<button class="chip2 ${s.amount===c?'on':''}" onclick="S.sell.amount=${c};renderDrawer()">${c/1000}k</button>`).join('')}</div>`:''}
       <div class="iban">${IC.info}<span>Your investment must have a minimum balance of ${ugx0(MIN)}.</span></div>
     </div>
+    ${amount>0?summaryCard({amount:amount,account:a,kind:'credit'}):''}
     <div class="dfoot"><button class="dbtn" id="sCont" ${sellValid()?'':'disabled'} onclick="S.sell.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 function onSell(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.sell.amount=n;renderDrawer();refocus('sAmt');}
-function confirmSell(){const n=S.sell.mode==='full'?S.fund.available:S.sell.amount;S.fund.available-=n;S.fund.current-=n;S.fund.invested=Math.max(0,S.fund.invested-n);S.from.balance+=n;S.txns.unshift({type:'Withdrawal',amount:n,date:'6 Jul',status:'Pending'});S.sell.step=3;renderDrawer();}
+function confirmSell(){const n=S.sell.mode==='full'?S.fund.available:S.sell.amount;S.fund.available-=n;S.fund.current-=n;S.fund.invested=Math.max(0,S.fund.invested-n);S.from.balance+=Math.max(0,n-FEE);S.txns.unshift({type:'Withdrawal',amount:n,date:'6 Jul',status:'Pending'});S.sell.step=3;renderDrawer();}
 
 /* UNIT TRUST DETAILS (drawer) */
 function openDetail(prod){ S.drawer='detail'; S.detailProduct=prod; S.detailTC=false; renderDrawer(); $('#scrim').classList.add('show'); $('#drawer').classList.add('show'); }
@@ -806,8 +845,10 @@ function dwRecSetup(){
     <div class="dcard"><div class="cardh">Recurring payment</div>
       <div class="crow"><span class="k">Buy frequency</span><span class="v">${esc(r.freq)}</span></div>
       <div class="crow"><span class="k">${r.freq==='Weekly'?'Day of the week':'Day of the month'}</span><span class="v">${recDayLabel(r)}</span></div>
-      <div class="crow"><span class="k">Buy amount</span><span class="v dnum">${ugx(r.amount)}</span></div>
-      <div class="crow"><span class="k">To investment</span><span class="v">${esc(f.name)}</span></div>
+      <div class="crow"><span class="k">Next debit date</span><span class="v">${recNextDate()}</span></div>
+      <div class="crow"><span class="k">Investment amount</span><span class="v dnum">${ugx(r.amount)}</span></div>
+      <div class="crow"><span class="k">Fees</span><span class="v dnum">${ugx(FEE)}</span></div>
+      <div class="crow"><span class="k" style="color:var(--ink);font-weight:700">Total to be debited</span><span class="v dnum">${ugx(r.amount+FEE)}</span></div>
       <div class="crow"><span class="k">From account</span><span class="v">${acctLine(a)}</span></div>
     </div>
     <div class="dfoot"><button class="dbtn" onclick="activateRecurring()">Set up recurring payment</button></div></div>`;
@@ -824,6 +865,7 @@ function dwRecSetup(){
       <div class="chips2">${chips.map(c=>`<button class="chip2 ${r.amount===c?'on':''}" onclick="S.recurring.amount=${c};renderDrawer()">${c/1000}k</button>`).join('')}</div>
       <div style="height:14px"></div>${dayPicker()}
     </div>
+    ${r.amount>0?summaryCard({amount:r.amount,account:S.from,kind:'debit',freq:r.freq,next:recValid(r)?recNextDate():'—'}):''}
     <div class="dfoot"><button class="dbtn" id="rCont" ${recValid(r)?'':'disabled'} onclick="S.recurring.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 function onRec(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.recurring.amount=n;renderDrawer();refocus('rAmt');}
