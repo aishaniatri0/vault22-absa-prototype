@@ -139,6 +139,8 @@
         <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7"/><rect x="13" y="7" width="3" height="11"/></svg> Budget</button>
       <button class="nav-item" data-key="investments">
         <svg viewBox="0 0 24 24"><path d="M4 16l5-5 4 4 7-8"/><path d="M20 7h-5M20 7v5"/></svg> Investments</button>
+      <button class="nav-item" data-key="marketplace">
+        <svg viewBox="0 0 24 24"><path d="M4 8h16l-1 4a3 3 0 01-3 2.4H8A3 3 0 015 12z"/><path d="M4 8l1.2-3h13.6L20 8M6 20h12M9 16v4M15 16v4"/></svg> Marketplace <span class="badge">NEW</span></button>
       <button class="nav-item" data-key="wealth">
         <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg> My Wealth <span class="sub">· Accounts</span></button>
       <button class="nav-item" data-key="fitness">
@@ -208,6 +210,8 @@
       <iframe class="frame" id="fr-live"    data-app="live"></iframe>
       <iframe class="frame" id="fr-invest"  data-app="invest"></iframe>
       <iframe class="frame" id="fr-modelport" data-app="modelport"></iframe>
+      <iframe class="frame" id="fr-forecast" data-app="forecast"></iframe>
+      <iframe class="frame" id="fr-marketplace" data-app="marketplace"></iframe>
       <div id="soon">
         <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
         <h2 id="soon-t">Coming soon</h2>
@@ -224,6 +228,7 @@
     transactions: {app:'live',    drive:'transactions',label:'Transactions'},
     budget:       {app:'budget',  drive:null,          label:'Budget'},
     investments:  {app:'goals',   drive:'investments', label:'Investments'},
+    marketplace:  {app:'marketplace', drive:null, label:'Marketplace'},
     wealth:       {app:'live',    drive:'wealth',      label:'My Wealth'},
     fitness:      {app:'live',    drive:'fitness',     label:'Financial Fitness'},
     family:       {app:'live',    drive:'family',      label:'Family Circle'},
@@ -236,7 +241,7 @@
     profile:      {app:'goals',   drive:'profile',     label:'Profile'},
   };
   const BUILD = Date.now();  // cache-bust: always fetch the latest section files
-  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD, invest:'sections/investments.html?v='+BUILD, modelport:'sections/model-portfolio.html?v='+BUILD};
+  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD, invest:'sections/investments.html?v='+BUILD, modelport:'sections/model-portfolio.html?v='+BUILD, forecast:'sections/forecast.html?v='+BUILD, marketplace:'sections/marketplace.html?v='+BUILD};
 
   /* CSS injected into every embedded app: hide its OWN sidebar + topbar so only the Absa rail shows */
   const HIDE_CHROME = `
@@ -268,8 +273,10 @@
     live:   document.getElementById('fr-live'),
     invest: document.getElementById('fr-invest'),
     modelport: document.getElementById('fr-modelport'),
+    forecast: document.getElementById("fr-forecast"),
+    marketplace: document.getElementById("fr-marketplace"),
   };
-  const loaded = {goals:false, budget:false, reports:false, live:false, invest:false, modelport:false};
+  const loaded = {goals:false, budget:false, reports:false, live:false, invest:false, modelport:false, forecast:false, marketplace:false};
   const boot = document.getElementById('boot');
   const soon = document.getElementById('soon');
   const crHome = document.getElementById('crHome');
@@ -529,10 +536,11 @@
 
   /* ---- Investments sub-navigation (Wallet/Trade/Portfolio/Money Market/Absa Money Market Fund/Model Portfolio) ---- */
   const INV_TABS = [
-    {id:'wallet',    label:'Wallet',         app:'goals',     drive:'investments',  ic:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h3"/>'},
+    {id:'wallet',    label:'Investment Wallet', app:'goals',   drive:'investments',  ic:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h3"/>'},
     {id:'trade',     label:'Trade',          app:'goals',     drive:'invest_trade', ic:'<path d="M4 16l5-5 3 3 7-8"/><path d="M15 6h5v5"/>'},
     {id:'absammf',   label:'Absa MMF',       app:'invest',    drive:null,           ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M9 12h6"/>'},
     {id:'modelport', label:'Model Portfolio',app:'modelport', drive:null,           ic:'<path d="M12 3v9l7 4"/><circle cx="12" cy="12" r="9"/>'},
+    {id:'forecast',  label:'Market Forecast',app:'forecast',  drive:null,           ic:'<path d="M4 16l5-6 3 3 4-6 4 5"/><path d="M3 20h18"/>'},
   ];
   let invTab='wallet';
   function renderInvTabs(){
