@@ -354,6 +354,12 @@ svg{flex:none}
 .daypop{background:#fff;border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow-lg);margin-top:6px;overflow:hidden;max-height:230px;overflow-y:auto}
 .daypop .o{padding:13px 16px;font-size:14.5px;border-bottom:1px solid var(--line);cursor:pointer}
 .daypop .o:last-child{border:none}.daypop .o:hover{background:var(--tile)}.daypop .o.on{background:var(--absa);color:#fff}
+.daypop.grid{max-height:none}
+.dompop-h{font-size:12.5px;font-weight:600;color:var(--muted);padding:14px 16px 4px}
+.domgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:8px 14px 6px}
+.dom{aspect-ratio:1;display:grid;place-items:center;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:.12s}
+.dom:hover{background:var(--tile)}.dom.on{background:var(--absa);color:#fff}
+.dompop-n{font-size:11.5px;color:var(--muted);line-height:1.45;padding:6px 16px 14px}
 /* transactions grouped list */
 .txg{font-size:13px;font-weight:600;color:var(--muted);margin:16px 0 4px}.txg:first-child{margin-top:0}
 .txr{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);cursor:pointer}
@@ -637,10 +643,14 @@ function dayPicker(){
       <div class="dayin" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfWeek?'':'ph'}">${r.dayOfWeek||'e.g. Monday'}</span><span class="cal">${IC.chevD}</span></div>
       ${S.dayOpen?`<div class="daypop">${WEEKDAYS.map(d=>`<div class="o ${r.dayOfWeek===d?'on':''}" onclick="S.recurring.dayOfWeek='${d}';S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div>`:''}`;
   }
-  // Monthly + Quarterly: "Day of the month" text input with calendar icon
+  // Monthly + Quarterly: "Day of the month" -> calendar-style day-of-month grid picker
   return `<div class="fl">Day of the month</div>
-    <div class="dayin" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month':'e.g. 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
-    ${S.dayOpen?`<div class="daypop">${Array.from({length:28},(_,i)=>i+1).map(d=>`<div class="o ${(''+r.dayOfMonth)===(''+d)?'on':''}" onclick="S.recurring.dayOfMonth=${d};S.dayOpen=false;renderDrawer()">${ordinal(d)} of the month</div>`).join('')}</div>`:''}`;
+    <div class="dayin ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month':'e.g. 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
+    ${S.dayOpen?`<div class="daypop grid">
+      <div class="dompop-h">Select a day of the month</div>
+      <div class="domgrid">${Array.from({length:31},(_,i)=>i+1).map(d=>`<div class="dom ${(''+r.dayOfMonth)===(''+d)?'on':''}" onclick="event.stopPropagation();S.recurring.dayOfMonth=${d};S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div>
+      <div class="dompop-n">Payments run on this day every ${r.freq==='Quarterly'?'3 months':'month'}. For the 29th-31st, the last day is used in shorter months.</div>
+    </div>`:''}`;
 }
 
 /* BUY */
@@ -687,9 +697,7 @@ function dwBuy(){
       <div class="amtbox ${err?'err':''}" id="bAmtBox"><span class="c">UGX</span><input id="bAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0.00" value="${b.amount?b.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onBuy(this.value)"></div>
       ${err?`<div class="minerr" id="bErr">${IC.warn}<span>${err}</span></div>`:`<div class="minhint" id="bHint">Minimum of ${ugx(MIN)}</div>`}
       <div class="chips2">${chips.map(c=>`<button class="chip2 ${b.amount===c?'on':''}" onclick="S.buy.amount=${c};renderDrawer()">${c/1000}k</button>`).join('')}</div>
-      <div class="togrow" style="margin-top:16px"><div class="sw ${b.recurring?'on':''}" onclick="S.buy.recurring=!S.buy.recurring;renderDrawer()"></div><div class="t">Would you like to set up a recurring payment?</div></div>
     </div>
-    ${b.recurring?recurringCard(b.amount):''}
     <div class="dfoot"><button class="dbtn" id="bCont" ${buyValid()?'':'disabled'} onclick="S.buy.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 /* recurring config card (shared: inside Buy toggle, and standalone recurring setup) */
