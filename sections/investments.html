@@ -386,6 +386,18 @@ svg{flex:none}
 .perdrop{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;margin-bottom:6px;cursor:pointer}
 .perdrop svg{width:16px;height:16px;color:var(--absa)}
 .dcheck2{width:120px;height:120px;margin:2px auto 18px;display:block}
+/* processing / loading state */
+.procwrap{text-align:center;padding:70px 20px 40px}
+.pspin{width:56px;height:56px;border-radius:50%;border:4px solid #EBDCE1;border-top-color:var(--absa);margin:0 auto 22px;animation:pspin .8s linear infinite}
+@keyframes pspin{to{transform:rotate(360deg)}}
+.proctitle{font-size:18px;font-weight:700;margin-bottom:6px}
+.procsub{font-size:14px;color:var(--muted)}
+/* error state (OTT "There seems to be a problem") */
+.errwrap{text-align:center;padding:30px 16px 4px}
+.errx{width:84px;height:84px;border-radius:50%;background:var(--absa);display:grid;place-items:center;margin:0 auto 20px}
+.errx svg{width:38px;height:38px;color:#fff}
+.errtitle{font-size:20px;font-weight:700;margin-bottom:8px}
+.errsub{font-size:14px;color:var(--muted);max-width:320px;margin:0 auto 22px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -629,6 +641,7 @@ function dh(title,step,back){
   return `<div class="dh">${bk}<h3>${esc(title)}</h3><button class="b" onclick="tryClose()">${IC.x}</button></div>${prog}`;
 }
 function dhX(onclose){ return `<div class="dh"><span style="width:30px"></span><h3></h3><button class="b" onclick="${onclose||'closeDrawer()'}">${IC.x}</button></div>`; }
+function procView(title){ return `<div class="dh"><span style="width:30px"></span><h3></h3><span style="width:30px"></span></div><div class="db"><div class="procwrap"><div class="pspin"></div><div class="proctitle">${title}</div><div class="procsub">Please wait a moment...</div></div></div>`; }
 /* decorative maroon check illustration (success screens) */
 const DCHECK2='<svg class="dcheck2" viewBox="0 0 130 130" fill="none"><circle cx="65" cy="66" r="46" fill="#ECECEE"/><path d="M42 67l15 15 33-37" stroke="#95052A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M96 40l8-4M99 52l7 1M90 30l3 6M34 44l-7-3M28 58l-6 2" stroke="#E8830C" stroke-width="3" stroke-linecap="round"/><circle cx="104" cy="46" r="3" fill="#E8830C"/><circle cx="30" cy="34" r="3" fill="#D6336C"/><circle cx="100" cy="86" r="2.5" fill="#D6336C"/></svg>';
 
@@ -695,6 +708,7 @@ function buyValid(){ const b=S.buy; return b.amount>=MIN && b.amount<=Math.min(b
 function acctLine(a){ return `${esc(a.name)}<span class="sub">••••${esc(a.mask)}</span>`; }
 function dwBuy(){
   const b=S.buy,f=S.fund,a=S.from,r=S.recurring,chips=[10000,50000,100000,500000];
+  if(b.step==='loading') return procView('Processing your buy order');
   // ---- step 3: success ----
   if(b.step===3) return dhX()+`<div class="db"><div class="succ-wrap">${DCHECK2}
     <div class="succ-amt dnum">${ugx(b.amount)}</div>
@@ -752,13 +766,14 @@ function recurringCard(amount){
 }
 function refocus(id){const el=$('#'+id);if(el){el.focus();const L=el.value.length;try{el.setSelectionRange(L,L);}catch(e){}}}
 function onBuy(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.buy.amount=n;renderDrawer();refocus('bAmt');}
-function confirmBuy(){const n=S.buy.amount;S.from.balance-=(n+FEE);S.fund.available+=n;S.fund.current+=n;S.fund.invested+=n;S.fund.purchase+=n;S.fund.units+=Math.round(n/10);if(S.buy.recurring){Object.assign(S.recPlan,{active:true,amount:n,freq:S.recurring.freq,dayOfWeek:S.recurring.dayOfWeek,dayOfMonth:S.recurring.dayOfMonth,failed:false});}S.buy.step=3;renderDrawer();}
+function confirmBuy(){const n=S.buy.amount;S.from.balance-=(n+FEE);S.fund.available+=n;S.fund.current+=n;S.fund.invested+=n;S.fund.purchase+=n;S.fund.units+=Math.round(n/10);if(S.buy.recurring){Object.assign(S.recPlan,{active:true,amount:n,freq:S.recurring.freq,dayOfWeek:S.recurring.dayOfWeek,dayOfMonth:S.recurring.dayOfMonth,failed:false});}S.buy.step='loading';renderDrawer();setTimeout(()=>{if(S.drawer==='buy'){S.buy.step=3;renderDrawer();}},1000);}
 
 /* SELL */
 function sellValid(){ const s=S.sell,f=S.fund; if(s.mode==='full') return f.available>0; return s.amount>0 && s.amount<=(f.available-MIN); }
 function dwSell(){
   const s=S.sell,f=S.fund,a=S.from,chips=[10000,50000,100000,500000];
   const amount = s.mode==='full'?f.available:s.amount;
+  if(s.step==='loading') return procView('Processing your sell order');
   // ---- success ----
   if(s.step===3) return dhX()+`<div class="db"><div class="succ-wrap">${DCHECK2}
     <div class="succ-amt dnum">${ugx(amount)}</div>
@@ -798,7 +813,7 @@ function dwSell(){
     <div class="dfoot"><button class="dbtn" id="sCont" ${sellValid()?'':'disabled'} onclick="S.sell.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 function onSell(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.sell.amount=n;renderDrawer();refocus('sAmt');}
-function confirmSell(){const n=S.sell.mode==='full'?S.fund.available:S.sell.amount;S.fund.available-=n;S.fund.current-=n;S.fund.invested=Math.max(0,S.fund.invested-n);S.from.balance+=Math.max(0,n-FEE);S.txns.unshift({type:'Withdrawal',amount:n,date:'6 Jul',status:'Pending'});S.sell.step=3;renderDrawer();}
+function confirmSell(){const n=S.sell.mode==='full'?S.fund.available:S.sell.amount;S.fund.available-=n;S.fund.current-=n;S.fund.invested=Math.max(0,S.fund.invested-n);S.from.balance+=Math.max(0,n-FEE);S.sell.step='loading';renderDrawer();setTimeout(()=>{if(S.drawer==='sell'){S.sell.step=3;renderDrawer();}},1000);}
 
 /* UNIT TRUST DETAILS (drawer) */
 function openDetail(prod){ S.drawer='detail'; S.detailProduct=prod; S.detailTC=false; renderDrawer(); $('#scrim').classList.add('show'); $('#drawer').classList.add('show'); }
@@ -830,6 +845,7 @@ function recSchedule(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'week'
 function recValid(r){ return r.amount>=MIN && (r.freq==='Weekly'?!!r.dayOfWeek : !!r.dayOfMonth); }
 function dwRecSetup(){
   const r=S.recurring,f=S.fund,a=S.from,chips=[10000,50000,100000,500000];
+  if(r.step==='loading') return procView('Setting up your recurring payment');
   // ---- success ----
   if(r.step===3) return dhX('finishRecSetup()')+`<div class="db"><div class="succ-wrap">${DCHECK2}
     <div class="succ-amt dnum">${ugx(r.amount)}</div>
@@ -870,7 +886,7 @@ function dwRecSetup(){
     <div class="dfoot"><button class="dbtn" id="rCont" ${recValid(r)?'':'disabled'} onclick="S.recurring.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 function onRec(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.recurring.amount=n;renderDrawer();refocus('rAmt');}
-function activateRecurring(){ Object.assign(S.recPlan,{active:true,amount:S.recurring.amount,freq:S.recurring.freq,dayOfWeek:S.recurring.dayOfWeek,dayOfMonth:S.recurring.dayOfMonth,failed:false}); S.recurring.step=3; renderDrawer(); }
+function activateRecurring(){ Object.assign(S.recPlan,{active:true,amount:S.recurring.amount,freq:S.recurring.freq,dayOfWeek:S.recurring.dayOfWeek,dayOfMonth:S.recurring.dayOfMonth,failed:false}); S.recurring.step='loading'; renderDrawer(); setTimeout(()=>{if(S.drawer==='recsetup'){S.recurring.step=3;renderDrawer();}},1000); }
 function finishRecSetup(){ S.recurring.step=0; closeDrawer(); S.panel='recurring'; render(); }
 /* cancel recurring: confirmation dialog -> success */
 function cancelRecurring(){ $('#dlgScrim').innerHTML = `<div class="dlg">
