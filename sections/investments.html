@@ -112,6 +112,7 @@ h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.3px}
 .ip-head h3{flex:1;font-size:16px}
 .ip-head .x{width:30px;height:30px;border-radius:8px;display:grid;place-items:center}.ip-head .x:hover{background:var(--tile)}
 .ip-body{padding:22px}
+.ip-body.long{max-height:calc(100vh - 150px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .kvcol{display:grid;grid-template-columns:1fr 1fr;gap:22px 16px}
 .kvcol .k{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .kvcol .v{font-weight:700;font-size:17px;margin-top:2px}
@@ -296,7 +297,7 @@ svg{flex:none}
 .dprog{display:flex;gap:0;height:3px;background:transparent;margin:16px 0 0}
 .dprog i{flex:1;height:100%;background:#E3E5E8}
 .dprog i.on{background:var(--absa)}
-.db{background:#F4F5F6;padding:20px 22px 28px}
+.db{background:#F4F5F6;padding:20px 22px 28px;overscroll-behavior:contain}
 .dcard{background:#fff;border-radius:16px;padding:20px 20px;margin-bottom:16px}
 .dcard.tight{padding:18px 20px}
 .cardh{font-weight:700;font-size:16px;margin:0 0 14px}
@@ -546,7 +547,7 @@ function viewDash(){
     </div>
   </div>`;
 }
-function togglePanel(p){ S.panel = S.panel===p?null:p; render(); if(S.panel){ setTimeout(()=>{const el=$('#inlinePanel');if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});},80);} }
+function togglePanel(p){ const opening = S.panel!==p; S.panel = opening?p:null; render(); if(opening){ const anchor=(p==='transactions'||p==='statements')?'start':'nearest'; setTimeout(()=>{const el=$('#inlinePanel');if(el)el.scrollIntoView({behavior:'smooth',block:anchor});},80);} }
 function inlinePanel(){
   const f=S.fund, titles={transactions:'Transactions',statements:'Statements',recurring:'Recurring payments',account:'Account details'};
   let body='';
@@ -585,7 +586,8 @@ function inlinePanel(){
         <button class="btn btn-primary btn-lg btn-block" onclick="openDrawer('recsetup')">Set up recurring payment</button>`;
     }
   }
-  return `<div class="inline-panel" id="inlinePanel"><div class="ip-head"><button class="x" onclick="S.panel=null;render()">${IC.x}</button><h3>${titles[S.panel]}</h3>${S.panel==='transactions'?`<button class="x" onclick="toast('Filter transactions')" style="margin-left:auto">${IC.filter}</button>`:''}</div><div class="ip-body">${body}</div></div>`;
+  const longPanel = (S.panel==='transactions'||S.panel==='statements');
+  return `<div class="inline-panel" id="inlinePanel"><div class="ip-head"><button class="x" onclick="S.panel=null;render()">${IC.x}</button><h3>${titles[S.panel]}</h3>${S.panel==='transactions'?`<button class="x" onclick="toast('Filter transactions')" style="margin-left:auto">${IC.filter}</button>`:''}</div><div class="ip-body${longPanel?' long':''}">${body}</div></div>`;
 }
 function recScheduleLabel(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'Monday')) : ((r.dayOfMonth?ordinal(+r.dayOfMonth):'12th')+' of each month'); }
 function txnList(){
