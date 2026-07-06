@@ -91,6 +91,20 @@
 
   .content{flex:1;overflow:hidden;position:relative;background:var(--absa-bg)}
   .frame{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#fff}
+  #invTabs{display:none}
+  #invTabs.on{display:flex;position:absolute;top:0;left:0;right:0;height:68px;align-items:center;padding:0 clamp(16px,3vw,30px);background:#fff;border-bottom:1px solid #EEEFF1;z-index:4;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  #invTabs.on::-webkit-scrollbar{display:none}
+  #invTabs.on ~ .frame{top:68px}
+  .inv-seg{display:inline-flex;gap:4px;background:#F4F2F3;border:1px solid #EDE9EA;border-radius:16px;padding:5px;box-shadow:inset 0 1px 2px rgba(16,24,40,.04)}
+  .inv-tab{display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:12px;font-weight:600;font-size:14.5px;line-height:1;letter-spacing:-.1px;color:#6B5560;white-space:nowrap;background:transparent;cursor:pointer;transition:color .2s,background .2s,box-shadow .25s,transform .12s;font-family:inherit}
+  .inv-tab svg{width:18px;height:18px;opacity:.65;transition:opacity .2s}
+  .inv-tab:hover{color:#95052A;background:rgba(149,5,42,.06)}
+  .inv-tab:hover svg{opacity:.9}
+  .inv-tab:active{transform:scale(.98)}
+  .inv-tab.on{background:#95052A;color:#fff;box-shadow:0 4px 12px -3px rgba(149,5,42,.5),0 1px 2px rgba(0,0,0,.08)}
+  .inv-tab.on svg{opacity:1}
+  .inv-tab:focus-visible{outline:2px solid #95052A;outline-offset:2px}
+  @media(max-width:640px){#invTabs.on{padding:0 12px}.inv-tab{padding:11px 16px;font-size:14px}}
   .frame.active{display:block}
 
   /* Coming-soon (only for items with no built screen) */
@@ -187,10 +201,13 @@
 
     <div class="content" id="content">
       <div id="boot"><div class="sp"></div></div>
+      <div id="invTabs"><!-- Investments sub-nav injected by shell --></div>
       <iframe class="frame" id="fr-goals"   data-app="goals"></iframe>
       <iframe class="frame" id="fr-budget"  data-app="budget"></iframe>
       <iframe class="frame" id="fr-reports" data-app="reports"></iframe>
       <iframe class="frame" id="fr-live"    data-app="live"></iframe>
+      <iframe class="frame" id="fr-invest"  data-app="invest"></iframe>
+      <iframe class="frame" id="fr-modelport" data-app="modelport"></iframe>
       <div id="soon">
         <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
         <h2 id="soon-t">Coming soon</h2>
@@ -219,7 +236,7 @@
     profile:      {app:'goals',   drive:'profile',     label:'Profile'},
   };
   const BUILD = Date.now();  // cache-bust: always fetch the latest section files
-  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD};
+  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD, invest:'sections/investments.html?v='+BUILD, modelport:'sections/model-portfolio.html?v='+BUILD};
 
   /* CSS injected into every embedded app: hide its OWN sidebar + topbar so only the Absa rail shows */
   const HIDE_CHROME = `
@@ -248,8 +265,10 @@
     budget: document.getElementById('fr-budget'),
     reports:document.getElementById('fr-reports'),
     live:   document.getElementById('fr-live'),
+    invest: document.getElementById('fr-invest'),
+    modelport: document.getElementById('fr-modelport'),
   };
-  const loaded = {goals:false, budget:false, reports:false, live:false};
+  const loaded = {goals:false, budget:false, reports:false, live:false, invest:false, modelport:false};
   const boot = document.getElementById('boot');
   const soon = document.getElementById('soon');
   const crHome = document.getElementById('crHome');
@@ -274,6 +293,101 @@
         doc.head.appendChild(st);
       }
       if(app==='goals') injectGoalsBack(doc);
+      setupKyc(doc);
+      deGreen(doc); fixSmartSaver(doc);
+      setTimeout(()=>{deGreen(doc);fixSmartSaver(doc);},500);
+      setTimeout(()=>{deGreen(doc);fixSmartSaver(doc);},1400);
+    }catch(e){}
+  }
+
+  /* The Smart Saver card keeps a maroon->green gradient from the original Vault22 design.
+     Target the card by its content and force a full Absa maroon gradient. */
+  function fixSmartSaver(doc){
+    try{
+      doc.querySelectorAll('*').forEach(el=>{
+        const t=el.textContent||'';
+        if(/Smart Saver/.test(t) && /(Put My Cash To Work|potential return|Earning More)/.test(t) && t.length<700){
+          const s=getComputedStyle(el);
+          if(/gradient/.test(s.backgroundImage)){
+            el.style.setProperty('background','linear-gradient(120deg,#95052A,#6E0420)','important');
+            el.style.setProperty('background-image','linear-gradient(120deg,#95052A,#6E0420)','important');
+          }
+        }
+        // any nested green-tinted gradient overlays inside the card
+      });
+    }catch(e){}
+  }
+
+  /* Recolour any remaining Vault22 brand green (Smart Saver, Financial Fitness Elite/950,
+     accents, glows) to Absa maroon. Semantic gain-green (#168335) and SA-flag green are a
+     different rgb and are deliberately preserved. */
+  function deGreen(doc){
+    try{
+      const G=['rgb(1, 195, 141)','rgb(0, 195, 137)','rgb(20, 184, 166)','rgb(16, 185, 129)',
+        'rgb(52, 211, 153)','rgb(0, 224, 160)','rgb(5, 150, 105)','rgb(4, 120, 87)','rgb(2, 199, 141)',
+        'rgb(110, 231, 183)','rgb(167, 243, 208)','rgb(0, 158, 112)'];
+      const A='#95052A';
+      doc.querySelectorAll('*').forEach(el=>{
+        const s=getComputedStyle(el);
+        if(G.includes(s.color)) el.style.setProperty('color',A,'important');
+        if(G.includes(s.backgroundColor)) el.style.setProperty('background-color',A,'important');
+        if(G.includes(s.borderTopColor)||G.includes(s.borderColor)) el.style.setProperty('border-color',A,'important');
+        if(/1, 195, 141|0, 195, 137|20, 184, 166|2, 199, 141|0, 224, 160/.test(s.boxShadow)) el.style.setProperty('box-shadow','none','important');
+        // green gradient backgrounds (Smart Saver etc.)
+        if(/1, 195, 141|0, 195, 137|16, 185, 129|5, 150, 105|4, 120, 87/.test(s.backgroundImage)) el.style.setProperty('background-image','linear-gradient(120deg,#95052A,#77021E)','important');
+      });
+    }catch(e){}
+  }
+
+  /* Remove all KYC UI/references (Absa runs its own KYC). Keep Risk Assessment.
+     goals.html is a minified React bundle rendering the Compliance Simulator +
+     Profile dynamically, so we strip KYC via the DOM + a MutationObserver rather
+     than editing the bundle. KYC state stays at its default "Valid", so investing
+     only ever gates on Risk Assessment. */
+  function stripKyc(doc){
+    try{
+      doc.querySelectorAll('div,section,li,tr,td,p,span').forEach(el=>{
+        if(el.__kyc || el.children.length) return;      // leaf text nodes only
+        const t=(el.textContent||'').trim();
+        if(!t || t.length>90) return;
+        // 1) Compliance Simulator KYC toggle group -> hide the padded group wrapper
+        if(/^KYC \(renews/i.test(t)){
+          const grp=el.parentElement; if(grp){grp.style.display='none'; grp.__kyc=1;}
+          el.__kyc=1; return;
+        }
+        // 2) Profile "Identity check (KYC)" row -> hide the row, keep sibling Risk assessment
+        if(/^Identity check \(KYC\)/i.test(t)){
+          let n=el;
+          while(n.parentElement && n.parentElement!==doc.body && !/risk assessment/i.test(n.parentElement.textContent)) n=n.parentElement;
+          n.style.display='none'; el.__kyc=1; return;
+        }
+        // 3) Reports / verification KYC rows -> hide the row
+        if(/^KYC provider|^KYC status/i.test(t)){
+          let n=el;
+          for(let i=0;i<2 && n.parentElement;i++){ if(/risk assessment/i.test(n.parentElement.textContent)) break; n=n.parentElement; }
+          n.style.display='none'; el.__kyc=1; return;
+        }
+      });
+      // 4) Rewrite the simulator intro so it no longer references KYC
+      doc.querySelectorAll('div,p,span').forEach(el=>{
+        if(el.children.length || el.__kycTxt) return;
+        if(/Set Risk Assessment and KYC status\./.test(el.textContent)){
+          el.textContent=el.textContent
+            .replace('Set Risk Assessment and KYC status.','Set your Risk Assessment status.')
+            .replace('when either is expired or never completed','when it is expired or never completed');
+          el.__kycTxt=1;
+        }
+      });
+    }catch(e){}
+  }
+  function setupKyc(doc){
+    try{
+      stripKyc(doc);
+      if(!doc.__kycObs){
+        const o=new MutationObserver(()=>stripKyc(doc));
+        o.observe(doc.body,{childList:true,subtree:true});
+        doc.__kycObs=o;
+      }
     }catch(e){}
   }
 
@@ -376,6 +490,9 @@
     if(!r){ Object.values(frames).forEach(f=>f.classList.remove('active')); soon.classList.add('active'); crumb.textContent='Coming soon'; return; }
     soon.classList.remove('active');
     crumb.textContent = r.label;
+    // Investments: show the sub-nav tab bar matching the live app and default to Wallet
+    if(key==='investments'){ renderInvTabs(); showInvTab('wallet'); return; }
+    document.getElementById('invTabs').classList.remove('on');
     // show only the target app frame
     Object.values(frames).forEach(f=>f.classList.remove('active'));
     ensureLoaded(r.app, ()=>{
@@ -384,6 +501,33 @@
       drive(r.app, r.drive);
     });
     if(loaded[r.app]){ frames[r.app].classList.add('active'); injectChrome(r.app); drive(r.app, r.drive); }
+  }
+
+  /* ---- Investments sub-navigation (Wallet/Trade/Portfolio/Money Market/Absa Money Market Fund/Model Portfolio) ---- */
+  const INV_TABS = [
+    {id:'wallet',    label:'Wallet',         app:'goals',     drive:'investments',  ic:'<rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M16 12h3"/>'},
+    {id:'trade',     label:'Trade',          app:'goals',     drive:'invest_trade', ic:'<path d="M4 16l5-5 3 3 7-8"/><path d="M15 6h5v5"/>'},
+    {id:'absammf',   label:'Absa MMF',       app:'invest',    drive:null,           ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M9 12h6"/>'},
+    {id:'modelport', label:'Model Portfolio',app:'modelport', drive:null,           ic:'<path d="M12 3v9l7 4"/><circle cx="12" cy="12" r="9"/>'},
+  ];
+  let invTab='wallet';
+  function renderInvTabs(){
+    const bar=document.getElementById('invTabs');
+    bar.classList.add('on');
+    bar.innerHTML = '<div class="inv-seg" role="tablist">'+INV_TABS.map(t=>`<button class="inv-tab${t.id===invTab?' on':''}" role="tab" aria-selected="${t.id===invTab}" data-inv="${t.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${t.ic}</svg><span>${t.label}</span></button>`).join('')+'</div>';
+    bar.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>showInvTab(b.dataset.inv));
+  }
+  function showInvTab(id){
+    invTab=id; renderInvTabs();
+    const t=INV_TABS.find(x=>x.id===id)||INV_TABS[0];
+    Object.values(frames).forEach(f=>f.classList.remove('active'));
+    const doDrive=()=>{
+      frames[t.app].classList.add('active'); injectChrome(t.app);
+      if(t.drive==='invest_trade'){ drive('goals','investments'); setTimeout(()=>{ try{ const d=frames.goals.contentDocument; const b=[...d.querySelectorAll('button,a')].find(e=>/browse tickers|discover|trade/i.test(e.textContent)); if(b) b.click(); }catch(e){} }, 700); }
+      else drive(t.app, t.drive);
+    };
+    ensureLoaded(t.app, doDrive);
+    if(loaded[t.app]) doDrive();
   }
 
   function go(key){ const b=document.querySelector('.nav-item[data-key="'+key+'"]'); if(b) b.click(); }

@@ -774,7 +774,7 @@ const chevD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const chevR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
 
 /* ---- summary (month / year) ---- */
-const YEAR={range:'Jan 2026 – Dec 2026',centre:'Jan 2026<br>–<br>Dec 2026',eomK:'Expected EoY',eom:"On track for the year",eomC:'var(--green)',pace:null,
+const YEAR={range:'Jan 2026 - Dec 2026',centre:'Jan 2026<br>-<br>Dec 2026',eomK:'Expected EoY',eom:"On track for the year",eomC:'var(--green)',pace:null,
     stats:[{v:318942,k:'Spent this year'},{v:668616,k:'Budget this year'},{v:349674,k:'Left this year'}]};
 const MONTHS=[
   {range:'1 - 30 Jun 2026',centre:'1 - 30 Jun<br>2026',eomK:'End of month',eom:'Finished on track',eomC:'var(--green)',pace:'under',arc:0.99,safe:0,safeSub:'this budget period has ended',
@@ -1520,7 +1520,7 @@ function updateStartDate(){
   const sel=document.querySelector('#dayGrid .day.sel'); const last=document.getElementById('lastDayBox').classList.contains('on');
   const day=last?'last day':(sel?sel.textContent.trim():'1');
   const ord=n=>{n=parseInt(n);return n+((n%10==1&&n!=11)?'st':(n%10==2&&n!=12)?'nd':(n%10==3&&n!=13)?'rd':'th');};
-  if(!last && day!=='1'){const d=parseInt(day);MONTHS[1].range=day+' Jul – '+(d-1)+' Aug 2026';MONTHS[1].centre=day+' Jul –<br>'+(d-1)+' Aug';}
+  if(!last && day!=='1'){const d=parseInt(day);MONTHS[1].range=day+' Jul - '+(d-1)+' Aug 2026';MONTHS[1].centre=day+' Jul -<br>'+(d-1)+' Aug';}
   else {MONTHS[1].range='1 - 31 Jul 2026';MONTHS[1].centre='1 - 31 Jul<br>2026';}
   periodLabel=MONTHS[1].range; periodCentre=MONTHS[1].centre;   // reflect in both linked + not-linked summary
   period='month'; monthIdx=1; showView('budget'); renderSummary(); renderFocus();
@@ -1549,7 +1549,7 @@ function toggleLastDay(){
   updatePeriodPreview();
 }
 function ordDay(n){n=parseInt(n);return n+((n%10==1&&n!=11)?'st':(n%10==2&&n!=12)?'nd':(n%10==3&&n!=13)?'rd':'th');}
-/* live behaviour: the right-hand "start – until – end" card updates as you pick a day */
+/* live behaviour: the right-hand "start - until - end" card updates as you pick a day */
 function updatePeriodPreview(){
   const sel=document.querySelector('#dayGrid .day.sel');
   const last=document.getElementById('lastDayBox').classList.contains('on');

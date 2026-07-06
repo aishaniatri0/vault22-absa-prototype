@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ABSA Investments - Unit Trust</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ===== ABSA Uganda Investments - Unit Trust (ABSA Shilingi Fund). Desktop. Mock/illustrative. ===== */
+:root{
+  --absa:#95052A; --absa-2:#77021E; --absa-3:#B4143F; --link:#B4143F;
+  --green:#158B3A; --green-soft:#E7F6EC;
+  --bg:#F4F5F6; --card:#fff; --line:#E6E7EA; --line-2:#DDDFE3;
+  --ink:#1B2430; --ink-2:#3C4757; --muted:#6E7883; --muted-2:#98A2AF;
+  --tile:#F3F4F6;
+  --r:16px; --r-sm:12px;
+  --shadow:0 1px 2px rgba(16,24,40,.05); --shadow-lg:0 24px 50px -22px rgba(16,24,40,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
+a{color:inherit}
+.inv-wrap{max-width:1160px;margin:0 auto;padding:28px 30px 60px}
+.dnum{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.link{color:var(--link);font-weight:600;cursor:pointer}
+.link:hover{text-decoration:underline}
+.hidden{display:none!important}
+
+/* page header */
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.page-head h1{font-size:30px}
+.page-head .sub{color:var(--muted);font-size:14px;margin-top:3px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:12px;font-weight:600;font-size:14.5px;transition:.18s;border:1.5px solid transparent;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--absa);color:#fff}
+.btn-primary:hover{background:var(--absa-2)}
+.btn-primary:disabled{background:#D9AEB9;cursor:not-allowed}
+.btn-outline{background:#fff;border-color:var(--absa);color:var(--absa)}
+.btn-outline:hover{background:#FBF0F3}
+.btn-ghost{background:var(--tile);color:var(--ink)}
+.btn-ghost:hover{background:#EAECEF}
+.btn-block{width:100%}
+.btn-lg{padding:15px 22px;font-size:15px}
+
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.grid{display:grid;gap:20px}
+.cols-2{grid-template-columns:1fr 360px}
+@media(max-width:960px){.cols-2{grid-template-columns:1fr}}
+
+/* portfolio summary tiles */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+@media(max-width:760px){.summary{grid-template-columns:1fr}}
+.sum-tile{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.sum-tile .t{font-size:13px;color:var(--muted);font-weight:600}
+.sum-tile .v{font-size:22px;font-weight:800;margin-top:6px}
+.sum-tile.on{border-color:var(--absa);box-shadow:0 0 0 1px var(--absa)}
+
+/* fund list */
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:26px 0 12px}
+.section-title h2{font-size:17px}
+.fund-row{display:flex;align-items:center;gap:16px;padding:18px 20px;background:#fff;border:1px solid var(--line);border-radius:var(--r);cursor:pointer;transition:.18s;margin-bottom:12px}
+.fund-row:hover{border-color:var(--line-2);box-shadow:var(--shadow)}
+.fund-logo{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;background:#EAF0FA}
+.fund-logo svg{width:26px;height:26px}
+.fund-row .nm{font-weight:700;font-size:15px}
+.fund-row .id{font-size:12.5px;color:var(--muted);margin-top:2px}
+.fund-row .bal{margin-left:auto;text-align:right}
+.fund-row .bal .lbl{font-size:11.5px;color:var(--muted)}
+.fund-row .bal .amt{font-weight:700;font-size:14.5px}
+.fund-row .view{color:var(--link);font-weight:600;font-size:14px;margin-left:6px}
+
+/* explore card */
+.explore{display:flex;align-items:center;gap:16px;padding:0;overflow:hidden;cursor:pointer;transition:.18s}
+.explore:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.explore .thumb{width:96px;height:88px;flex:none;background:linear-gradient(135deg,var(--absa),var(--absa-2));display:grid;place-items:center}
+.explore .thumb svg{width:34px;height:34px;color:#fff;opacity:.9}
+.explore .mid{flex:1;padding:16px 4px}
+.explore .mid .s{font-size:12.5px;color:var(--muted)}
+.explore .mid .b{font-weight:700;font-size:16px}
+.explore .plus{margin:0 20px 0 auto;color:var(--absa)}
+.explore .plus svg{width:28px;height:28px}
+
+/* ===== fund dashboard ===== */
+.fund-hero{border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:#fff}
+.fund-hero .band{background:linear-gradient(100deg,var(--absa),var(--absa-2));color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px}
+.fund-hero .band .dash{width:22px;height:4px;border-radius:3px;background:rgba(255,255,255,.7)}
+.fund-hero .band .sep{opacity:.5;margin:0 2px}
+.fund-hero .body{padding:26px 24px 28px;text-align:center}
+.fund-hero .avlbl{color:var(--absa);font-weight:600;font-size:13.5px}
+.fund-hero .avbal{font-size:34px;font-weight:800;margin-top:2px}
+.fund-hero .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 24px}
+.fund-hero .stats .k{font-size:12.5px;color:var(--muted)}
+.fund-hero .stats .v{font-weight:700;font-size:15px;margin-top:3px}
+.fund-hero .stats .v.pos{color:var(--green)}
+.pl-pill{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;color:var(--green);background:var(--green-soft);padding:2px 9px;border-radius:20px}
+.hero-cta{display:flex;gap:14px;justify-content:center}
+.hero-cta .btn{min-width:130px}
+
+/* actions grid */
+.actions{padding:22px}
+.actions h3{font-size:15px;margin-bottom:16px}
+.action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:620px){.action-grid{grid-template-columns:repeat(2,1fr)}}
+.action{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 8px;border-radius:14px;transition:.16s;cursor:pointer}
+.action:hover{background:var(--tile)}
+.action .ic{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--absa);display:grid;place-items:center;color:var(--absa)}
+.action .ic svg{width:22px;height:22px}
+.action .lb{font-size:13px;font-weight:600;color:var(--ink-2)}
+
+/* right rail unit trusts */
+.rail-fund{display:flex;align-items:center;gap:12px;padding:16px;border-left:3px solid var(--absa);background:#fff;border:1px solid var(--line);border-left-width:3px;border-radius:12px}
+.rail-fund .nm{font-weight:700;font-size:14px}
+.rail-fund .id{font-size:11.5px;color:var(--muted)}
+.rail-fund .r{margin-left:auto;text-align:right}
+.rail-fund .r .lbl{font-size:10.5px;color:var(--muted)}
+.rail-fund .r .amt{font-weight:700;font-size:13px}
+
+/* ===== fund detail (open investment) ===== */
+.detail-hero{border-radius:var(--r) var(--r) 0 0;background:linear-gradient(135deg,var(--absa),var(--absa-2));height:180px;position:relative;overflow:hidden;display:grid;place-items:center}
+.detail-hero .art{width:120px;height:120px;border-radius:20px;background:rgba(255,255,255,.12);display:grid;place-items:center}
+.detail-hero .art svg{width:64px;height:64px;color:#fff}
+.detail-hero .dot{position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.5)}
+.detail-card{margin-top:-46px;position:relative;z-index:2}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 16px;padding:8px 4px}
+.stat-grid .k{font-size:12.5px;color:var(--muted)}
+.stat-grid .v{font-weight:700;font-size:17px;margin-top:2px}
+.feat{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.feat:last-child{border-bottom:none}
+.feat .ic{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--absa);display:grid;place-items:center;color:var(--absa);flex:none}
+.feat .ic svg{width:20px;height:20px}
+.feat .ft{font-weight:600;font-size:14px}
+.feat .fd{font-size:12.5px;color:var(--muted)}
+.kv{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--muted)}
+.kv .v{font-weight:600}
+.doc-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.doc-row:last-child{border-bottom:none}
+.doc-row .ic{color:var(--absa)}
+.tc-row{display:flex;align-items:center;gap:12px;padding:16px 0}
+.cb{width:22px;height:22px;border-radius:6px;border:2px solid var(--muted-2);flex:none;display:grid;place-items:center;cursor:pointer;transition:.15s}
+.cb.on{background:var(--absa);border-color:var(--absa)}
+.cb svg{width:14px;height:14px;color:#fff;opacity:0}
+.cb.on svg{opacity:1}
+
+/* ===== drawer ===== */
+.scrim{position:fixed;inset:0;background:rgba(16,24,40,.42);opacity:0;pointer-events:none;transition:.25s;z-index:50}
+.scrim.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:min(480px,100vw);background:#F7F8F9;box-shadow:var(--shadow-lg);transform:translateX(102%);transition:.32s cubic-bezier(.2,.8,.2,1);z-index:60;display:flex;flex-direction:column}
+.drawer.show{transform:none}
+.drawer-head{display:flex;align-items:center;gap:12px;padding:20px 22px;background:#fff;border-bottom:1px solid var(--line)}
+.drawer-head .bk{width:34px;height:34px;border-radius:10px;display:grid;place-items:center}
+.drawer-head .bk:hover{background:var(--tile)}
+.drawer-head h3{flex:1;text-align:center;font-size:17px}
+.drawer-prog{height:3px;background:var(--line)}
+.drawer-prog>i{display:block;height:100%;background:var(--absa);transition:width .3s}
+.drawer-body{flex:1;overflow:auto;padding:22px}
+.drawer-foot{padding:18px 22px;background:#fff;border-top:1px solid var(--line)}
+.field-label{font-size:13.5px;font-weight:600;color:var(--ink-2);margin:0 0 8px}
+.acct-select{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;margin-bottom:20px}
+.acct-select .an{font-weight:600;font-size:14px}
+.acct-select .am{font-size:12px;color:var(--muted)}
+.acct-select .ab{margin-left:auto;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.acct-select .cv{color:var(--muted)}
+.amt-input{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.amt-input .cur{font-weight:700;color:var(--muted)}
+.amt-input input{flex:1;border:none;outline:none;font-size:20px;font-weight:700;text-align:right;font-family:inherit;color:var(--ink);width:100%;background:none}
+.chips{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.chip{padding:9px 16px;border-radius:20px;background:#fff;border:1px solid var(--line-2);font-size:13.5px;font-weight:600;transition:.15s}
+.chip:hover{border-color:var(--absa);color:var(--absa)}
+.chip.on{background:var(--absa);border-color:var(--absa);color:#fff}
+.hint{font-size:12.5px;color:var(--muted);margin-bottom:22px}
+.sum-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 18px;margin-top:6px}
+.sum-line{display:flex;justify-content:space-between;padding:14px 0;font-size:14px;border-bottom:1px solid var(--line)}
+.sum-line:last-child{border-bottom:none}
+.sum-line.total{font-weight:700}
+.sum-line .k{color:var(--muted)}
+.empty{text-align:center;padding:48px 20px}
+.empty .ei{width:64px;height:64px;border-radius:50%;background:var(--tile);display:grid;place-items:center;margin:0 auto 16px;color:var(--muted-2)}
+.empty .ei svg{width:30px;height:30px}
+.empty h4{font-size:18px;margin-bottom:8px}
+.empty p{color:var(--muted);max-width:280px;margin:0 auto;font-size:14px}
+.success-wrap{text-align:center;padding:36px 20px}
+.success-ic{width:84px;height:84px;margin:0 auto 18px}
+.success-ic circle{stroke-dasharray:200;stroke-dashoffset:200;animation:dr .6s .1s forwards cubic-bezier(.6,.2,.2,1)}
+.success-ic path{stroke-dasharray:60;stroke-dashoffset:60;animation:dr .4s .5s forwards cubic-bezier(.6,.2,.2,1)}
+@keyframes dr{to{stroke-dashoffset:0}}
+.txn{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.txn:last-child{border-bottom:none}
+.txn .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none}
+.txn .ic.buy{background:var(--green-soft);color:var(--green)}
+.txn .ic.sell{background:#FBEBEE;color:var(--absa)}
+.txn .tt{font-weight:600;font-size:14px}
+.txn .td{font-size:12px;color:var(--muted)}
+.txn .amt{margin-left:auto;font-weight:700;font-size:14px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:16px}
+.sw{width:46px;height:26px;border-radius:20px;background:#D2D5DA;position:relative;transition:.2s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:var(--shadow)}
+.sw.on{background:var(--absa)}.sw.on::after{left:23px}
+.disclaimer{display:flex;gap:10px;align-items:flex-start;background:#FFF8EC;border:1px solid #FCE4B6;border-radius:12px;padding:12px 14px;font-size:12.5px;color:#93610B;line-height:1.5;margin-top:18px}
+.disclaimer svg{width:16px;height:16px;flex:none;margin-top:1px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 18px;border-radius:12px;font-size:14px;z-index:120;box-shadow:var(--shadow-lg);opacity:0;transition:.25s;display:flex;align-items:center;gap:9px}
+.toast.show{opacity:1}
+.toast .i{color:#7BE0A6}
+/* embed guard: when framed inside the Absa shell, this is already inside .content area */
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer"><div id="drawerInner"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ---------------- state ---------------- */
+const S = {
+  view:'landing',            // landing | dashboard | detail
+  fund:{
+    id:'IN00000079', code:'ABSA Shilingi Fund Portfolio', short:'ABSA Shilingi Fund',
+    kind:'Money Market Fund', opened:true,
+    yield:12.5, fundSize:'UGX 85B', rating:'AAA', access:'1 - 2 days',
+    available:0, current:0, invested:0, pl:0, plPct:0
+  },
+  from:{ name:'Absa Business Access Account', mask:'1359', balance:183722108 },
+  recurring:{ active:true, amount:10000, day:15, start:'1 Jul 2026', next:'15 Jul 2026', from:'6693', total:0 },
+  txns:[],
+  buy:{ step:1, amount:0 },
+  sell:{ step:1, amount:0 },
+  detailTC:false
+};
+const MIN_BUY = 10000;
+
+/* ---------------- helpers ---------------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function ugx(n){ return 'UGX ' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function ugx0(n){ return 'UGX ' + Number(n||0).toLocaleString('en-US'); }
+function toast(msg){ const t=$('#toast'); t.innerHTML='<span class="i">✓</span>'+esc(msg); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2600); }
+
+/* icons */
+const IC = {
+  fund:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#3B6FB5" stroke-width="1.7"/><path d="M12 7v10M9 10l3-3 3 3" stroke="#3B6FB5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  buy:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  sell:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  txns:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h13l-3-3M20 17H7l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  stmt:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l3 3v15H6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  recur:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 018-8 8 8 0 016 2.7M20 12a8 8 0 01-8 8 8 8 0 01-6-2.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  acct:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 10h18M7 15h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  daily:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 14.5c.5 1 1.7 1.6 3 1.6 1.7 0 3-.8 3-2.1 0-2.8-5.5-1.4-5.5-4 0-1.2 1.2-2 2.8-2 1.2 0 2.3.5 2.8 1.4M12 6v1.5M12 16v1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  liq:'<svg viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 018 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  team:'<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M3 19a6 6 0 0112 0M16 6a3 3 0 010 6M21 19a6 6 0 00-4-5.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  doc:'<svg viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 3v4h4" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  chevR:'<svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chevD:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M16 12h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>'
+};
+
+/* ---------------- render root ---------------- */
+function render(){
+  const map={landing:viewLanding, dashboard:viewDashboard, detail:viewDetail};
+  $('#app').innerHTML = (map[S.view]||viewLanding)();
+  try{ window.scrollTo({top:0,behavior:'instant'}); }catch(e){ window.scrollTo(0,0); }
+}
+function go(v){ S.view=v; render(); }
+
+/* ---------------- LANDING ---------------- */
+function viewLanding(){
+  const f=S.fund;
+  return `<div class="inv-wrap">
+    <div class="page-head"><div><h1>Investments</h1><div class="sub">Grow your money with ABSA Unit Trusts</div></div></div>
+
+    <div class="summary">
+      <div class="sum-tile on"><div class="t">Unit trusts</div><div class="v dnum">${ugx(f.available)}</div></div>
+    </div>
+
+    <div class="section-title"><h2>Explore our investment options</h2></div>
+    <div class="card explore" onclick="openDetail()">
+      <div class="thumb">${IC.wallet}</div>
+      <div class="mid"><div class="s">Open a new</div><div class="b">Investment</div></div>
+      <div class="plus">${IC.plus}</div>
+    </div>
+
+    <div class="section-title"><h2>Unit Trusts</h2></div>
+    <div class="fund-row" onclick="go('dashboard')">
+      <div class="fund-logo">${IC.fund}</div>
+      <div><div class="nm">${esc(f.code)}</div><div class="id">${esc(f.id)}</div></div>
+      <div class="bal"><div class="lbl">Available balance</div><div class="amt dnum">${ugx(f.available)}</div></div>
+      <div class="view">View</div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- DASHBOARD ---------------- */
+function viewDashboard(){
+  const f=S.fund;
+  const actions=[
+    ['Transactions',IC.txns,"openDrawer('transactions')"],
+    ['Statements',IC.stmt,"openDrawer('statements')"],
+    ['Recurring payment',IC.recur,"openDrawer('recurring')"],
+    ['Account details',IC.acct,"openDrawer('account')"]
+  ];
+  return `<div class="inv-wrap">
+    <div class="page-head" style="margin-bottom:16px"><div style="display:flex;align-items:center;gap:12px">
+      <button class="btn btn-ghost" style="padding:9px 14px" onclick="go('landing')">${IC.back}<span style="margin-left:2px">Investments</span></button>
+    </div></div>
+    <div class="grid cols-2">
+      <div>
+        <div class="fund-hero">
+          <div class="band"><span class="dash"></span> ${esc(f.code)} <span class="sep">|</span> <span style="font-weight:600">${esc(f.id)}</span></div>
+          <div class="body">
+            <div class="avlbl">Available balance</div>
+            <div class="avbal dnum">${ugx(f.available)}</div>
+            <div class="stats">
+              <div><div class="k">Current balance</div><div class="v dnum">${ugx(f.current)}</div></div>
+              <div><div class="k">Total invested</div><div class="v dnum">${ugx(f.invested)}</div></div>
+              <div><div class="k">Profit/loss</div><div class="v pos dnum">+${ugx(f.pl)}</div><div class="pl-pill">↑ +${f.plPct.toFixed(1)}%</div></div>
+            </div>
+            <div class="hero-cta">
+              <button class="btn btn-primary btn-lg" onclick="openDrawer('buy')">${IC.buy} Buy</button>
+              <button class="btn btn-outline btn-lg" onclick="openDrawer('sell')">${IC.sell} Sell</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card actions" style="margin-top:20px">
+          <h3>What would you like to do?</h3>
+          <div class="action-grid">
+            ${actions.map(a=>`<div class="action" onclick="${a[2]}"><div class="ic">${a[1]}</div><div class="lb">${a[0]}</div></div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title" style="margin-top:0"><h2>Explore our investment options</h2></div>
+        <div class="card explore" onclick="openDetail()">
+          <div class="thumb">${IC.wallet}</div>
+          <div class="mid"><div class="s">Open a new</div><div class="b">Investment</div></div>
+          <div class="plus">${IC.plus}</div>
+        </div>
+        <div class="section-title"><h2>Unit trusts</h2><span class="link" onclick="go('landing')">View all</span></div>
+        <div class="rail-fund">
+          <div><div class="nm">${esc(f.short)} Portfolio</div><div class="id">${esc(f.id)}</div></div>
+          <div class="r"><div class="lbl">Available balance</div><div class="amt dnum">${ugx(f.available)}</div></div>
+          <span class="link" onclick="go('dashboard')" style="margin-left:8px">View</span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- FUND DETAIL (open investment) ---------------- */
+function openDetail(){ S.detailTC=false; go('detail'); }
+function viewDetail(){
+  const f=S.fund;
+  const feats=[
+    ['Daily Interest Accrual','Interest calculated and credited daily',IC.daily],
+    ['Capital Preservation','Low-risk investment in quality instruments',IC.shield],
+    ['High Liquidity','Access your funds within 1-2 business days',IC.liq],
+    ['Professional Management',"Managed by ABSA's experienced investment team",IC.team]
+  ];
+  return `<div class="inv-wrap" style="max-width:760px">
+    <div class="page-head" style="margin-bottom:12px">
+      <button class="btn btn-ghost" style="padding:9px 14px" onclick="go(S.fund.opened?'dashboard':'landing')">${IC.back}<span style="margin-left:2px">Back</span></button>
+      <div style="font-weight:700">Unit trust details</div>
+      <button class="btn btn-ghost" style="padding:9px 12px" onclick="go('landing')">${IC.x}</button>
+    </div>
+    <div class="detail-hero">
+      <div class="art">${IC.wallet}</div>
+      <span class="dot" style="top:34px;left:30%"></span><span class="dot" style="top:60px;right:26%"></span><span class="dot" style="bottom:30px;left:44%"></span>
+    </div>
+    <div class="card detail-card" style="padding:22px 24px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div class="fund-logo" style="width:52px;height:52px">${IC.fund}</div>
+        <div><div style="font-weight:700;font-size:18px">${esc(f.code)}</div><div class="muted" style="font-size:13px">${esc(f.kind)}</div></div>
+      </div>
+      <div class="stat-grid">
+        <div><div class="k">Annual yield</div><div class="v">${f.yield}%</div></div>
+        <div><div class="k">Fund size</div><div class="v">${esc(f.fundSize)}</div></div>
+        <div><div class="k">Credit rating</div><div class="v">${esc(f.rating)}</div></div>
+        <div><div class="k">Access</div><div class="v">${esc(f.access)}</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:20px 24px;margin-top:20px">
+      <h3 style="font-size:16px;margin-bottom:6px">Key Features</h3>
+      ${feats.map(ft=>`<div class="feat"><div class="ic">${ft[2]}</div><div><div class="ft">${ft[0]}</div><div class="fd">${ft[1]}</div></div></div>`).join('')}
+    </div>
+
+    <div class="card" style="padding:20px 24px;margin-top:20px">
+      <h3 style="font-size:16px;margin-bottom:8px">Fee Structure</h3>
+      <div class="kv"><span class="k">Management Fee</span><span class="v">1.0% p.a.</span></div>
+      <div class="kv"><span class="k">Entry Fee</span><span class="v">None</span></div>
+      <div class="kv"><span class="k">Exit Fee</span><span class="v">None</span></div>
+    </div>
+
+    <div class="card" style="padding:20px 24px;margin-top:20px">
+      <h3 style="font-size:16px;margin-bottom:8px">Fund Documents</h3>
+      <div class="doc-row" onclick="toast('Fund Factsheet opened')"><span class="ic">${IC.doc}</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Fund Factsheet</div><div class="muted" style="font-size:12.5px">Monthly performance &amp; portfolio</div></div><span class="link">${IC.chevR}</span></div>
+    </div>
+
+    <div class="tc-row">
+      <div class="cb ${S.detailTC?'on':''}" id="tcBox" onclick="S.detailTC=!S.detailTC;document.getElementById('tcBox').classList.toggle('on',S.detailTC);document.getElementById('openBtn').disabled=!S.detailTC">${IC.check}</div>
+      <div style="font-size:14px">I accept the <span class="link" onclick="toast('Terms and conditions opened')">Terms and conditions</span></div>
+    </div>
+    <button class="btn btn-primary btn-lg btn-block" id="openBtn" ${S.detailTC?'':'disabled'} onclick="openInvestment()">Open investment</button>
+    <div class="disclaimer">${IC.warn}<span>ABSA Shilingi Fund is a money market unit trust. This is an illustrative prototype; figures are indicative. Investment value can fluctuate and past performance does not guarantee future returns. Capital is at risk.</span></div>
+  </div>`;
+}
+function openInvestment(){
+  S.fund.opened=true;
+  go('dashboard');
+  setTimeout(()=>openDrawer('buy'),350);
+  toast('Investment opened. Make your first deposit to start earning.');
+}
+
+/* ---------------- DRAWER ---------------- */
+function openDrawer(kind){
+  S.drawer=kind;
+  if(kind==='buy'){ S.buy={step:1,amount:0}; }
+  if(kind==='sell'){ S.sell={step:1,amount:0}; }
+  renderDrawer();
+  $('#scrim').classList.add('show'); $('#drawer').classList.add('show');
+}
+function closeDrawer(){ $('#scrim').classList.remove('show'); $('#drawer').classList.remove('show'); }
+function renderDrawer(){
+  const map={buy:dwBuy, sell:dwSell, account:dwAccount, transactions:dwTxns, statements:dwStatements, recurring:dwRecurring};
+  $('#drawerInner').innerHTML = (map[S.drawer]||(()=>''))();
+}
+function dwHead(title, prog, back){
+  return `<div class="drawer-head">
+    ${back?`<button class="bk" onclick="${back}">${IC.back}</button>`:`<span style="width:34px"></span>`}
+    <h3>${esc(title)}</h3>
+    <button class="bk" onclick="closeDrawer()">${IC.x}</button>
+  </div>${prog!=null?`<div class="drawer-prog"><i style="width:${prog}%"></i></div>`:''}`;
+}
+
+/* --- BUY --- */
+function dwBuy(){
+  const b=S.buy, f=S.fund;
+  if(b.step===3){ // success
+    return dwHead('Buy units',100)+`<div class="drawer-body"><div class="success-wrap">
+      <svg class="success-ic" viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="38" stroke="#158B3A" stroke-width="4"/><path d="M25 43l12 12 22-24" stroke="#158B3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h4>Purchase submitted</h4>
+      <p>${ugx(b.amount)} will be debited from your ${esc(f.from?f.from:'linked')} account and invested in the ${esc(f.short)}. Units reflect within 1-2 business days.</p>
+    </div></div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="closeDrawer()">Back to Dashboard</button></div>`;
+  }
+  if(b.step===2){ // confirm
+    return dwHead('Confirm buy',66,"S.buy.step=1;renderDrawer()")+`<div class="drawer-body">
+      <div class="sum-card">
+        <div class="sum-line"><span class="k">Fund</span><span>${esc(f.short)}</span></div>
+        <div class="sum-line"><span class="k">From account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div>
+        <div class="sum-line"><span class="k">Buy amount</span><span class="dnum">${ugx(b.amount)}</span></div>
+        <div class="sum-line total"><span>Total debit</span><span class="dnum">${ugx(b.amount)}</span></div>
+      </div>
+      <div class="disclaimer">${IC.warn}<span>By confirming, you authorise ABSA to debit ${ugx(b.amount)} from your linked account and purchase units in the ${esc(f.short)}. Illustrative prototype.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="confirmBuy()">Confirm &amp; pay</button></div>`;
+  }
+  // step 1: amount
+  const chips=[10000,50000,100000,500000];
+  const valid=b.amount>=MIN_BUY;
+  return dwHead('Buy units',33)+`<div class="drawer-body">
+    <div class="field-label">From account</div>
+    <div class="acct-select">
+      <div><div class="an">${esc(S.from.name)}</div><div class="am">••••${S.from.mask}</div></div>
+      <div class="ab dnum">${ugx0(S.from.balance)}</div><span class="cv">${IC.chevD}</span>
+    </div>
+    <div class="field-label">Buy amount</div>
+    <div class="amt-input"><span class="cur">UGX</span><input id="buyAmt" inputmode="numeric" pattern="[0-9]*" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" placeholder="0.00" value="${b.amount?b.amount.toLocaleString('en-US'):''}" oninput="onBuyAmt(this.value)"></div>
+    <div class="chips">${chips.map(c=>`<button class="chip ${b.amount===c?'on':''}" onclick="setBuy(${c})">${c>=1000?(c/1000)+'K':c}</button>`).join('')}</div>
+    <div class="hint">Minimum of ${ugx(MIN_BUY)}</div>
+    <div class="sum-card">
+      <div class="sum-line"><span class="k">Buy amount</span><span class="dnum" id="buySumAmt">${ugx(b.amount)}</span></div>
+      <div class="sum-line total"><span>Total debit</span><span class="dnum" id="buySumTot">${ugx(b.amount)}</span></div>
+    </div>
+  </div>
+  <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" id="buyCont" ${valid?'':'disabled'} onclick="S.buy.step=2;renderDrawer()">Continue</button></div>`;
+}
+function onBuyAmt(v){
+  const n=parseInt(String(v).replace(/[^0-9]/g,''))||0; S.buy.amount=n;
+  const el=$('#buyAmt'); if(el) el.value = n?n.toLocaleString('en-US'):'';
+  $('#buySumAmt').textContent=ugx(n); $('#buySumTot').textContent=ugx(n);
+  $('#buyCont').disabled = n<MIN_BUY;
+  document.querySelectorAll('.chips .chip').forEach(c=>c.classList.remove('on'));
+}
+function setBuy(c){ S.buy.amount=c; renderDrawer(); }
+function confirmBuy(){
+  const n=S.buy.amount;
+  S.from.balance-=n; S.fund.available+=n; S.fund.current+=n; S.fund.invested+=n;
+  S.txns.unshift({type:'Buy', amount:n, date:todayStr(), status:'Processing'});
+  S.buy.step=3; renderDrawer();
+  render(); // update dashboard figures behind drawer
+}
+
+/* --- SELL --- */
+function dwSell(){
+  const s=S.sell, f=S.fund;
+  if(f.available<=0){ // empty state (exact match)
+    return dwHead('Sell units')+`<div class="drawer-body"><div class="empty">
+      <div class="ei">${IC.sell}</div>
+      <h4>No active holdings</h4>
+      <p>You don't have any active investments to sell. Make a deposit to get started.</p>
+    </div></div>
+    <div class="drawer-foot" style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-primary btn-lg btn-block" onclick="openDrawer('buy')">Buy units</button>
+      <button class="btn btn-outline btn-lg btn-block" onclick="closeDrawer()">Back to Dashboard</button>
+    </div>`;
+  }
+  if(s.step===3){
+    return dwHead('Sell units',100)+`<div class="drawer-body"><div class="success-wrap">
+      <svg class="success-ic" viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="38" stroke="#158B3A" stroke-width="4"/><path d="M25 43l12 12 22-24" stroke="#158B3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h4>Sale submitted</h4>
+      <p>${ugx(s.amount)} will be credited to your ${esc(S.from.name)} ••••${S.from.mask} account within 1-2 business days.</p>
+    </div></div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="closeDrawer()">Back to Dashboard</button></div>`;
+  }
+  if(s.step===2){
+    return dwHead('Confirm sale',66,"S.sell.step=1;renderDrawer()")+`<div class="drawer-body">
+      <div class="sum-card">
+        <div class="sum-line"><span class="k">Fund</span><span>${esc(f.short)}</span></div>
+        <div class="sum-line"><span class="k">To account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div>
+        <div class="sum-line"><span class="k">Sell amount</span><span class="dnum">${ugx(s.amount)}</span></div>
+        <div class="sum-line total"><span>You receive</span><span class="dnum">${ugx(s.amount)}</span></div>
+      </div>
+      <div class="disclaimer">${IC.warn}<span>Proceeds are paid to your linked account within 1-2 business days. Illustrative prototype.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="confirmSell()">Confirm sale</button></div>`;
+  }
+  const valid=s.amount>0 && s.amount<=f.available;
+  return dwHead('Sell units',33)+`<div class="drawer-body">
+    <div class="field-label">Available to sell</div>
+    <div class="acct-select"><div><div class="an dnum">${ugx(f.available)}</div><div class="am">${esc(f.short)}</div></div>
+      <button class="link" style="margin-left:auto" onclick="setSell(${f.available})">Sell all</button></div>
+    <div class="field-label">Sell amount</div>
+    <div class="amt-input"><span class="cur">UGX</span><input id="sellAmt" inputmode="numeric" pattern="[0-9]*" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" placeholder="0.00" value="${s.amount?s.amount.toLocaleString('en-US'):''}" oninput="onSellAmt(this.value)"></div>
+    <div class="field-label" style="margin-top:14px">To account</div>
+    <div class="acct-select"><div><div class="an">${esc(S.from.name)}</div><div class="am">••••${S.from.mask}</div></div><span class="cv">${IC.chevD}</span></div>
+    <div class="sum-card"><div class="sum-line total"><span>You receive</span><span class="dnum" id="sellRecv">${ugx(s.amount)}</span></div></div>
+  </div>
+  <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" id="sellCont" ${valid?'':'disabled'} onclick="S.sell.step=2;renderDrawer()">Continue</button></div>`;
+}
+function onSellAmt(v){
+  const n=parseInt(String(v).replace(/[^0-9]/g,''))||0; S.sell.amount=n;
+  const el=$('#sellAmt'); if(el) el.value = n?n.toLocaleString('en-US'):'';
+  $('#sellRecv').textContent=ugx(n);
+  $('#sellCont').disabled = !(n>0 && n<=S.fund.available);
+}
+function setSell(c){ S.sell.amount=c; renderDrawer(); }
+function confirmSell(){
+  const n=S.sell.amount;
+  S.fund.available-=n; S.fund.current-=n; S.fund.invested=Math.max(0,S.fund.invested-n); S.from.balance+=n;
+  S.txns.unshift({type:'Sell', amount:n, date:todayStr(), status:'Processing'});
+  S.sell.step=3; renderDrawer(); render();
+}
+
+/* --- ACCOUNT DETAILS --- */
+function dwAccount(){
+  const f=S.fund;
+  const rows=[
+    ['Fund name', f.code],['Investment number', f.id],['Portfolio type', f.kind],
+    ['Currency','UGX'],['Annual yield', f.yield+'%'],['Credit rating', f.rating],
+    ['Linked bank account', S.from.name+' ••••'+S.from.mask],['Fund manager','ABSA Asset Management'],
+    ['Opened','1 Jul 2026'],['Status','Active']
+  ];
+  return dwHead('Account details')+`<div class="drawer-body">
+    <div class="sum-card">${rows.map(r=>`<div class="sum-line"><span class="k">${r[0]}</span><span style="font-weight:600;text-align:right;max-width:60%">${esc(r[1])}</span></div>`).join('')}</div>
+    <div class="disclaimer" style="margin-top:16px">${IC.shield}<span>Your investment is held in your name with ABSA Asset Management. KYC is handled by Absa as part of your banking relationship.</span></div>
+  </div>
+  <div class="drawer-foot"><button class="btn btn-outline btn-lg btn-block" onclick="closeDrawer()">Close</button></div>`;
+}
+
+/* --- TRANSACTIONS --- */
+function dwTxns(){
+  const list=S.txns;
+  return dwHead('Transactions')+`<div class="drawer-body">
+    ${list.length? list.map(t=>`<div class="txn">
+      <div class="ic ${t.type.toLowerCase()}">${t.type==='Buy'?IC.buy:IC.sell}</div>
+      <div><div class="tt">${t.type} · ${esc(S.fund.short)}</div><div class="td">${esc(t.date)} · ${esc(t.status)}</div></div>
+      <div class="amt dnum" style="color:${t.type==='Buy'?'var(--green)':'var(--absa)'}">${t.type==='Buy'?'+':'-'}${ugx(t.amount)}</div>
+    </div>`).join('')
+    : `<div class="empty"><div class="ei">${IC.txns}</div><h4>No transactions yet</h4><p>Your buy and sell activity will appear here.</p></div>`}
+  </div>`;
+}
+
+/* --- STATEMENTS --- */
+function dwStatements(){
+  const months=['June 2026','May 2026','April 2026'];
+  return dwHead('Statements')+`<div class="drawer-body">
+    ${months.map(m=>`<div class="doc-row" onclick="toast('${m} statement downloaded')"><span class="ic">${IC.doc}</span><div style="flex:1"><div style="font-weight:600;font-size:14px">${m}</div><div class="muted" style="font-size:12.5px">Monthly investment statement</div></div><span class="link">Download</span></div>`).join('')}
+  </div>`;
+}
+
+/* --- RECURRING PAYMENT --- */
+function dwRecurring(){
+  const r=S.recurring;
+  if(!r.active){
+    return dwHead('Recurring payment')+`<div class="drawer-body">
+      <div class="empty"><div class="ei">${IC.recur}</div><h4>No recurring payment</h4><p>Set up a monthly deposit to grow your investment consistently.</p></div>
+    </div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="S.recurring.active=true;renderDrawer();toast('Recurring payment set up')">Set up recurring payment</button></div>`;
+  }
+  return dwHead('Recurring payment')+`<div class="drawer-body">
+    <div class="toggle-row"><div><div style="font-weight:600">Monthly recurring deposit</div><div class="muted" style="font-size:12.5px">Auto-invest every month</div></div>
+      <div class="sw on" onclick="S.recurring.active=false;renderDrawer();toast('Recurring payment cancelled')"></div></div>
+    <div class="sum-card">
+      <div class="sum-line"><span class="k">Current monthly payment</span><span class="dnum" style="font-weight:700">${ugx(r.amount)}</span></div>
+      <div class="sum-line"><span class="k">Frequency</span><span>${r.day}th of each month</span></div>
+      <div class="sum-line"><span class="k">Investment start date</span><span>${esc(r.start)}</span></div>
+      <div class="sum-line"><span class="k">Next debit date</span><span>${esc(r.next)}</span></div>
+      <div class="sum-line"><span class="k">From account</span><span>Account ••••${r.from}</span></div>
+      <div class="sum-line"><span class="k">Total contributions</span><span class="dnum">${ugx(r.total)}</span></div>
+    </div>
+  </div>
+  <div class="drawer-foot"><button class="btn btn-outline btn-lg btn-block" onclick="S.recurring.active=false;renderDrawer();toast('Recurring payment cancelled')">Cancel recurring payment</button></div>`;
+}
+
+function todayStr(){ return '6 Jul 2026'; }
+
+/* boot */
+render();
+</script>
+</body>
+</html>

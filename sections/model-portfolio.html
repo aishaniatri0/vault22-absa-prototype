@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Model Portfolio - Explore Portfolios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+/* Model Portfolio / Explore Portfolios - replicates the live Vault22 SA journey, Absa-skinned. Mock data. */
+:root{
+  --absa:#95052A; --absa-2:#77021E; --absa-3:#B4143F; --link:#B4143F;
+  --green:#158B3A; --green-soft:#E7F6EC;
+  --bg:#F4F5F6; --card:#fff; --line:#E6E7EA; --line-2:#DDDFE3;
+  --ink:#1B2430; --ink-2:#3C4757; --muted:#6E7883; --muted-2:#98A2AF; --tile:#F3F4F6;
+  --r:16px;
+  --shadow:0 1px 2px rgba(16,24,40,.05); --shadow-lg:0 24px 50px -22px rgba(16,24,40,.35);
+  --consv:#158B3A; --consv-bg:#E7F6EC; --caut:#0E7490; --caut-bg:#E0F2F7;
+  --bal:#B45309; --bal-bg:#FEF3D6; --grow:#C2410C; --grow-bg:#FEEAD9; --aggr:#B4143F; --aggr-bg:#FCE7EC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 30px 60px}
+.muted{color:var(--muted)} .dnum{font-variant-numeric:tabular-nums}
+.link{color:var(--link);font-weight:600;cursor:pointer}.link:hover{text-decoration:underline}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:12px;font-weight:600;font-size:14.5px;transition:.16s;border:1.5px solid transparent}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--absa);color:#fff}.btn-primary:hover{background:var(--absa-2)}
+.btn-primary:disabled{background:#D9AEB9;cursor:not-allowed}
+.btn-outline{background:#fff;border-color:var(--absa);color:var(--absa)}.btn-outline:hover{background:#FBF0F3}
+.btn-block{width:100%}.btn-lg{padding:15px 22px;font-size:15px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+
+/* header row */
+.mp-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.mp-head h1{font-size:26px}
+.tabs{display:flex;gap:8px;margin:4px 0 16px}
+.tab{padding:9px 16px;border-radius:11px;font-weight:600;font-size:14px;color:var(--muted);border:1px solid transparent}
+.tab:hover{color:var(--ink)}
+.tab.on{background:#fff;color:var(--absa);border-color:var(--line)}
+.intro-card{display:flex;align-items:center;gap:18px;border-radius:var(--r);padding:20px 22px;background:linear-gradient(120deg,var(--absa),var(--absa-2));color:#fff;margin-bottom:14px}
+.intro-card .t{font-weight:700;font-size:16px}.intro-card .s{font-size:13px;opacity:.9;margin-top:2px}
+.intro-card .btn{margin-left:auto;background:#fff;color:var(--absa)}
+.filterbar{display:flex;align-items:center;gap:12px;margin:18px 0 12px}
+.filterbar h2{font-size:17px;margin-right:auto}
+.chip{padding:8px 14px;border-radius:20px;background:#fff;border:1px solid var(--line-2);font-size:13px;font-weight:600;color:var(--ink-2);transition:.15s}
+.chip:hover{border-color:var(--absa);color:var(--absa)}
+.chip.on{background:var(--absa);border-color:var(--absa);color:#fff}
+
+/* two-column */
+.mp-grid{display:grid;grid-template-columns:1fr 420px;gap:20px;align-items:start}
+@media(max-width:1000px){.mp-grid{grid-template-columns:1fr}.detail-col{display:none}.detail-col.mobile-show{display:block;position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;padding:16px}}
+.plist{display:flex;flex-direction:column;gap:12px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;cursor:pointer;transition:.16s}
+.pcard:hover{border-color:var(--line-2);box-shadow:var(--shadow)}
+.pcard.sel{border-color:var(--absa);box-shadow:0 0 0 1px var(--absa)}
+.pcard .tags{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.rtag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.reg{font-size:12px;color:var(--muted)}
+.pcard .nm{font-weight:700;font-size:15px;line-height:1.3}
+.prov{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);font-weight:600;margin:6px 0}
+.prov .plogo{width:16px;height:16px;border-radius:4px;background:var(--absa);display:inline-grid;place-items:center;color:#fff;font-size:9px;font-weight:800}
+.pcard .desc{font-size:12.5px;color:var(--muted);line-height:1.45;margin:6px 0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pcard .bf{font-size:12px;margin-top:8px}.pcard .bf b{color:var(--ink-2)}
+.pcard .mi{font-size:12.5px;font-weight:600;margin-top:6px}
+
+/* detail panel */
+.detail-col{position:sticky;top:16px}
+.detail{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.detail .close-m{display:none}
+@media(max-width:1000px){.detail .close-m{display:inline-flex;float:right}}
+.detail .tags{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.detail h3{font-size:18px;line-height:1.25}
+.detail .desc{font-size:13px;color:var(--ink-2);line-height:1.55;margin:12px 0}
+.kv{padding:10px 0;border-top:1px solid var(--line)}
+.kv .k{font-size:12px;color:var(--muted)}.kv .v{font-weight:700;font-size:14px}
+.chart-tf{display:flex;gap:6px;justify-content:center;margin:12px 0 4px}
+.chart-tf button{padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.chart-tf button.on{background:var(--absa);color:#fff}
+.factsheet{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:12px;margin-top:14px;cursor:pointer}
+.factsheet .pdf{width:34px;height:34px;border-radius:8px;background:#FBE9EE;color:var(--absa);display:grid;place-items:center;font-size:10px;font-weight:800}
+.empty-detail{display:grid;place-items:center;min-height:320px;color:var(--muted-2);text-align:center;font-size:14px;padding:30px}
+
+/* drawer (invest) */
+.scrim{position:fixed;inset:0;background:rgba(16,24,40,.42);opacity:0;pointer-events:none;transition:.25s;z-index:50}
+.scrim.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:min(460px,100vw);background:#F7F8F9;box-shadow:var(--shadow-lg);transform:translateX(102%);transition:.3s cubic-bezier(.2,.8,.2,1);z-index:60;display:flex;flex-direction:column}
+.drawer.show{transform:none}
+.dh{display:flex;align-items:center;gap:12px;padding:18px 20px;background:#fff;border-bottom:1px solid var(--line)}
+.dh h3{flex:1;text-align:center;font-size:16px}
+.dh button{width:34px;height:34px;border-radius:10px;display:grid;place-items:center}.dh button:hover{background:var(--tile)}
+.db{flex:1;overflow:auto;padding:20px}
+.df{padding:16px 20px;background:#fff;border-top:1px solid var(--line)}
+.fl{font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.amt{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:15px 16px;margin-bottom:10px}
+.amt .c{font-weight:700;color:var(--muted)}
+.amt input{flex:1;border:none;outline:none;font-size:20px;font-weight:700;text-align:right;font-family:inherit;width:100%}
+.qc{display:flex;gap:8px;flex-wrap:wrap}
+.acct{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+.acct .an{font-weight:600;font-size:14px}.acct .am{font-size:12px;color:var(--muted)}.acct .ab{margin-left:auto;font-weight:600;font-size:13px;color:var(--ink-2)}
+.sumc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:2px 16px}
+.sl{display:flex;justify-content:space-between;padding:13px 0;font-size:14px;border-bottom:1px solid var(--line)}.sl:last-child{border:none}.sl.tot{font-weight:700}.sl .k{color:var(--muted)}
+.success{text-align:center;padding:34px 18px}
+.sic{width:80px;height:80px;margin:0 auto 16px}
+.sic circle{stroke-dasharray:200;stroke-dashoffset:200;animation:dr .6s .1s forwards}.sic path{stroke-dasharray:60;stroke-dashoffset:60;animation:dr .4s .5s forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.disc{display:flex;gap:9px;background:#FFF8EC;border:1px solid #FCE4B6;border-radius:12px;padding:12px 14px;font-size:12px;color:#93610B;line-height:1.5;margin-top:14px}
+.disc svg{width:16px;flex:none;margin-top:1px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:120;box-shadow:var(--shadow-lg);opacity:0;transition:.25s}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mp-head"><h1>My Investments</h1><button class="btn btn-primary" onclick="openInvest(state.sel||PRODUCTS[0].id)">+ Make an investment</button></div>
+  <div class="tabs">
+    <button class="tab" id="tab-mine" onclick="setTab('mine')">My Investments</button>
+    <button class="tab on" id="tab-explore" onclick="setTab('explore')">Explore Portfolios</button>
+  </div>
+  <div class="intro-card">
+    <div><div class="t">Let us help you choose the right investments for your goals</div><div class="s">Set your risk profile and see portfolios matched to you. Takes about 60 seconds.</div></div>
+    <button class="btn" onclick="toast('Risk profiling - coming soon in this prototype')">Start here</button>
+  </div>
+  <div class="filterbar">
+    <h2 id="listTitle">All Investment Products</h2>
+    <div id="filters"></div>
+  </div>
+  <div class="mp-grid">
+    <div class="plist" id="plist"></div>
+    <div class="detail-col" id="detailCol"><div class="detail"><div class="empty-detail">Select a portfolio<br/>to view details</div></div></div>
+  </div>
+</div>
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer"><div id="dwin"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const zar=n=>'R '+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2400);}
+
+const RISK={Conservative:['--consv','--consv-bg'],'Cautious Risk':['--caut','--caut-bg'],Cautious:['--caut','--caut-bg'],Balanced:['--bal','--bal-bg'],Growth:['--grow','--grow-bg'],Aggressive:['--aggr','--aggr-bg']};
+function rtag(r){const c=RISK[r]||RISK.Balanced;return `<span class="rtag" style="color:var(${c[0]});background:var(${c[1]})">${esc(r)}</span>`;}
+
+/* Products captured from live SA Explore Portfolios (house model portfolios shown as Absa in the Absa shell). */
+const PRODUCTS=[
+ {id:'no-div-sa',risk:'Conservative',reg:'South Africa',name:'Ninety One Diversified Income Prescient Feeder Actively Managed ETF',prov:'Ninety One',pl:'N1',term:'2 years',min:500,seed:11,
+  desc:'The Ninety One Diversified Income Prescient Feeder AMETF is a feeder fund and an actively managed ETF listed on the JSE. The portfolio consists solely of participatory interests in the Ninety One Diversified Income Fund, aiming to provide a high level of income while seeking to maximise capital growth.'},
+ {id:'no-div-gl',risk:'Conservative',reg:'Global',name:'Ninety One Global Diversified Income Prescient Feeder Actively Managed ETF',prov:'Ninety One',pl:'N1',term:'2 years',min:500,seed:12,
+  desc:'Global Diversified Income Prescient Feeder Actively Managed ETF. Provides diversified global income exposure through an actively managed feeder structure.'},
+ {id:'absa-conserv',risk:'Conservative',reg:'SA',name:'Absa Conservative Portfolio',prov:'Absa',pl:'A',term:'3 years',min:500,seed:21,
+  desc:'A South African-focussed, conservative fixed-income portfolio investing in ETFs and unit trusts. The neutral asset allocation is >90% in fixed income. The portfolio aims to outperform cash over time.'},
+ {id:'prescient-pip',risk:'Conservative',reg:'SA',name:'Prescient Income Provider (PIP) Feeder AMETF',prov:'Prescient',pl:'P',term:'2 years',min:500,seed:13,
+  desc:'INVESTMENT AND RETURN OBJECTIVE: The Fund aims to return CPI + 3% per annum through a full interest rate cycle while providing stability by aiming never to lose capital over any rolling 3 month period.'},
+ {id:'absa-cautious',risk:'Cautious Risk',reg:'SA',name:'Absa Cautious Portfolio',prov:'Absa',pl:'A',term:'3 years',min:500,seed:22,
+  desc:'A South African-focused, cautious multi-asset portfolio investing in ETFs and unit trusts. The neutral asset allocation is 75% fixed income and 25% equities. The portfolio aims to outperform inflation over time.'},
+ {id:'satrix-bal2',risk:'Balanced',reg:'SA',name:'Satrix Global Balanced Fund of Funds ETF (2)',prov:'Satrix',pl:'S',term:'5 years',min:500,seed:14,
+  desc:'INVESTMENT MANDATE: The Satrix Multi Asset Passive Portfolio Solutions Growth SA ETF Portfolio offers investors exposure to multi-asset classes. The Satrix MAPPS Growth SA ETF Portfolio replicates the total return.'},
+ {id:'absa-balanced',risk:'Balanced',reg:'SA',name:'Absa Balanced Portfolio',prov:'Absa',pl:'A',term:'5 years',min:500,seed:23,
+  desc:'A South African-focused, balanced multi-asset portfolio investing in ETFs and unit trusts. The neutral asset allocation is 50% fixed income and 50% equities. The portfolio aims to outperform inflation over time.'},
+ {id:'satrix-bal1',risk:'Balanced',reg:'SA',name:'Satrix Global Balanced Fund of Funds ETF (1)',prov:'Satrix',pl:'S',term:'5 years',min:500,seed:15,
+  desc:'INVESTMENT MANDATE: The Satrix Multi Asset Passive Portfolio Solutions Protect (MAPPS) SA ETF Portfolio is a uniquely designed ETF which offers investors exposure to multi-asset classes.'},
+ {id:'absa-growth',risk:'Growth',reg:'SA',name:'Absa Growth Portfolio',prov:'Absa',pl:'A',term:'7 years',min:500,seed:24,
+  desc:'A South African-focused, growth multi-asset portfolio investing in ETFs and unit trusts. The neutral asset allocation is 25% fixed income and 75% equities. The portfolio aims to outperform inflation over time.'},
+ {id:'coro-growth',risk:'Growth',reg:'Global',name:'Coronation Global Optimum Growth Prescient Feeder AMETF',prov:'Coronation',pl:'C',term:'7 years',min:500,seed:16,
+  desc:"WHAT IS THE FUND'S OBJECTIVE? The fund aims to maximise long-term investment growth by investing in a globally diversified portfolio with exposure to both developed and emerging markets across multiple asset classes."},
+ {id:'absa-aggr',risk:'Aggressive',reg:'SA',name:'Absa Aggressive Portfolio',prov:'Absa',pl:'A',term:'10 years',min:500,seed:25,
+  desc:'A global equity portfolio investing in ETFs and unit trusts. The neutral asset allocation is a minimum of 80% in equities. The portfolio aims to outperform most asset classes.'},
+ {id:'coro-equity',risk:'Aggressive',reg:'Global',name:'Coronation Global Equity Select Prescient Feeder AMETF',prov:'Coronation',pl:'C',term:'10 years',min:500,seed:17,
+  desc:"WHAT IS THE FUND'S OBJECTIVE? The fund aims to give investors access to the best opportunities in global equity markets. The fund is biased to developed markets and actively seeks out attractively valued shares to buy."}
+];
+const FILTERS=['All','Conservative','Cautious Risk','Balanced','Growth','Aggressive','SA','Global'];
+const state={tab:'explore',filter:'All',sel:null,invest:{step:1,amount:0}};
+const ACCOUNT={name:'Absa Cheque Account',mask:'9012',balance:48250};
+
+function filtered(){
+  let l=PRODUCTS.slice();
+  if(state.tab==='mine') l=l.filter(p=>p.prov==='Absa'); // owned/house portfolios
+  if(state.filter!=='All') l=l.filter(p=>p.risk===state.filter||p.reg===state.filter||(state.filter==='Cautious Risk'&&/Cautious/.test(p.risk)));
+  return l;
+}
+function seriesPath(seed,up,w,h){
+  let a=seed>>>0;const rnd=()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};
+  const n=40,end=(up?1:-.3)*(10+rnd()*30),vals=[0];for(let i=1;i<n;i++)vals.push(end*(i/(n-1))+(rnd()-.5)*Math.max(3,Math.abs(end)*.3));vals[n-1]=end;
+  const mn=Math.min(...vals),mx=Math.max(...vals),rg=(mx-mn)||1,st=w/(n-1);
+  const pts=vals.map((v,i)=>[i*st,h-6-((v-mn)/rg)*(h-14)]);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  return {line,area:line+` L${w} ${h} L0 ${h} Z`};
+}
+function renderFilters(){
+  $('#filters').innerHTML=`<div style="display:flex;gap:8px;flex-wrap:wrap">${FILTERS.map(f=>`<button class="chip ${state.filter===f?'on':''}" onclick="setFilter('${f}')">${f}</button>`).join('')}</div>`;
+}
+function pcard(p){
+  return `<div class="pcard ${state.sel===p.id?'sel':''}" onclick="select('${p.id}')">
+    <div class="tags">${rtag(p.risk)}<span class="reg">${esc(p.reg)}</span></div>
+    <div class="nm">${esc(p.name)}</div>
+    <div class="prov"><span class="plogo">${esc(p.pl)}</span>${esc(p.prov)}</div>
+    <div class="desc">${esc(p.desc)}</div>
+    <div class="bf"><b>Best For</b><br/><span class="muted">Testing with ZAR currency</span></div>
+    <div class="mi">Min. Investment ${zar(p.min).replace('.00','')}</div>
+  </div>`;
+}
+function renderList(){
+  $('#tab-mine').classList.toggle('on',state.tab==='mine');
+  $('#tab-explore').classList.toggle('on',state.tab==='explore');
+  $('#listTitle').textContent = state.tab==='mine'?'Your model portfolios':'All Investment Products';
+  const l=filtered();
+  $('#plist').innerHTML = l.length? l.map(pcard).join('') : '<div class="card" style="padding:40px;text-align:center;color:var(--muted)">No products match this filter.</div>';
+}
+function renderDetail(){
+  const p=PRODUCTS.find(x=>x.id===state.sel);
+  const col=$('#detailCol');
+  if(!p){col.innerHTML='<div class="detail"><div class="empty-detail">Select a portfolio<br/>to view details</div></div>';return;}
+  const up=!/Conservative|Cautious/.test(p.risk)?true:true;
+  const sp=seriesPath(p.seed,true,360,120);
+  col.classList.add('mobile-show');
+  col.innerHTML=`<div class="detail">
+    <button class="close-m btn btn-outline" style="padding:6px 12px" onclick="deselect()">Close</button>
+    <div class="tags">${rtag(p.risk)}<span class="reg">${esc(p.reg)}</span></div>
+    <h3>${esc(p.name)}</h3>
+    <div class="prov"><span class="plogo">${esc(p.pl)}</span>${esc(p.prov)}</div>
+    <div class="desc">${esc(p.desc)}</div>
+    <div class="kv"><div class="k">Best For</div><div class="v" style="font-weight:500;color:var(--ink-2)">Testing with ZAR currency</div></div>
+    <div class="kv"><div class="k">Minimum Investment</div><div class="v">${zar(p.min).replace('.00','')}</div></div>
+    <div class="kv"><div class="k">Recommended term</div><div class="v">${esc(p.term)}</div></div>
+    <button class="btn btn-primary btn-lg btn-block" style="margin:14px 0 6px" onclick="openInvest('${p.id}')">Invest</button>
+    <svg viewBox="0 0 360 120" style="width:100%;height:120px;margin-top:8px"><defs><linearGradient id="mg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#95052A" stop-opacity=".18"/><stop offset="1" stop-color="#95052A" stop-opacity="0"/></linearGradient></defs><path d="${sp.area}" fill="url(#mg)"/><path d="${sp.line}" fill="none" stroke="#95052A" stroke-width="2.2"/></svg>
+    <div class="chart-tf">${['3M','6M','1Y','3Y','5Y','ALL'].map((t,i)=>`<button class="${i===2?'on':''}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${t}</button>`).join('')}</div>
+    <div class="factsheet" onclick="toast('Fact sheet downloaded')"><span class="pdf">PDF</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Fact sheet</div><div class="muted" style="font-size:12px">Monthly performance &amp; portfolio</div></div><span class="link">↓</span></div>
+  </div>`;
+}
+function render(){renderFilters();renderList();renderDetail();}
+function setTab(t){state.tab=t;state.sel=null;render();}
+function setFilter(f){state.filter=f;render();}
+function select(id){state.sel=id;render();window.scrollTo({top:0,behavior:'smooth'});}
+function deselect(){state.sel=null;$('#detailCol').classList.remove('mobile-show');render();}
+
+/* invest drawer */
+function openInvest(id){state.sel=id;state.invest={step:1,amount:0};renderDrawer();$('#scrim').classList.add('show');$('#drawer').classList.add('show');}
+function closeDrawer(){$('#scrim').classList.remove('show');$('#drawer').classList.remove('show');}
+function renderDrawer(){
+  const p=PRODUCTS.find(x=>x.id===state.sel);const iv=state.invest;
+  const dwin=$('#dwin');
+  if(iv.step===3){dwin.innerHTML=`<div class="dh"><span style="width:34px"></span><h3>Invest</h3><button onclick="closeDrawer()">✕</button></div>
+    <div class="db"><div class="success"><svg class="sic" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="36" stroke="#158B3A" stroke-width="4"/><path d="M24 41l11 11 21-23" stroke="#158B3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h3 style="margin-bottom:8px">Investment submitted</h3><p class="muted" style="max-width:300px;margin:0 auto">${zar(iv.amount)} into ${esc(p.name)} will be debited from your ${esc(ACCOUNT.name)} ••••${ACCOUNT.mask}. Units reflect within 1-3 business days.</p></div></div>
+    <div class="df"><button class="btn btn-primary btn-lg btn-block" onclick="closeDrawer()">Done</button></div>`;return;}
+  if(iv.step===2){dwin.innerHTML=`<div class="dh"><button onclick="state.invest.step=1;renderDrawer()">‹</button><h3>Confirm investment</h3><button onclick="closeDrawer()">✕</button></div>
+    <div class="db"><div class="sumc">
+      <div class="sl"><span class="k">Portfolio</span><span>${esc(p.name)}</span></div>
+      <div class="sl"><span class="k">Provider</span><span>${esc(p.prov)}</span></div>
+      <div class="sl"><span class="k">From account</span><span>${esc(ACCOUNT.name)} ••••${ACCOUNT.mask}</span></div>
+      <div class="sl"><span class="k">Amount</span><span class="dnum">${zar(iv.amount)}</span></div>
+      <div class="sl tot"><span>Total debit</span><span class="dnum">${zar(iv.amount)}</span></div></div>
+      <div class="disc"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8"/></svg><span>Illustrative prototype. Investment value can fluctuate and past performance does not guarantee future returns. Capital is at risk.</span></div></div>
+    <div class="df"><button class="btn btn-primary btn-lg btn-block" onclick="state.invest.step=3;renderDrawer()">Confirm &amp; invest</button></div>`;return;}
+  const chips=[500,1000,5000,10000],ok=iv.amount>=p.min;
+  dwin.innerHTML=`<div class="dh"><span style="width:34px"></span><h3>Invest - ${esc(p.prov)}</h3><button onclick="closeDrawer()">✕</button></div>
+    <div class="db">
+      <div class="fl">From account</div>
+      <div class="acct"><div><div class="an">${esc(ACCOUNT.name)}</div><div class="am">••••${ACCOUNT.mask}</div></div><div class="ab dnum">${zar(ACCOUNT.balance).replace('.00','')}</div></div>
+      <div class="fl">Investment amount</div>
+      <div class="amt"><span class="c">R</span><input id="ia" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${iv.amount?iv.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" onpaste="event.preventDefault();onAmt((event.clipboardData||window.clipboardData).getData('text'))" oninput="onAmt(this.value)"></div>
+      <div class="qc">${chips.map(c=>`<button class="chip ${iv.amount===c?'on':''}" onclick="setAmt(${c})">R${c.toLocaleString()}</button>`).join('')}</div>
+      <div class="muted" style="font-size:12.5px;margin:10px 0 16px">Minimum of ${zar(p.min).replace('.00','')} · Recommended term ${esc(p.term)}</div>
+      <div class="sumc"><div class="sl"><span class="k">Amount</span><span class="dnum" id="sa">${zar(iv.amount)}</span></div><div class="sl tot"><span>Total debit</span><span class="dnum" id="st">${zar(iv.amount)}</span></div></div>
+    </div>
+    <div class="df"><button class="btn btn-primary btn-lg btn-block" id="ic" ${ok?'':'disabled'} onclick="state.invest.step=2;renderDrawer()">Continue</button></div>`;
+}
+function onAmt(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;const el=$('#ia');if(el)el.value=n?n.toLocaleString('en-US'):'';state.invest.amount=n;const p=PRODUCTS.find(x=>x.id===state.sel);$('#sa').textContent=zar(n);$('#st').textContent=zar(n);$('#ic').disabled=n<p.min;document.querySelectorAll('.qc .chip').forEach(c=>c.classList.remove('on'));}
+function setAmt(c){state.invest.amount=c;renderDrawer();}
+
+render();
+</script>
+</body>
+</html>
