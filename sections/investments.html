@@ -230,7 +230,7 @@ const S = {
     available:0, current:0, invested:0, pl:0, plPct:0
   },
   from:{ name:'Absa Business Access Account', mask:'1359', balance:183722108 },
-  recurring:{ active:true, amount:10000, day:15, start:'1 Jul 2026', next:'15 Jul 2026', from:'6693', total:0 },
+  recurring:{ active:false, step:1, amount:10000, freq:'Monthly', day:15, start:'6 Jul 2026', next:'15 Jul 2026', from:'6693', total:0 },
   txns:[],
   buy:{ step:1, amount:0 },
   sell:{ step:1, amount:0 },
@@ -606,28 +606,68 @@ function dwStatements(){
 }
 
 /* --- RECURRING PAYMENT --- */
+function nextDebit(freq){ return freq==='Weekly'?'13 Jul 2026':freq==='Quarterly'?'6 Oct 2026':'15 Jul 2026'; }
+function everyLbl(freq){ return freq==='Weekly'?'week':freq==='Quarterly'?'quarter':'month'; }
 function dwRecurring(){
   const r=S.recurring;
-  if(!r.active){
-    return dwHead('Recurring payment')+`<div class="drawer-body">
-      <div class="empty"><div class="ei">${IC.recur}</div><h4>No recurring payment</h4><p>Set up a monthly deposit to grow your investment consistently.</p></div>
-    </div>
-    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="S.recurring.active=true;renderDrawer();toast('Recurring payment set up')">Set up recurring payment</button></div>`;
+  // SUCCESS
+  if(r.step===3){
+    return dwHead('Recurring payment',100)+`<div class="drawer-body"><div class="success-wrap">
+      <svg class="success-check" viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="38" stroke="#158B3A" stroke-width="4"/><path d="M25 43l12 12 22-24" stroke="#158B3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h4>Recurring payment set up</h4>
+      <p>${ugx(r.amount)} will be invested every ${everyLbl(r.freq)} into the ${esc(S.fund.short)} from your ${esc(S.from.name)} ••••${S.from.mask}, starting ${esc(r.next)}.</p></div></div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="S.recurring.step=1;renderDrawer()">Done</button></div>`;
   }
-  return dwHead('Recurring payment')+`<div class="drawer-body">
-    <div class="toggle-row"><div><div style="font-weight:600">Monthly recurring deposit</div><div class="muted" style="font-size:12.5px">Auto-invest every month</div></div>
-      <div class="sw on" onclick="S.recurring.active=false;renderDrawer();toast('Recurring payment cancelled')"></div></div>
-    <div class="sum-card">
-      <div class="sum-line"><span class="k">Current monthly payment</span><span class="dnum" style="font-weight:700">${ugx(r.amount)}</span></div>
-      <div class="sum-line"><span class="k">Frequency</span><span>${r.day}th of each month</span></div>
-      <div class="sum-line"><span class="k">Investment start date</span><span>${esc(r.start)}</span></div>
-      <div class="sum-line"><span class="k">Next debit date</span><span>${esc(r.next)}</span></div>
-      <div class="sum-line"><span class="k">From account</span><span>Account ••••${r.from}</span></div>
-      <div class="sum-line"><span class="k">Total contributions</span><span class="dnum">${ugx(r.total)}</span></div>
-    </div>
+  // ACTIVE: manage view
+  if(r.active){
+    return dwHead('Recurring payment')+`<div class="drawer-body">
+      <div class="toggle-row"><div><div style="font-weight:600">${esc(r.freq)} recurring deposit</div><div class="muted" style="font-size:12.5px">Auto-invest every ${everyLbl(r.freq)}</div></div>
+        <div class="sw on" onclick="cancelRecurring()"></div></div>
+      <div class="sum-card">
+        <div class="sum-line"><span class="k">Recurring amount</span><span class="dnum" style="font-weight:700">${ugx(r.amount)}</span></div>
+        <div class="sum-line"><span class="k">Frequency</span><span>${esc(r.freq)}</span></div>
+        <div class="sum-line"><span class="k">Start date</span><span>${esc(r.start)}</span></div>
+        <div class="sum-line"><span class="k">Next debit date</span><span>${esc(r.next)}</span></div>
+        <div class="sum-line"><span class="k">From account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div>
+        <div class="sum-line"><span class="k">Total contributions</span><span class="dnum">${ugx(r.total)}</span></div>
+      </div></div>
+    <div class="drawer-foot" style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-ghost btn-lg btn-block" onclick="S.recurring.active=false;S.recurring.step=1;renderDrawer()">Edit recurring payment</button>
+      <button class="btn btn-outline btn-lg btn-block" onclick="cancelRecurring()">Cancel recurring payment</button></div>`;
+  }
+  // CONFIRM
+  if(r.step===2){
+    return dwHead('Confirm recurring',66,"S.recurring.step=1;renderDrawer()")+`<div class="drawer-body">
+      <div class="sum-card">
+        <div class="sum-line"><span class="k">Fund</span><span>${esc(S.fund.short)}</span></div>
+        <div class="sum-line"><span class="k">Amount</span><span class="dnum">${ugx(r.amount)}</span></div>
+        <div class="sum-line"><span class="k">Frequency</span><span>${esc(r.freq)}</span></div>
+        <div class="sum-line"><span class="k">From account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div>
+        <div class="sum-line total"><span>First debit</span><span>${nextDebit(r.freq)}</span></div></div>
+      <div class="disclaimer"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>You authorise ABSA to debit ${ugx(r.amount)} from your linked account every ${everyLbl(r.freq)} and invest it in the ${esc(S.fund.short)}. You can pause or cancel anytime. Illustrative prototype.</span></div></div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="activateRecurring()">Confirm &amp; activate</button></div>`;
+  }
+  // STEP 1: set-up form
+  const chips=[5000,10000,25000,50000], valid=r.amount>=MIN_BUY;
+  return dwHead('Set up recurring payment')+`<div class="drawer-body">
+    <div class="field-label">From account</div>
+    <div class="acct-select"><div><div class="an">${esc(S.from.name)}</div><div class="am">••••${S.from.mask}</div></div><div class="ab dnum">${ugx0(S.from.balance)}</div><span class="cv">${IC.chevD}</span></div>
+    <div class="field-label">Recurring amount</div>
+    <div class="amt-input"><span class="cur">UGX</span><input id="recAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${r.amount?r.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onRecAmt(this.value)"></div>
+    <div class="chips">${chips.map(c=>`<button class="chip ${r.amount===c?'on':''}" onclick="setRecAmt(${c})">${c>=1000?(c/1000)+'K':c}</button>`).join('')}</div>
+    <div class="hint">Minimum of ${ugx(MIN_BUY)}</div>
+    <div class="field-label">Frequency</div>
+    <div class="chips" style="margin-bottom:18px">${['Weekly','Monthly','Quarterly'].map(f=>`<button class="chip ${r.freq===f?'on':''}" onclick="setRecFreq('${f}')">${f}</button>`).join('')}</div>
+    <div class="sum-card"><div class="sum-line total"><span>You invest</span><span class="dnum" id="recSum">${ugx(r.amount)} / ${everyLbl(r.freq)}</span></div></div>
   </div>
-  <div class="drawer-foot"><button class="btn btn-outline btn-lg btn-block" onclick="S.recurring.active=false;renderDrawer();toast('Recurring payment cancelled')">Cancel recurring payment</button></div>`;
+  <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" id="recCont" ${valid?'':'disabled'} onclick="S.recurring.step=2;renderDrawer()">Continue</button></div>`;
 }
+function onRecAmt(v){ const n=parseInt(String(v).replace(/[^0-9]/g,''))||0; S.recurring.amount=n; const el=$('#recAmt'); if(el)el.value=n?n.toLocaleString('en-US'):''; const c=$('#recCont'); if(c)c.disabled=n<MIN_BUY; const s=$('#recSum'); if(s)s.textContent=ugx(n)+' / '+everyLbl(S.recurring.freq); document.querySelectorAll('.chips .chip').forEach(x=>x.classList.remove('on')); }
+function setRecAmt(c){ S.recurring.amount=c; renderDrawer(); }
+function setRecFreq(f){ S.recurring.freq=f; renderDrawer(); }
+function activateRecurring(){ const r=S.recurring; r.active=true; r.start='6 Jul 2026'; r.next=nextDebit(r.freq); r.step=3; renderDrawer(); }
+function cancelRecurring(){ S.recurring.active=false; S.recurring.step=1; renderDrawer(); toast('Recurring payment cancelled'); }
 
 function todayStr(){ return '6 Jul 2026'; }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+1<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -306,14 +306,15 @@
     try{
       doc.querySelectorAll('*').forEach(el=>{
         const t=el.textContent||'';
-        if(/Smart Saver/.test(t) && /(Put My Cash To Work|potential return|Earning More)/.test(t) && t.length<700){
+        // Match the Smart Saver card in EVERY scenario state (No cash, Has cash, etc.):
+        // any element that mentions Smart Saver and carries a gradient background.
+        if(/Smart Saver/.test(t) && t.length<900){
           const s=getComputedStyle(el);
           if(/gradient/.test(s.backgroundImage)){
             el.style.setProperty('background','linear-gradient(120deg,#95052A,#6E0420)','important');
             el.style.setProperty('background-image','linear-gradient(120deg,#95052A,#6E0420)','important');
           }
         }
-        // any nested green-tinted gradient overlays inside the card
       });
     }catch(e){}
   }
@@ -382,9 +383,13 @@
   }
   function setupKyc(doc){
     try{
-      stripKyc(doc);
+      stripKyc(doc); deGreen(doc); fixSmartSaver(doc);
       if(!doc.__kycObs){
-        const o=new MutationObserver(()=>stripKyc(doc));
+        // Re-apply the full Absa skin (KYC strip + de-green + Smart Saver) on ANY re-render,
+        // e.g. when the Compliance Simulator switches scenarios and React repaints the card.
+        let pending=false;
+        const reskin=()=>{ pending=false; stripKyc(doc); deGreen(doc); fixSmartSaver(doc); };
+        const o=new MutationObserver(()=>{ if(pending)return; pending=true; requestAnimationFrame(reskin); });
         o.observe(doc.body,{childList:true,subtree:true});
         doc.__kycObs=o;
       }
