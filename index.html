@@ -243,7 +243,8 @@
     .sidebar,aside.sidebar{width:0!important;min-width:0!important;max-width:0!important;
       padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
     .topbar,header.topbar,.header,.app-header{display:none!important}
-    .logo,.header-logo,.logomark,.app-logo,.v22-logo,.brand-logo{display:none!important}
+    .logo,.header-logo,.logomark,.app-logo,.v22-logo,.brand-logo,.app-brand,.nav-logo,.sidebar-logo,
+    img[alt*="vault" i],img[src*="vault" i]{display:none!important}
     .main,main.content{margin:0!important;width:auto!important;max-width:none!important;flex:1 1 auto!important;display:block!important}
     .page,.content,main,.view.active{margin-left:auto!important;margin-right:auto!important;max-width:1180px!important;width:100%!important;padding-left:30px!important;padding-right:30px!important;box-sizing:border-box!important}
     .app,.layout,.shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
@@ -302,6 +303,24 @@
 
   /* The Smart Saver card keeps a maroon->green gradient from the original Vault22 design.
      Target the card by its content and force a full Absa maroon gradient. */
+  /* Remove the Vault22 logo / wordmark entirely from every embedded screen
+     (loading spinner, headers, footers, "Vault22" text) so only Absa branding shows. */
+  function deLogo(doc){
+    try{
+      doc.querySelectorAll('img,svg,span,div,p,a,h1,h2,figure').forEach(el=>{
+        if(el.__delogo) return;
+        const cls=(el.className&&el.className.baseVal!==undefined?el.className.baseVal:el.className)||'';
+        const attrs=(el.getAttribute&&((el.getAttribute('alt')||'')+(el.getAttribute('src')||'')+(el.getAttribute('aria-label')||'')))||'';
+        // logo-classed nodes or vault22 image assets
+        if(/vault22|vault-22/i.test(attrs)){ el.style.setProperty('display','none','important'); el.__delogo=1; return; }
+        // exact "Vault22" wordmark text nodes (leaf), not larger content blocks
+        if(el.children.length===0){
+          const t=(el.textContent||'').trim();
+          if(/^vault\s*22$/i.test(t)){ el.style.setProperty('display','none','important'); el.__delogo=1; }
+        }
+      });
+    }catch(e){}
+  }
   function fixSmartSaver(doc){
     try{
       doc.querySelectorAll('*').forEach(el=>{
@@ -383,12 +402,12 @@
   }
   function setupKyc(doc){
     try{
-      stripKyc(doc); deGreen(doc); fixSmartSaver(doc);
+      stripKyc(doc); deGreen(doc); fixSmartSaver(doc); deLogo(doc);
       if(!doc.__kycObs){
-        // Re-apply the full Absa skin (KYC strip + de-green + Smart Saver) on ANY re-render,
-        // e.g. when the Compliance Simulator switches scenarios and React repaints the card.
+        // Re-apply the full Absa skin (KYC strip + de-green + Smart Saver + logo removal)
+        // on ANY re-render, e.g. when the Compliance Simulator switches scenarios.
         let pending=false;
-        const reskin=()=>{ pending=false; stripKyc(doc); deGreen(doc); fixSmartSaver(doc); };
+        const reskin=()=>{ pending=false; stripKyc(doc); deGreen(doc); fixSmartSaver(doc); deLogo(doc); };
         const o=new MutationObserver(()=>{ if(pending)return; pending=true; requestAnimationFrame(reskin); });
         o.observe(doc.body,{childList:true,subtree:true});
         doc.__kycObs=o;
