@@ -140,11 +140,12 @@ h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.3px}
 .scrim.show{opacity:1;pointer-events:auto}
 .drawer{position:fixed;top:0;right:0;height:100vh;width:min(480px,100vw);background:#F7F8F9;box-shadow:var(--shadow-lg);transform:translateX(102%);transition:.32s cubic-bezier(.2,.8,.2,1);z-index:60;display:flex;flex-direction:column}
 .drawer.show{transform:none}
+#dwin{flex:1;min-height:0;display:flex;flex-direction:column}
 .dh{display:flex;align-items:center;gap:12px;padding:18px 20px;background:#fff}
 .dh h3{flex:1;text-align:center;font-size:17px}
 .dh .b{width:34px;height:34px;border-radius:10px;display:grid;place-items:center}.dh .b:hover{background:var(--tile)}
 .dprog{height:3px;background:var(--line)}.dprog>i{display:block;height:100%;background:var(--absa);transition:width .3s}
-.db{flex:1;overflow:auto;padding:20px}
+.db{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:20px;-webkit-overflow-scrolling:touch}
 .df{padding:16px 20px;background:#fff;border-top:1px solid var(--line)}
 .fl{font-size:13.5px;font-weight:600;color:var(--ink-2);margin:0 0 8px}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
@@ -280,6 +281,10 @@ svg{flex:none}
 .picker{max-height:none}
 .acct .cv svg,.acct-opt .cv svg{width:18px;height:18px}
 .about-row .ic svg,.doc-row .ic{width:auto}.about-row .ic svg{width:18px;height:18px}
+/* size all icon-buttons/nav chevrons (fixes oversized back arrow etc.) */
+.btn svg,.dh .b svg,.ip-head .x svg,.calhead button svg,.cat .chev svg,.prod .rt .link svg,.search svg,.sec-row .link svg{width:18px;height:18px}
+.back-row .btn svg{width:16px;height:16px}
+.explore .plus svg{width:26px;height:26px}
 </style>
 </head>
 <body>
@@ -307,7 +312,7 @@ const DCHECK='<svg class="dcheck" viewBox="0 0 130 130" fill="none"><circle cx="
 /* ---------- state ---------- */
 const S={
   view:'landing', cat:'unit', panel:null,   // dashboard inline panel: transactions|statements|recurring|account
-  fund:{ id:'13579086421', name:'ABSA Shilingi Fund Portfolio', short:'Absa Shilingi Fund', kind:'Money Market Fund',
+  fund:{ id:'IN00000079', name:'ABSA Shilingi Fund Portfolio', short:'ABSA Shilingi Fund Portfolio', kind:'Money Market Fund',
     productName:'Sanlam Money Market Fund', manager:'Managed by Sanlam Investments East Africa',
     objectives:'The Sanlam Money Market Fund aims to provide investors with capital preservation, liquidity and competitive returns by investing in high-quality short-term money market instruments.',
     yield:12.5, fundSize:'UGX 85B', rating:'AAA', access:'1 - 2 days',
@@ -495,12 +500,12 @@ function dayPicker(){
   const r=S.recurring;
   if(r.freq==='Weekly'){
     return `<div class="fl">Day of the week</div>
-      <div class="day-input ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfWeek?'':'ph'}">${r.dayOfWeek||'e.g. Monday'}</span><span class="cal">${IC.cal}</span></div>
+      <div class="day-input ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfWeek?'':'ph'}">${r.dayOfWeek||'e.g., Monday'}</span><span class="cal">${IC.cal}</span></div>
       ${S.dayOpen?`<div class="picker">${WEEKDAYS.map(d=>`<div class="opt ${r.dayOfWeek===d?'on':''}" onclick="S.recurring.dayOfWeek='${d}';S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div>`:''}`;
   }
   if(r.freq==='Monthly'){
     return `<div class="fl">Day of the month</div>
-      <div class="day-input ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month':'e.g. 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
+      <div class="day-input ${S.dayOpen?'open':''}" onclick="S.dayOpen=!S.dayOpen;S.acctOpen=false;renderDrawer()"><span class="val ${r.dayOfMonth?'':'ph'}">${r.dayOfMonth?ordinal(+r.dayOfMonth)+' of the month':'e.g., 25th of the month'}</span><span class="cal">${IC.cal}</span></div>
       ${S.dayOpen?`<div class="picker"><div class="daygrid">${Array.from({length:28},(_,i)=>i+1).map(d=>`<div class="d ${(''+r.dayOfMonth)===(''+d)?'on':''}" onclick="S.recurring.dayOfMonth=${d};S.dayOpen=false;renderDrawer()">${d}</div>`).join('')}</div></div>`:''}`;
   }
   return `<div class="qbanner">${IC.info}<span>You will automatically buy units every 3 months.</span></div>
@@ -546,8 +551,6 @@ function dwBuy(){
     <div class="amt-err" id="bErr" style="display:${over?'flex':'none'}">${IC.warn}<span>Entered amount exceeds your account's available balance</span></div>
     <div class="hint" id="bHint" style="display:${over?'none':'block'}">Minimum of ${ugx(MIN)}</div>
     <div class="chips">${chips.map(c=>`<button class="chip ${b.amount===c?'on':''}" onclick="S.buy.amount=${c};renderDrawer()">${c/1000}k</button>`).join('')}</div>
-    <div class="tgl"><div class="sw ${b.recurring?'on':''}" onclick="S.buy.recurring=!S.buy.recurring;S.dayOpen=false;renderDrawer()"></div><div class="t">Would you like to set up a recurring payment?</div></div>
-    ${b.recurring?`<div style="margin-top:16px"><div class="fl">How often?</div><div class="rseg">${['Weekly','Monthly','Quarterly'].map(fr=>`<button class="${S.recurring.freq===fr?'on':''}" onclick="S.recurring.freq='${fr}';S.dayOpen=false;renderDrawer()">${fr}</button>`).join('')}</div>${dayPicker()}</div>`:''}
   </div><div class="df"><button class="btn btn-primary btn-lg btn-block" id="bCont" ${buyValid()?'':'disabled'} onclick="S.buy.step=2;renderDrawer()">Continue</button></div>`;
 }
 function onBuy(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.buy.amount=n;const el=$('#bAmt');if(el)el.value=n?n.toLocaleString('en-US'):'';const over=n>S.from.balance;const box=$('#bAmtBox');if(box)box.classList.toggle('err',over);const er=$('#bErr'),hi=$('#bHint');if(er)er.style.display=over?'flex':'none';if(hi)hi.style.display=over?'none':'block';const c=$('#bCont');if(c)c.disabled=!buyValid();document.querySelectorAll('.chips .chip').forEach(x=>x.classList.remove('on'));}
