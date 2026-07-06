@@ -169,6 +169,19 @@ a{color:inherit}
 .acct-select .am{font-size:12px;color:var(--muted)}
 .acct-select .ab{margin-left:auto;font-weight:600;font-size:13.5px;color:var(--ink-2)}
 .acct-select .cv{color:var(--muted)}
+/* recurring segmented control (How often) + day picker */
+.rseg{display:flex;background:#F4F2F3;border:1px solid #EDE9EA;border-radius:14px;padding:5px;margin-bottom:20px}
+.rseg button{flex:1;padding:12px;border-radius:11px;font-size:14px;font-weight:600;color:#6B5560;transition:.18s;font-family:inherit;background:none;border:none;cursor:pointer}
+.rseg button.on{background:#95052A;color:#fff;box-shadow:0 4px 12px -3px rgba(149,5,42,.5)}
+.rseg button:hover:not(.on){color:#95052A}
+.day-input{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:0 16px;margin-bottom:20px}
+.day-input select,.day-input input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--ink);background:none;padding:15px 0;appearance:none;-webkit-appearance:none;cursor:pointer}
+.day-input select:invalid,.day-input .ph{color:var(--muted)}
+.day-input .cal{color:var(--absa);flex:none}
+.day-input .cal svg{width:20px;height:20px}
+.empty-rec{text-align:center;padding:30px 16px}
+.empty-rec .ill{width:120px;height:96px;margin:0 auto 18px;opacity:.35}
+.empty-rec p{color:var(--ink);font-weight:600;font-size:15px;margin:0}
 .amt-input{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;margin-bottom:12px}
 .amt-input .cur{font-weight:700;color:var(--muted)}
 .amt-input input{flex:1;border:none;outline:none;font-size:20px;font-weight:700;text-align:right;font-family:inherit;color:var(--ink);width:100%;background:none}
@@ -229,8 +242,8 @@ const S = {
     yield:12.5, fundSize:'UGX 85B', rating:'AAA', access:'1 - 2 days',
     available:0, current:0, invested:0, pl:0, plPct:0
   },
-  from:{ name:'Absa Business Access Account', mask:'1359', balance:183722108 },
-  recurring:{ active:false, step:1, amount:10000, freq:'Monthly', day:15, start:'6 Jul 2026', next:'15 Jul 2026', from:'6693', total:0 },
+  from:{ name:'Absa Business Access Account', mask:'1359', balance:183706603 },
+  recurring:{ active:false, step:0, amount:0, freq:'Weekly', dayOfWeek:'', dayOfMonth:'', start:'6 Jul 2026', next:'', from:'1359', total:0 },
   txns:[],
   buy:{ step:1, amount:0 },
   sell:{ step:1, amount:0 },
@@ -254,6 +267,8 @@ const IC = {
   txns:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h13l-3-3M20 17H7l3 3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   stmt:'<svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l3 3v15H6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 9h6M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
   recur:'<svg viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 018-8 8 8 0 016 2.7M20 12a8 8 0 01-8 8 8 8 0 01-6-2.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M18 3v4h-4M6 21v-4h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M3 9h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  emptycard:'<svg viewBox="0 0 120 96" fill="none"><rect x="18" y="24" width="84" height="52" rx="8" fill="#C9C9CC"/><rect x="28" y="40" width="26" height="8" rx="4" fill="#EDEDEE"/><rect x="28" y="54" width="44" height="6" rx="3" fill="#E2E2E4"/><circle cx="92" cy="24" r="9" fill="#D6D6D9"/><path d="M92 20v8M88 24h8" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
   acct:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M3 10h18M7 15h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
   daily:'<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 14.5c.5 1 1.7 1.6 3 1.6 1.7 0 3-.8 3-2.1 0-2.8-5.5-1.4-5.5-4 0-1.2 1.2-2 2.8-2 1.2 0 2.3.5 2.8 1.4M12 6v1.5M12 16v1.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
   shield:'<svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
@@ -606,8 +621,13 @@ function dwStatements(){
 }
 
 /* --- RECURRING PAYMENT --- */
-function nextDebit(freq){ return freq==='Weekly'?'13 Jul 2026':freq==='Quarterly'?'6 Oct 2026':'15 Jul 2026'; }
+const WEEKDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function everyLbl(freq){ return freq==='Weekly'?'week':freq==='Quarterly'?'quarter':'month'; }
+function recSchedule(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'week')) : (r.freq==='Quarterly'?('Quarterly on the '+(r.dayOfMonth?ordinal(+r.dayOfMonth):'set day')) : ('Monthly on the '+(r.dayOfMonth?ordinal(+r.dayOfMonth):'set day'))); }
+function recNext(r){ return r.freq==='Weekly'?('Next '+(r.dayOfWeek||'week')) : ('The '+(r.dayOfMonth?ordinal(+r.dayOfMonth):'1st')+' of next month'); }
+function recValid(r){ return r.amount>=MIN_BUY && (r.freq==='Weekly'? !!r.dayOfWeek : !!r.dayOfMonth); }
+
 function dwRecurring(){
   const r=S.recurring;
   // SUCCESS
@@ -615,59 +635,75 @@ function dwRecurring(){
     return dwHead('Recurring payment',100)+`<div class="drawer-body"><div class="success-wrap">
       <svg class="success-check" viewBox="0 0 84 84" fill="none"><circle cx="42" cy="42" r="38" stroke="#158B3A" stroke-width="4"/><path d="M25 43l12 12 22-24" stroke="#158B3A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <h4>Recurring payment set up</h4>
-      <p>${ugx(r.amount)} will be invested every ${everyLbl(r.freq)} into the ${esc(S.fund.short)} from your ${esc(S.from.name)} ••••${S.from.mask}, starting ${esc(r.next)}.</p></div></div>
-    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="S.recurring.step=1;renderDrawer()">Done</button></div>`;
+      <p>${ugx(r.amount)} will be invested ${recSchedule(r).toLowerCase()} into the ${esc(S.fund.short)} from your ${esc(S.from.name)} ••••${S.from.mask}.</p></div></div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="S.recurring.step=0;renderDrawer()">Done</button></div>`;
   }
   // ACTIVE: manage view
   if(r.active){
-    return dwHead('Recurring payment')+`<div class="drawer-body">
-      <div class="toggle-row"><div><div style="font-weight:600">${esc(r.freq)} recurring deposit</div><div class="muted" style="font-size:12.5px">Auto-invest every ${everyLbl(r.freq)}</div></div>
-        <div class="sw on" onclick="cancelRecurring()"></div></div>
+    return dwHead('Recurring payments')+`<div class="drawer-body">
       <div class="sum-card">
         <div class="sum-line"><span class="k">Recurring amount</span><span class="dnum" style="font-weight:700">${ugx(r.amount)}</span></div>
         <div class="sum-line"><span class="k">Frequency</span><span>${esc(r.freq)}</span></div>
-        <div class="sum-line"><span class="k">Start date</span><span>${esc(r.start)}</span></div>
-        <div class="sum-line"><span class="k">Next debit date</span><span>${esc(r.next)}</span></div>
+        <div class="sum-line"><span class="k">Schedule</span><span>${recSchedule(r)}</span></div>
+        <div class="sum-line"><span class="k">Next debit date</span><span>${recNext(r)}</span></div>
         <div class="sum-line"><span class="k">From account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div>
         <div class="sum-line"><span class="k">Total contributions</span><span class="dnum">${ugx(r.total)}</span></div>
       </div></div>
     <div class="drawer-foot" style="display:flex;flex-direction:column;gap:10px">
-      <button class="btn btn-ghost btn-lg btn-block" onclick="S.recurring.active=false;S.recurring.step=1;renderDrawer()">Edit recurring payment</button>
+      <button class="btn btn-ghost btn-lg btn-block" onclick="S.recurring.step=1;renderDrawer()">Edit recurring payment</button>
       <button class="btn btn-outline btn-lg btn-block" onclick="cancelRecurring()">Cancel recurring payment</button></div>`;
   }
   // CONFIRM
   if(r.step===2){
-    return dwHead('Confirm recurring',66,"S.recurring.step=1;renderDrawer()")+`<div class="drawer-body">
+    return dwHead('Recurring payment',100,"S.recurring.step=1;renderDrawer()")+`<div class="drawer-body">
+      <h3 style="margin:0 0 16px">Confirm recurring payment</h3>
       <div class="sum-card">
         <div class="sum-line"><span class="k">Fund</span><span>${esc(S.fund.short)}</span></div>
-        <div class="sum-line"><span class="k">Amount</span><span class="dnum">${ugx(r.amount)}</span></div>
+        <div class="sum-line"><span class="k">Buy amount</span><span class="dnum">${ugx(r.amount)}</span></div>
         <div class="sum-line"><span class="k">Frequency</span><span>${esc(r.freq)}</span></div>
+        <div class="sum-line"><span class="k">Schedule</span><span>${recSchedule(r)}</span></div>
         <div class="sum-line"><span class="k">From account</span><span>${esc(S.from.name)} ••••${S.from.mask}</span></div>
-        <div class="sum-line total"><span>First debit</span><span>${nextDebit(r.freq)}</span></div></div>
+        <div class="sum-line total"><span>Total debit</span><span class="dnum">${ugx(r.amount)}</span></div></div>
       <div class="disclaimer"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>You authorise ABSA to debit ${ugx(r.amount)} from your linked account every ${everyLbl(r.freq)} and invest it in the ${esc(S.fund.short)}. You can pause or cancel anytime. Illustrative prototype.</span></div></div>
-    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="activateRecurring()">Confirm &amp; activate</button></div>`;
+        <span>You authorise ABSA to debit ${ugx(r.amount)} from your linked account ${recSchedule(r).toLowerCase()} and invest it in the ${esc(S.fund.short)}. You can cancel anytime. Illustrative prototype.</span></div></div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="activateRecurring()">Confirm &amp; set up</button></div>`;
   }
-  // STEP 1: set-up form
-  const chips=[5000,10000,25000,50000], valid=r.amount>=MIN_BUY;
-  return dwHead('Set up recurring payment')+`<div class="drawer-body">
+  // STEP 0: empty state (matches live)
+  if(r.step===0){
+    return dwHead('Recurring payments')+`<div class="drawer-body">
+      <div class="empty-rec"><div class="ill">${IC.emptycard}</div><p>You don't have any active recurring payments at the moment</p></div>
+    </div>
+    <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" onclick="S.recurring.step=1;renderDrawer()">Set up recurring payment</button></div>`;
+  }
+  // STEP 1: set-up form (matches live: How often -> From account -> Buy amount -> Day picker)
+  const chips=[10000,50000,100000,500000], valid=recValid(r);
+  const dayField = r.freq==='Weekly'
+    ? `<div class="field-label">Day of the week</div>
+       <div class="day-input"><select onchange="S.recurring.dayOfWeek=this.value;refreshRecCont()"><option value="" ${!r.dayOfWeek?'selected':''} disabled>e.g. Monday</option>${WEEKDAYS.map(d=>`<option ${r.dayOfWeek===d?'selected':''}>${d}</option>`).join('')}</select><span class="cal">${IC.cal}</span></div>`
+    : `<div class="field-label">Day of the month</div>
+       <div class="day-input"><select onchange="S.recurring.dayOfMonth=this.value;refreshRecCont()"><option value="" ${!r.dayOfMonth?'selected':''} disabled>e.g. 15th</option>${Array.from({length:28},(_,i)=>i+1).map(d=>`<option value="${d}" ${(''+r.dayOfMonth)===(''+d)?'selected':''}>${ordinal(d)}</option>`).join('')}</select><span class="cal">${IC.cal}</span></div>`;
+  return dwHead('Recurring payment',50)+`<div class="drawer-body">
+    <div class="field-label" style="font-size:15px;font-weight:700;color:var(--ink)">How often do you want to buy units?</div>
+    <div class="rseg">${['Weekly','Monthly','Quarterly'].map(f=>`<button class="${r.freq===f?'on':''}" onclick="setRecFreq('${f}')">${f}</button>`).join('')}</div>
     <div class="field-label">From account</div>
     <div class="acct-select"><div><div class="an">${esc(S.from.name)}</div><div class="am">••••${S.from.mask}</div></div><div class="ab dnum">${ugx0(S.from.balance)}</div><span class="cv">${IC.chevD}</span></div>
-    <div class="field-label">Recurring amount</div>
-    <div class="amt-input"><span class="cur">UGX</span><input id="recAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${r.amount?r.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onRecAmt(this.value)"></div>
+    <div class="field-label">Buy amount</div>
+    <div class="amt-input"><span class="cur">UGX</span><input id="recAmt" inputmode="numeric" pattern="[0-9]*" placeholder="0.00" value="${r.amount?r.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" oninput="onRecAmt(this.value)"></div>
     <div class="chips">${chips.map(c=>`<button class="chip ${r.amount===c?'on':''}" onclick="setRecAmt(${c})">${c>=1000?(c/1000)+'K':c}</button>`).join('')}</div>
     <div class="hint">Minimum of ${ugx(MIN_BUY)}</div>
-    <div class="field-label">Frequency</div>
-    <div class="chips" style="margin-bottom:18px">${['Weekly','Monthly','Quarterly'].map(f=>`<button class="chip ${r.freq===f?'on':''}" onclick="setRecFreq('${f}')">${f}</button>`).join('')}</div>
-    <div class="sum-card"><div class="sum-line total"><span>You invest</span><span class="dnum" id="recSum">${ugx(r.amount)} / ${everyLbl(r.freq)}</span></div></div>
+    ${dayField}
+    <div class="sum-card">
+      <div class="sum-line"><span class="k">Buy amount</span><span class="dnum" id="recSum">${ugx(r.amount)}</span></div>
+      <div class="sum-line total"><span>Total debit</span><span class="dnum" id="recTot">${ugx(r.amount)}</span></div></div>
   </div>
   <div class="drawer-foot"><button class="btn btn-primary btn-lg btn-block" id="recCont" ${valid?'':'disabled'} onclick="S.recurring.step=2;renderDrawer()">Continue</button></div>`;
 }
-function onRecAmt(v){ const n=parseInt(String(v).replace(/[^0-9]/g,''))||0; S.recurring.amount=n; const el=$('#recAmt'); if(el)el.value=n?n.toLocaleString('en-US'):''; const c=$('#recCont'); if(c)c.disabled=n<MIN_BUY; const s=$('#recSum'); if(s)s.textContent=ugx(n)+' / '+everyLbl(S.recurring.freq); document.querySelectorAll('.chips .chip').forEach(x=>x.classList.remove('on')); }
+function refreshRecCont(){ const c=$('#recCont'); if(c)c.disabled=!recValid(S.recurring); }
+function onRecAmt(v){ const n=parseInt(String(v).replace(/[^0-9]/g,''))||0; S.recurring.amount=n; const el=$('#recAmt'); if(el)el.value=n?n.toLocaleString('en-US'):''; const s=$('#recSum'),t=$('#recTot'); if(s)s.textContent=ugx(n); if(t)t.textContent=ugx(n); refreshRecCont(); document.querySelectorAll('.chips .chip').forEach(x=>x.classList.remove('on')); }
 function setRecAmt(c){ S.recurring.amount=c; renderDrawer(); }
 function setRecFreq(f){ S.recurring.freq=f; renderDrawer(); }
-function activateRecurring(){ const r=S.recurring; r.active=true; r.start='6 Jul 2026'; r.next=nextDebit(r.freq); r.step=3; renderDrawer(); }
-function cancelRecurring(){ S.recurring.active=false; S.recurring.step=1; renderDrawer(); toast('Recurring payment cancelled'); }
+function activateRecurring(){ const r=S.recurring; r.active=true; r.start='6 Jul 2026'; r.step=3; renderDrawer(); }
+function cancelRecurring(){ Object.assign(S.recurring,{active:false,step:0,amount:0,dayOfWeek:'',dayOfMonth:''}); renderDrawer(); toast('Recurring payment cancelled'); }
 
 function todayStr(){ return '6 Jul 2026'; }
 
