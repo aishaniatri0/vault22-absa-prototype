@@ -464,6 +464,122 @@
     body.printing .stat-strip,body.printing .grid{break-inside:avoid}
     body.printing .main{display:block!important}
   }
+
+/* ported insurance marketplace CSS (reskinned) */
+  .ins-card{background:linear-gradient(135deg,#95052A,#77021E);border-radius:14px;padding:20px 22px;color:#FBF1F4}
+  .ins-feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .ins-card .ins-why-text{font-size:12.5px;color:#EBD3DA;line-height:1.5;margin-top:10px;border-top:1px solid rgba(255,255,255,.18);padding-top:9px}
+  .pill-w{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.16);font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+  .ins-card h3{font-size:17px;font-weight:700;margin:11px 0 6px}
+  .ins-card p{font-size:13px;color:#F6E4E9;line-height:1.5}
+
+  /* ---- portfolio carousel ---- */
+  .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .tab{font-size:13px;font-weight:600;padding:7px 16px;border-radius:20px;border:1px solid var(--line);background:#fff;color:#5a6e80;cursor:pointer}
+  .tab.active{background:var(--teal-soft);color:var(--teal-d);border-color:transparent}
+  .pf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:980px){.pf-grid{grid-template-columns:1fr}}
+  .pf{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .pf .tags{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .pf .tg{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px}
+  .pf h3{font-size:15.5px;font-weight:700}
+  .pf .by{font-size:11px;color:var(--teal-d);font-weight:700;margin:4px 0 10px}
+  .pf p{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px;flex:1}
+  .pf .bf{font-size:11px;color:var(--muted-2);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .pf .bft{font-size:12.5px;margin:2px 0 12px}
+  .pf .min{font-size:13.5px;font-weight:700;border-top:1px solid var(--line);padding-top:12px}
+  .pf .min span{color:var(--muted);font-weight:500}
+
+  /* ---- archive list ---- */
+  .arch-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+  .arch-row:last-child{border-bottom:0}
+  .arch-row .ai{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+  .arch-row .am{flex:1;display:flex;flex-direction:column}
+  .arch-row .am b{font-size:14px;font-weight:600}
+  .arch-row .am span{font-size:12px;color:var(--muted);margin-top:2px}
+  .arch-row .btn{padding:7px 13px}
+
+  /* ---- toggle switch ---- */
+  .toggle{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);font-weight:600;cursor:pointer;user-select:none}
+  .toggle .sw{width:38px;height:21px;border-radius:20px;background:#cdd6e0;position:relative;transition:.2s;flex-shrink:0}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle input{display:none}
+  .toggle input:checked + .sw{background:var(--teal)}
+  .toggle input:checked + .sw::after{transform:translateX(17px)}
+  /* hide % change column when compare is off */
+  .cats.hide-pct .cat{grid-template-columns:1.4fr 2fr .8fr 0}
+  .cats.hide-pct .pct{display:none}
+
+  /* ---- data-source tags ---- */
+  .src{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.02em;vertical-align:middle;margin-left:8px;white-space:nowrap;display:inline-block}
+  .s-txn{background:var(--blue-soft);color:var(--blue)}
+  .s-link{background:var(--teal-soft);color:var(--teal-d)}
+  .s-onb{background:#efe9ff;color:#6c5ce7}
+  .s-prof{background:var(--green-soft);color:var(--green)}
+  .s-deriv{background:var(--gray-pill);color:#64748b}
+  .s-gap{background:var(--amber-soft);color:var(--amber)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);align-items:center}
+  .legend .src{margin-left:0}
+  .field-gap{font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-soft);padding:1px 7px;border-radius:20px;margin-left:6px}
+  .gap-row{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+  .gap-row:last-child{border-bottom:0}
+  .gap-row .gi{flex-shrink:0;margin-top:1px}
+  .gap-row .gt{font-size:14px;font-weight:600}
+  .gap-row .gx{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.5}
+  .onb-grp{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .onb-grp:first-child{margin-top:4px}
+
+  /* ---- field-update modal + add rows (action item #5) ---- */
+  .add-row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+  .add-row:last-child{border-bottom:0}
+  .add-row .ar-m{flex:1}
+  .add-row .ar-t{font-size:14px;font-weight:600}
+  .add-row .ar-x{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.45}
+  .add-pill{font-size:10px;font-weight:700;color:var(--amber);background:var(--amber-soft);padding:2px 8px;border-radius:20px;margin-left:6px;vertical-align:middle}
+  .modal-ov{position:fixed;inset:0;background:rgba(11,34,57,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal-ov.show{display:flex}
+  .modal{background:#fff;border-radius:16px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;animation:fade .2s ease}
+  .modal-h{display:flex;justify-content:space-between;align-items:center;padding:17px 20px;border-bottom:1px solid var(--line)}
+  .modal-h h3{font-size:16px;font-weight:700}
+  .modal-x{cursor:pointer;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--muted)}
+  .modal-b{padding:20px;max-height:62vh;overflow:auto}
+  .modal-f{display:flex;justify-content:flex-end;gap:9px;padding:14px 20px;border-top:1px solid var(--line);background:#fafbfc}
+  .field-lbl{font-size:12.5px;font-weight:600;color:#33495d;margin:0 0 6px;display:block}
+  .field-help{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .inp{width:100%;font-family:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:none}
+  .inp:focus{border-color:var(--teal)}
+  /* every interactive element shows a pointer cursor so it's clearly clickable */
+  [onclick],.ilink,.iadd,.nav-item,label.toggle,.tab,.back{cursor:pointer}
+  .ilink:hover{text-decoration:underline}
+  .chips-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chip-sel{font-size:13px;padding:7px 13px;border-radius:20px;border:1px solid var(--line);background:#fff;cursor:pointer;user-select:none}
+  .chip-sel.on{background:var(--teal-soft);border-color:transparent;color:var(--teal-d);font-weight:600}
+  .upload-box{border:1.5px dashed #cdd6e0;border-radius:12px;padding:20px;text-align:center;color:var(--muted);font-size:13px;cursor:pointer}
+  .upload-box:hover{border-color:var(--teal);color:var(--teal-d)}
+
+  /* ---- insurance module tiles (action item #6) ---- */
+  .ins-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:980px){.ins-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.ins-grid{grid-template-columns:1fr}}
+  .itile{border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;min-height:158px}
+  .itile.off{background:var(--red-soft);border-style:dashed;border-color:#f1c4c6}
+  .itile .ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;margin-bottom:10px;font-size:18px}
+  .itile .ity{font-size:14.5px;font-weight:700}
+  .itile .icv{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .itile .iprem{font-size:17px;font-weight:800;margin-top:auto}
+  .itile .iprem small{font-size:12px;color:var(--muted);font-weight:500}
+  .itile .ilink{font-size:12px;color:var(--teal-d);font-weight:700;cursor:pointer;margin-top:8px}
+  .itile .iadd{font-size:12.5px;color:var(--amber);font-weight:700;cursor:pointer;margin-top:auto;display:inline-flex;align-items:center;gap:5px}
+  .itile .istat{font-size:11px;font-weight:700;color:var(--muted-2);margin-top:6px}
+  .itile.apply{cursor:pointer;transition:transform .12s,box-shadow .12s,border-color .12s}
+  .itile.apply:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.07);border-color:var(--teal)}
+  .hbar-link:hover .hl{text-decoration:underline}
+  .mkt-toggle{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .mkt-toggle button{border:0;background:#fff;padding:5px 12px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer}
+  .mkt-toggle button.on{background:var(--teal);color:#fff}
+  .prov-card{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+  .prov-card .feat{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .prov-card .rbadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--gray-pill);color:var(--muted-2)}
 </style>
 <style id="absa-embed-style">
 html.absa-embedded .sidebar,html.absa-embedded aside.sidebar{width:0!important;min-width:0!important;max-width:0!important;padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
@@ -1527,14 +1643,15 @@ html.absa-embedded body{overflow-x:hidden}
       <!-- =================================================== -->
       <!-- INSURANCE MODULE (action item #6)                    -->
       <!-- =================================================== -->
-      <section id="view-insurance" class="view">
+            <section id="view-insurance" class="view">
         <div id="report-insurance">
           <div class="rep-head">
             <div class="back" onclick="goBack()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></div>
-            <div><h1>Insurance</h1><p>All your cover in one place - policies, premiums and gaps</p></div>
+            <div><h1>Insurance</h1><p>All your cover in one place — policies, premiums and gaps</p></div>
             <div class="rep-actions">
               <button class="btn" onclick="downloadPDF('report-insurance','Vault22-Insurance-Aishani')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 21h16"/></svg>Download</button>
-              <button class="btn primary" onclick="openAddPolicy('')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>Add policy</button>
+              <button class="btn" onclick="openAddPolicy('')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>Add policy</button>
+              <button class="btn primary" onclick="openTypePicker()"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>Get insured</button>
             </div>
           </div>
 
@@ -1601,6 +1718,38 @@ html.absa-embedded body{overflow-x:hidden}
             </div>
           </div>
 
+          <!-- Get insured: type-specific application flows (Stephen 1 Jul) -->
+          <div class="card no-break">
+            <h2>Get insured</h2><div class="sub">Pick a cover type, complete one short application, and we'll match you to providers. Your details are saved so we can request live quotes for you.</div>
+            <div class="ins-grid" id="applyGrid">
+              <div class="itile apply" onclick="getInsurance('Motor')">
+                <div class="ico" style="background:var(--teal-soft)">🚗</div>
+                <div class="ity">Motor</div><div class="icv">Car &amp; vehicle cover</div>
+                <div class="iadd" style="color:var(--teal-d)">Apply →</div>
+              </div>
+              <div class="itile apply" onclick="getInsurance('Home')">
+                <div class="ico" style="background:var(--teal-soft)">🏠</div>
+                <div class="ity">Home</div><div class="icv">Building &amp; contents</div>
+                <div class="iadd" style="color:var(--teal-d)">Apply →</div>
+              </div>
+              <div class="itile apply" onclick="getInsurance('Health')">
+                <div class="ico" style="background:var(--teal-soft)">🏥</div>
+                <div class="ity">Health</div><div class="icv">Medical cover</div>
+                <div class="iadd" style="color:var(--teal-d)">Apply →</div>
+              </div>
+              <div class="itile apply" onclick="getInsurance('Life')">
+                <div class="ico" style="background:var(--teal-soft)">🛡️</div>
+                <div class="ity">Life</div><div class="icv">Life &amp; dependants</div>
+                <div class="iadd" style="color:var(--teal-d)">Apply →</div>
+              </div>
+              <div class="itile apply" onclick="getInsurance('Travel')">
+                <div class="ico" style="background:var(--teal-soft)">✈️</div>
+                <div class="ity">Travel</div><div class="icv">Trips &amp; medical abroad</div>
+                <div class="iadd" style="color:var(--teal-d)">Apply →</div>
+              </div>
+            </div>
+          </div>
+
           <!-- all policies + manual entry -->
           <div class="card no-break">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -1621,7 +1770,7 @@ html.absa-embedded body{overflow-x:hidden}
               <div>
                 <div class="tag">Tara · Insurance</div>
                 <h4>Two gaps are leaving your family exposed</h4>
-                <p>You have <b>no disability or income-protection cover</b>. With 2 dependents and <b>R14,440/month</b> in debt obligations, a loss of income would be severe. Income protection is typically <b>R650-R850/month</b> - comfortably within your <b>R8,287</b> monthly surplus. Adding it would lift your Insurance FFL zone from <b>45</b> toward <b>70</b>.</p>
+                <p>You have <b>no disability or income-protection cover</b>. With 2 dependents and <b>R14,440/month</b> in debt obligations, a loss of income would be severe. Income protection is typically <b>R650–R850/month</b> — comfortably within your <b>R8,287</b> monthly surplus. Adding it would lift your Insurance FFL zone from <b>45</b> toward <b>70</b>.</p>
                 <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:4px">
                   <button class="btn mini" onclick="openQuotes('Income protection')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>No Protection? Get Covered</button>
                   <button class="btn mini" onclick="openAddPolicy('Income protection')">I am covered. Add policy</button>
@@ -1633,7 +1782,7 @@ html.absa-embedded body{overflow-x:hidden}
           <!-- what's next / suggestions -->
           <div class="card no-break">
             <h2>What we'll add here next <span class="src s-gap">Proposed</span></h2>
-            <div class="sub">Planned enhancements for the insurance module - feedback welcome.</div>
+            <div class="sub">Planned enhancements for the insurance module — feedback welcome.</div>
             <ul class="signals" style="grid-template-columns:1fr 1fr;display:grid;gap:11px 24px">
               <li><span class="tick">+</span><div>Per-policy <b>beneficiaries &amp; dependants</b>, with allocation %.</div></li>
               <li><span class="tick">+</span><div><b>Claims history</b> &amp; live claim-status tracking.</div></li>
@@ -1976,6 +2125,34 @@ html.absa-embedded body{overflow-x:hidden}
 </div>
 
 <!-- Field-update modal (action item #5) -->
+<div class="modal-ov" id="applyModal" onclick="if(event.target===this)closeApply()">
+  <div class="modal">
+    <div class="modal-h"><h3 id="applyTitle">Get insured</h3><div class="modal-x" onclick="closeApply()">✕</div></div>
+    <div class="modal-b" id="applyBody"></div>
+    <div class="modal-f"><button class="btn" onclick="closeApply()">Cancel</button><button class="btn primary" onclick="saveApplication()">Continue →</button></div>
+  </div>
+</div>
+
+<!-- Preferences step (Srujan approved flow: Confirm details → Preferences → Matches) -->
+<div class="modal-ov" id="prefModal" onclick="if(event.target===this)closePref()">
+  <div class="modal">
+    <div class="modal-h"><h3 id="prefTitle">Your preferences</h3><div class="modal-x" onclick="closePref()">✕</div></div>
+    <div class="modal-b" id="prefBody"></div>
+    <div class="modal-f"><button class="btn" onclick="closePref()">Cancel</button><button class="btn primary" onclick="savePreferences()">See matches →</button></div>
+  </div>
+</div>
+
+<!-- Insurance type selection screen (Get insured entry point) -->
+<div class="modal-ov" id="typeModal" onclick="if(event.target===this)closeTypePicker()">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-h"><h3>Get insured — choose a product</h3><div class="modal-x" onclick="closeTypePicker()">✕</div></div>
+    <div class="modal-b">
+      <div class="sub" style="margin-bottom:12px">Pick a cover type. We'll ask a few product-specific questions, save your details, and match you to providers.</div>
+      <div class="tpick" id="typeGrid"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="fieldModal" onclick="if(event.target===this)closeFieldModal()">
   <div class="modal">
     <div class="modal-h"><h3 id="fmTitle">Add field</h3><div class="modal-x" onclick="closeFieldModal()">✕</div></div>
@@ -2457,41 +2634,61 @@ html.absa-embedded body{overflow-x:hidden}
   updateCompleteness();
   renderInsightsFeed();
   // ---- Insurance module (action item #6) ----
-  function showInsurance(){
+    function showInsurance(){
     showView('view-insurance');
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     const el=document.querySelector('[data-go="insurance"]'); if(el) el.classList.add('active');
   }
   // ---- H3: in-memory insurance model + live rendering (add / edit / delete) ----
   const INS_TYPES=[
+    {type:'Motor',            icon:'🚗',bg:'var(--teal-soft)', short:'Motor',       critical:false,status:'',            pts:12},
+    {type:'Home',             icon:'🏠',bg:'var(--teal-soft)', short:'Home',        critical:false,status:'Recommended', pts:10},
+    {type:'Health',           icon:'🏥',bg:'var(--teal-soft)', short:'Health',      critical:false,status:'',            pts:12},
     {type:'Life',             icon:'🛡️',bg:'var(--teal-soft)', short:'Life',        critical:false,status:'',            pts:12},
-    {type:'Medical aid',      icon:'🏥',bg:'var(--teal-soft)', short:'Medical',     critical:false,status:'',            pts:12},
-    {type:'Short-term',       icon:'🚗',bg:'var(--teal-soft)', short:'Short-term',  critical:false,status:'',            pts:12},
+    {type:'Travel',           icon:'✈️',bg:'var(--gray-pill)', short:'Travel',      critical:false,status:'Optional',    pts:5},
     {type:'Funeral',          icon:'🕊️',bg:'var(--teal-soft)', short:'Funeral',     critical:false,status:'',            pts:9},
     {type:'Disability',       icon:'♿',bg:'var(--red-soft)',  short:'Disability',  critical:true, status:'Critical gap',statusColor:'var(--red)',pts:20},
     {type:'Income protection',icon:'💼',bg:'var(--red-soft)',  short:'Income prot.',critical:true, status:'Critical gap',statusColor:'var(--red)',pts:20},
-    {type:'Gap cover',        icon:'🩹',bg:'var(--amber-soft)',short:'Gap cover',   critical:false,status:'Recommended', pts:10},
-    {type:'Travel',           icon:'✈️',bg:'var(--gray-pill)', short:'Travel',      critical:false,status:'Optional',    pts:5}
+    {type:'Gap cover',        icon:'🩹',bg:'var(--amber-soft)',short:'Gap cover',   critical:false,status:'Recommended', pts:10}
   ];
+  // Single canonical taxonomy. Legacy / synonym labels collapse to a canonical type so a policy is never orphaned.
+  const TYPE_ALIAS={'Short-term':'Motor','Short-term (car / home)':'Motor','Car':'Motor','Vehicle':'Motor','Household':'Home','Building':'Home','Contents':'Home','Medical aid':'Health','Medical':'Health'};
+  function canonType(t){ if(!t) return 'Other'; if(String(t).indexOf('Short-term')===0) return 'Motor'; return TYPE_ALIAS[t]||t; }
   let POLICIES=[
-    {id:1,type:'Life',       provider:'Old Mutual',coverage:2000000,    premium:1250,renewalISO:'2027-03-12'},
-    {id:2,type:'Medical aid',provider:'Discovery', coverage:'Comprehensive',premium:2675,renewalISO:'2027-01-01'},
-    {id:3,type:'Short-term', provider:'Outsurance',coverage:2180000,    premium:748, renewalISO:'2026-07-26'},
-    {id:4,type:'Funeral',    provider:'Avbob',     coverage:50000,      premium:150, renewalISO:'2026-09-05'}
+    {id:1,type:'Life',       provider:'Old Mutual',coverage:2000000,    premium:1250,renewalISO:'2027-03-12',currency:'ZAR',market:'ZA',status:'Active',policyNo:'V22-LIF-204817',dateAddedISO:'2025-11-02'},
+    {id:2,type:'Medical aid',provider:'Discovery', coverage:'Comprehensive',premium:2675,renewalISO:'2027-01-01',currency:'ZAR',market:'ZA',status:'Active',policyNo:'V22-HEA-118342',dateAddedISO:'2025-09-18'},
+    {id:3,type:'Short-term', provider:'Outsurance',coverage:2180000,    premium:748, renewalISO:'2026-07-26',currency:'ZAR',market:'ZA',status:'Active',policyNo:'V22-MOT-773190',dateAddedISO:'2026-01-14'},
+    {id:4,type:'Funeral',    provider:'Avbob',     coverage:50000,      premium:150, renewalISO:'2026-09-05',currency:'ZAR',market:'ZA',status:'Active',policyNo:'V22-FUN-556012',dateAddedISO:'2025-12-07'}
   ];
   let polSeq=5, editingPolicyId=null;
+  // Policy schema helpers (used for new policies; a backend would supply these fields).
+  function todayISO(){return new Date().toISOString().slice(0,10);}
+  function genPolicyNo(type){return 'V22-'+String(canonType(type)||'GEN').replace(/[^A-Za-z]/g,'').substring(0,3).toUpperCase()+'-'+String(Math.floor(100000+Math.random()*900000));}
+  // Persist policies so they survive a page refresh (a real backend would own this later).
+  try{const _sp=JSON.parse(localStorage.getItem('v22_policies')||'null'); if(Array.isArray(_sp)&&_sp.length) POLICIES=_sp;}catch(e){}
+  polSeq=POLICIES.reduce((m,p)=>Math.max(m,+p.id||0),0)+1;
+  function savePolicies(){try{localStorage.setItem('v22_policies',JSON.stringify(POLICIES));}catch(e){}}
   const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function normType(t){ if(!t) return 'Other'; return t.indexOf('Short-term')===0 ? 'Short-term' : t; }
+  function normType(t){ return canonType(t); }
   function fmtR(n){return 'R'+Math.round(n).toLocaleString('en-US');}
-  function fmtCover(v){return typeof v==='number' ? fmtR(v) : (v||'-');}
+  // Currency-aware helpers (BUG-2): never mix currencies; format by each policy's own currency.
+  function curSym(cur){return cur==='AED'?'AED ':'R';}
+  function fmtMoney(n,cur){return curSym(cur)+Math.round(n).toLocaleString('en-US');}
+  function polCur(p){return (p&&p.currency)||'ZAR';}
+  function fmtCover(v){return typeof v==='number' ? fmtR(v) : (v||'—');}
+  function fmtCoverP(p){return typeof p.coverage==='number' ? fmtMoney(p.coverage,polCur(p)) : (p.coverage||'—');}
   function fmtCoverM(v){return v>=1e6 ? 'R'+(v/1e6).toFixed(2)+'M' : fmtR(v);}
-  function fmtDate(iso){if(!iso) return '-';const d=new Date(iso+'T00:00:00');return isNaN(d)?iso:(d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear());}
+  function fmtCoverMC(n,cur){return n>=1e6 ? curSym(cur)+(n/1e6).toFixed(2)+'M' : fmtMoney(n,cur);}
+  function sumByCur(field){const m={};POLICIES.forEach(p=>{const c=polCur(p);const v=(field==='premium')?(+p.premium||0):(typeof p.coverage==='number'?p.coverage:0);if(v||field==='premium')m[c]=(m[c]||0)+v;});return m;}
+  function joinCur(m,fmt){const ks=Object.keys(m);return ks.length?ks.map(c=>fmt(m[c],c)).join(' · '):'R0';}
+  function fmtDate(iso){if(!iso) return '—';const d=new Date(iso+'T00:00:00');return isNaN(d)?iso:(d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear());}
   function isSoon(iso){if(!iso) return false;const d=new Date(iso+'T00:00:00');const days=(d-new Date())/86400000;return days>=0&&days<=60;}
-  function polsOfType(t){return POLICIES.filter(p=>p.type===t);}
+  function polsOfType(t){return POLICIES.filter(p=>canonType(p.type)===t);}
 
   function renderInsurance(){
-    const totalPrem=POLICIES.reduce((s,p)=>s+(+p.premium||0),0);
-    const totalCover=POLICIES.reduce((s,p)=>s+(typeof p.coverage==='number'?p.coverage:0),0);
+    const premByCur=sumByCur('premium'), coverByCur=sumByCur('cover');
+    const totalPremStr=joinCur(premByCur,fmtMoney);
+    const totalCoverStr=joinCur(coverByCur,fmtCoverMC);
     const count=POLICIES.length;
     const score=Math.min(100,INS_TYPES.filter(t=>polsOfType(t.type).length).reduce((s,t)=>s+t.pts,0));
     const criticalGaps=INS_TYPES.filter(t=>t.critical&&polsOfType(t.type).length===0).length;
@@ -2499,27 +2696,29 @@ html.absa-embedded body{overflow-x:hidden}
     const pl=n=>n===1?'policy':'policies';
     const sum=document.getElementById('insSummary');
     if(sum) sum.innerHTML=
-      '<div><div class="lbl">Total monthly premiums</div><div class="val">'+fmtR(totalPrem)+'</div><div class="meta">'+count+' active '+pl(count)+'</div></div>'+
-      '<div><div class="lbl">Total cover</div><div class="val">'+fmtCoverM(totalCover)+'</div><div class="meta">Across '+count+' '+pl(count)+'</div></div>'+
+      '<div><div class="lbl">Total monthly premiums</div><div class="val">'+totalPremStr+'</div><div class="meta">'+count+' active '+pl(count)+'</div></div>'+
+      '<div><div class="lbl">Total cover</div><div class="val">'+totalCoverStr+'</div><div class="meta">Across '+count+' '+pl(count)+'</div></div>'+
       '<div><div class="lbl">Protection score</div><div class="val">'+score+'<span style="font-size:13px;color:var(--muted);font-weight:500">/100</span></div><div class="meta" style="color:'+(criticalGaps?'var(--amber)':'var(--green)')+'">'+(criticalGaps?criticalGaps+' critical gap'+(criticalGaps>1?'s':''):'No critical gaps')+'</div></div>'+
       '<div><div class="lbl">Renewals due</div><div class="val">'+soon.length+'</div><div class="meta">'+(soon.length?soon[0].provider+' · within 60 days':'None upcoming')+'</div></div>';
     const tiles=document.getElementById('insTiles');
-    if(tiles) tiles.innerHTML=INS_TYPES.map(t=>{
+    if(tiles) tiles.innerHTML=INS_TYPES.slice().sort(function(a,b){return (polsOfType(b.type).length?1:0)-(polsOfType(a.type).length?1:0);}).map(t=>{
       const ps=polsOfType(t.type);
       if(ps.length){
         const prem=ps.reduce((s,p)=>s+(+p.premium||0),0);
-        const sub=ps.length===1?(ps[0].provider+' · '+(typeof ps[0].coverage==='number'?'Cover '+fmtCover(ps[0].coverage):ps[0].coverage)):(ps.length+' policies');
-        return '<div class="itile on"><div class="ico" style="background:var(--teal-soft)">'+t.icon+'</div><div class="ity">'+t.type+'</div><div class="icv">'+sub+'</div><div class="iprem">'+fmtR(prem)+' <small>/mo</small></div><div class="ilink" onclick="toast(\'Opening '+ps[0].provider.replace(/'/g,'')+' policy\')">View policy →</div></div>';
+        const pcur=polCur(ps[0]);
+        const sub=ps.length===1?(ps[0].provider+' · '+(typeof ps[0].coverage==='number'?'Cover '+fmtMoney(ps[0].coverage,pcur):ps[0].coverage)):(ps.length+' policies');
+        return '<div class="itile on"><div class="ico" style="background:var(--teal-soft)">'+t.icon+'</div><div class="ity">'+t.type+'</div><div class="icv">'+sub+'</div><div class="iprem">'+fmtMoney(prem,pcur)+' <small>/mo</small></div><div class="ilink" onclick="viewPolicy(\''+t.type+'\')">View policy →</div></div>';
       }
       return '<div class="itile off"><div class="ico" style="background:'+t.bg+'">'+t.icon+'</div><div class="ity">'+t.type+'</div><div class="icv">Not covered</div><div class="istat"'+(t.statusColor?' style="color:'+t.statusColor+'"':'')+'>'+t.status+'</div><div class="iadd" onclick="openAddPolicy(\''+t.type+'\')">+ Add cover</div></div>';
     }).join('');
     const rows=document.getElementById('insRows');
     if(rows) rows.innerHTML=POLICIES.map(p=>{
       const ren=isSoon(p.renewalISO)?'<span class="pill p-amber">'+fmtDate(p.renewalISO)+'</span>':fmtDate(p.renewalISO);
-      return '<tr><td><b>'+p.provider+'</b></td><td>'+p.type+'</td><td class="r num">'+fmtCover(p.coverage)+'</td><td class="r num">'+fmtR(p.premium)+'</td><td class="r">'+ren+'</td><td class="r"><span class="ilink" onclick="toast(\'Opening document\')">View</span></td><td class="r"><span class="ilink" onclick="openEditPolicy('+p.id+')">Edit</span> · <span class="ilink" style="color:var(--red)" onclick="deletePolicy('+p.id+')">Delete</span></td></tr>';
+      const meta=(p.policyNo?p.policyNo:'')+(p.status?(p.policyNo?' · ':'')+p.status:'');
+      return '<tr data-ptype="'+canonType(p.type)+'"><td><b>'+p.provider+'</b>'+(meta?'<div class="feat" style="font-size:10.5px;margin-top:1px">'+meta+'</div>':'')+'</td><td>'+canonType(p.type)+'</td><td class="r num">'+fmtCoverP(p)+'</td><td class="r num">'+fmtMoney(p.premium,polCur(p))+'</td><td class="r">'+ren+'</td><td class="r"><span class="ilink" onclick="toast(\'Opening document\')">View</span></td><td class="r"><span class="ilink" onclick="openEditPolicy('+p.id+')">Edit</span> · <span class="ilink" style="color:var(--red)" onclick="deletePolicy('+p.id+')">Delete</span></td></tr>';
     }).join('');
     const foot=document.getElementById('insFoot');
-    if(foot) foot.innerHTML='<tr><td colspan="3">Total monthly premiums</td><td class="r num">'+fmtR(totalPrem)+'</td><td colspan="3"></td></tr>';
+    if(foot) foot.innerHTML='<tr><td colspan="3">Total monthly premiums</td><td class="r num">'+totalPremStr+'</td><td colspan="3"></td></tr>';
     const nudge=document.getElementById('insTaraNudge'); if(nudge) nudge.style.display=criticalGaps?'':'none';
     // profile-screen Insurance Coverage card stays in sync
     const ptags=document.getElementById('profCovTags');
@@ -2530,9 +2729,9 @@ html.absa-embedded body{overflow-x:hidden}
         : '<div class="cov off"><div class="t">'+t.short+'</div><div class="s">Not covered</div></div>';
     }).join('');
     const prows=document.getElementById('profInsRows');
-    if(prows) prows.innerHTML=POLICIES.map(p=>'<tr><td><b>'+p.provider+'</b></td><td>'+p.type+'</td><td class="r num">'+fmtCover(p.coverage)+'</td><td class="r num">'+fmtR(p.premium)+'</td></tr>').join('');
+    if(prows) prows.innerHTML=POLICIES.map(p=>'<tr><td><b>'+p.provider+'</b></td><td>'+canonType(p.type)+'</td><td class="r num">'+fmtCoverP(p)+'</td><td class="r num">'+fmtMoney(p.premium,polCur(p))+'</td></tr>').join('');
     const pfoot=document.getElementById('profInsFoot');
-    if(pfoot) pfoot.innerHTML='<tr><td colspan="3">Total Monthly Premiums</td><td class="r num">'+fmtR(totalPrem)+'</td></tr>';
+    if(pfoot) pfoot.innerHTML='<tr><td colspan="3">Total Monthly Premiums</td><td class="r num">'+totalPremStr+'</td></tr>';
     const pcallout=document.getElementById('profInsCallout'); if(pcallout) pcallout.style.display=criticalGaps?'':'none';
     // Bucket A item 2: drive the FFL Insurance zone + recommendation reactivity
     window.INS_CRITICAL=criticalGaps;
@@ -2540,8 +2739,9 @@ html.absa-embedded body{overflow-x:hidden}
     const zf=document.getElementById('fflInsFill'); if(zf){zf.style.width=score+'%';zf.style.background=zcol;}
     const zv=document.getElementById('fflInsVal'); if(zv) zv.textContent=score;
     updateOverallFFL(score);
-    const zc=document.getElementById('fflInsCap'); if(zc){zc.style.color=zcol;zc.textContent=criticalGaps===0?'On track · disability & income protection in place':(criticalGaps===1?'Improving · one critical cover still to add':'Needs attention · no disability or income protection');}
+    const zc=document.getElementById('fflInsCap'); const zct=document.getElementById('fflInsCapText'); if(zc)zc.style.color=zcol; if(zct)zct.textContent=criticalGaps===0?'On track · disability & income protection in place':(criticalGaps===1?'Improving · one critical cover still to add':'Needs attention · no disability or income protection');
     if(typeof renderInsightsFeed==='function') renderInsightsFeed();
+    if(typeof savePolicies==='function') savePolicies(); // persist so policies + score survive a refresh
   }
 
   function openAddPolicy(type){
@@ -2562,7 +2762,7 @@ html.absa-embedded body{overflow-x:hidden}
     const sel=document.getElementById('polType');
     if(sel){ for(const o of sel.options){ if(normType(o.text)===p.type){ sel.value=o.value; break; } } }
     document.getElementById('polProvider').value=p.provider||'';
-    document.getElementById('polCoverage').value=(p.coverage==='-'?'':p.coverage);
+    document.getElementById('polCoverage').value=(p.coverage==='—'?'':p.coverage);
     document.getElementById('polPremium').value=p.premium||'';
     document.getElementById('polRenewal').value=p.renewalISO||'';
     document.getElementById('policyModal').classList.add('show');
@@ -2572,16 +2772,16 @@ html.absa-embedded body{overflow-x:hidden}
     const type=normType(document.getElementById('polType').value);
     const provider=document.getElementById('polProvider').value.trim()||'Unnamed insurer';
     const covRaw=document.getElementById('polCoverage').value;
-    const coverage=covRaw===''?'-':(isNaN(+covRaw)?covRaw:+covRaw);
+    const coverage=covRaw===''?'—':(isNaN(+covRaw)?covRaw:+covRaw);
     const premium=+document.getElementById('polPremium').value||0;
     const renewalISO=document.getElementById('polRenewal').value||'';
     if(editingPolicyId){
       const p=POLICIES.find(x=>x.id===editingPolicyId);
       if(p){p.type=type;p.provider=provider;p.coverage=coverage;p.premium=premium;p.renewalISO=renewalISO;}
-      toast('Policy updated - '+type);
+      toast('Policy updated — '+type);
     }else{
-      POLICIES.push({id:polSeq++,type,provider,coverage,premium,renewalISO});
-      toast('Policy added - '+type);
+      POLICIES.push({id:polSeq++,type,provider,coverage,premium,renewalISO,currency:'ZAR',market:'ZA',status:'Active',policyNo:genPolicyNo(type),dateAddedISO:todayISO()});
+      toast('Policy added — '+type);
     }
     editingPolicyId=null;
     closePolicyModal();
@@ -2591,41 +2791,446 @@ html.absa-embedded body{overflow-x:hidden}
     const p=POLICIES.find(x=>x.id===id);
     POLICIES=POLICIES.filter(x=>x.id!==id);
     renderInsurance();
-    toast('Policy deleted'+(p?' - '+p.type:''));
+    toast('Policy deleted'+(p?' — '+p.type:''));
+  }
+  // "View policy" → scroll to the Your policies table and flash the matching row(s).
+  function viewPolicy(type){
+    const ct=canonType(type);
+    const body=document.getElementById('insRows'); if(!body) return;
+    const card=body.closest('.card'); if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(function(){
+      const rows=document.querySelectorAll('#insRows tr[data-ptype="'+ct+'"]');
+      rows.forEach(function(tr){ tr.style.transition='background .4s'; tr.style.background='var(--teal-soft)'; });
+      setTimeout(function(){ rows.forEach(function(tr){ tr.style.background=''; }); }, 1600);
+      toast('Showing your '+ct+' policy');
+    }, 420);
   }
   renderInsurance();
 
   // ---- Marketplace: "Get covered" quotes, filtered to the needed insurance type (Stephen 29 Jun) ----
   const QUOTES={
-    'Life':[{p:'Sanlam',prem:1180,cov:4500000,r:4.6},{p:'Old Mutual',prem:1290,cov:4500000,r:4.5},{p:'Vault22 Life',prem:990,cov:4500000,r:4.8,partner:true}],
-    'Income protection':[{p:'Sanlam',prem:780,cov:31875,r:4.6},{p:'Discovery Life',prem:910,cov:31875,r:4.7},{p:'Vault22 Income Protect',prem:690,cov:31875,r:4.8,partner:true}],
-    'Disability':[{p:'Sanlam',prem:495,cov:4000000,r:4.6},{p:'Old Mutual',prem:540,cov:4000000,r:4.4},{p:'Vault22 Cover',prem:430,cov:4000000,r:4.8,partner:true}],
-    'Gap cover':[{p:'Vault22 Gap',prem:199,cov:200000,r:4.7,partner:true},{p:'Stratum',prem:240,cov:200000,r:4.4},{p:'Discovery Gap',prem:295,cov:200000,r:4.5}],
-    'Travel':[{p:'Vault22 Travel',prem:99,cov:1000000,r:4.7,partner:true},{p:'Hollard',prem:120,cov:1000000,r:4.2},{p:'TIC',prem:140,cov:1000000,r:4.4}],
-    'Short-term':[{p:'Naked',prem:690,cov:2500000,r:4.6,partner:true},{p:'Pineapple',prem:705,cov:2500000,r:4.5},{p:'Outsurance',prem:748,cov:2180000,r:4.3}],
-    'Funeral':[{p:'Vault22 Funeral',prem:120,cov:75000,r:4.7,partner:true},{p:'Old Mutual',prem:150,cov:75000,r:4.4},{p:'Avbob',prem:165,cov:75000,r:4.3}],
+    'Life':[{p:'Sanlam',prem:1180,cov:4500000,r:4.6},{p:'Old Mutual',prem:1290,cov:4500000,r:4.5},{p:'Absa Life',prem:990,cov:4500000,r:4.8,partner:true}],
+    'Income protection':[{p:'Sanlam',prem:780,cov:31875,r:4.6},{p:'Discovery Life',prem:910,cov:31875,r:4.7},{p:'Absa Income Protect',prem:690,cov:31875,r:4.8,partner:true}],
+    'Disability':[{p:'Sanlam',prem:495,cov:4000000,r:4.6},{p:'Old Mutual',prem:540,cov:4000000,r:4.4},{p:'Absa Cover',prem:430,cov:4000000,r:4.8,partner:true}],
+    'Gap cover':[{p:'Absa Gap',prem:199,cov:200000,r:4.7,partner:true},{p:'Stratum',prem:240,cov:200000,r:4.4},{p:'Discovery Gap',prem:295,cov:200000,r:4.5}],
+    'Travel':[{p:'Absa Travel',prem:99,cov:1000000,r:4.7,partner:true},{p:'Hollard',prem:120,cov:1000000,r:4.2},{p:'TIC',prem:140,cov:1000000,r:4.4}],
+    'Short-term':[{p:'Pineapple',prem:705,cov:2500000,r:4.5},{p:'Outsurance',prem:748,cov:2180000,r:4.3}],
+    'Funeral':[{p:'Absa Funeral',prem:120,cov:75000,r:4.7,partner:true},{p:'Old Mutual',prem:150,cov:75000,r:4.4},{p:'Avbob',prem:165,cov:75000,r:4.3}],
     'Medical aid':[{p:'Discovery',prem:2675,cov:'Comprehensive',r:4.6},{p:'Momentum',prem:2490,cov:'Comprehensive',r:4.4},{p:'Bonitas',prem:2350,cov:'Comprehensive',r:4.3}]
   };
   let quoteType=null;
   function openQuotes(type){
     quoteType=type;
     const list=QUOTES[type]||[];
-    document.getElementById('quotesTitle').textContent='Vault22 Marketplace - '+type;
+    document.getElementById('quotesTitle').textContent='Absa Marketplace — '+type;
     document.getElementById('quotesBody').innerHTML=
-      '<div class="sub" style="margin-bottom:12px">Cover options for <b>'+type+'</b> from Vault22 marketplace partners.</div>'+
-      list.map((q,i)=>'<div style="border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div style="font-size:14px;font-weight:700">'+q.p+(q.partner?' <span class="pill p-green" style="font-size:10px">Vault22 partner</span>':'')+'</div><div style="font-size:12px;color:var(--muted)">Cover '+fmtCover(q.cov)+' · ★ '+q.r+'</div></div><div style="text-align:right;white-space:nowrap"><div style="font-size:16px;font-weight:800">'+fmtR(q.prem)+'<span style="font-size:11px;color:var(--muted)">/mo</span></div><button class="btn primary" style="margin-top:6px;padding:6px 12px" onclick="selectQuote('+i+')">Get covered</button></div></div>').join('');
+      '<div class="sub" style="margin-bottom:12px">Cover options for <b>'+type+'</b> from Absa marketplace partners.</div>'+
+      list.map((q,i)=>'<div style="border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div style="font-size:14px;font-weight:700">'+q.p+(q.partner?' <span class="pill p-green" style="font-size:10px">Absa partner</span>':'')+'</div><div style="font-size:12px;color:var(--muted)">Cover '+fmtCover(q.cov)+' · ★ '+q.r+'</div></div><div style="text-align:right;white-space:nowrap"><div style="font-size:16px;font-weight:800">'+fmtR(q.prem)+'<span style="font-size:11px;color:var(--muted)">/mo</span></div><button class="btn primary" style="margin-top:6px;padding:6px 12px" onclick="selectQuote('+i+')">Get covered</button></div></div>').join('');
     document.getElementById('quotesModal').classList.add('show');
   }
   function closeQuotes(){document.getElementById('quotesModal').classList.remove('show');}
   function selectQuote(i){
     const q=(QUOTES[quoteType]||[])[i]; if(!q) return;
-    POLICIES.push({id:polSeq++,type:quoteType,provider:q.p,coverage:q.cov,premium:q.prem,renewalISO:'2027-06-30'});
-    closeQuotes(); renderInsurance(); toast('Covered - '+quoteType+' · '+q.p);
+    POLICIES.push({id:polSeq++,type:canonType(quoteType),provider:q.p,coverage:q.cov,premium:q.prem,renewalISO:'2027-06-30',currency:'ZAR',market:'ZA',status:'Active',policyNo:genPolicyNo(quoteType),dateAddedISO:todayISO()});
+    closeQuotes(); renderInsurance(); toast('Covered — '+quoteType+' · '+q.p);
+  }
+
+  // ==== Type-specific insurance application flows + marketplace handoff (Stephen 1 Jul) ====
+  // One complete form per insurance type. Fields differ per type (car ≠ home).
+  const APP_FORMS={
+    'Motor':{icon:'🚗',fields:[
+      {k:'make',l:'Vehicle make',t:'text',ph:'e.g. Toyota',req:true},
+      {k:'model',l:'Model',t:'text',ph:'e.g. Corolla',req:true},
+      {k:'year',l:'Year',t:'num',ph:'e.g. 2022',req:true},
+      {k:'reg',l:'Registration number',t:'text',ph:'e.g. CA 123-456',req:true},
+      {k:'value',l:'Vehicle value',t:'money',ph:'e.g. 320000',req:true},
+      {k:'driverAge',l:'Primary driver age',t:'num',ph:'e.g. 34',req:true},
+      {k:'usage',l:'Usage',t:'select',o:['Personal','Business','Personal & business']},
+      {k:'insurer',l:'Existing insurer (if any)',t:'text',ph:'e.g. none / Outsurance'},
+      {k:'claims',l:'Claims in last 3 years',t:'select',o:['None','1','2','3 or more']}
+    ]},
+    'Home':{icon:'🏠',fields:[
+      {k:'ptype',l:'Property type',t:'select',o:['House','Apartment / flat','Townhouse / complex','Estate']},
+      {k:'address',l:'Property address',t:'text',ph:'Street, suburb, city',req:true},
+      {k:'ownership',l:'Ownership',t:'select',o:['Owner-occupied','Landlord (let out)','Tenant (contents only)']},
+      {k:'pvalue',l:'Property / rebuild value',t:'money',ph:'e.g. 2200000',req:true},
+      {k:'cvalue',l:'Contents value',t:'money',ph:'e.g. 350000'},
+      {k:'security',l:'Security systems',t:'select',o:['Alarm + armed response','Alarm only','Electric fence / gated','None']}
+    ]},
+    'Health':{icon:'🏥',fields:[
+      {k:'age',l:'Your age',t:'num',ph:'e.g. 34',req:true},
+      {k:'members',l:'Number of members to cover',t:'select',o:['Just me','Me + partner','Me + partner + children','Family (4+)']},
+      {k:'conditions',l:'Existing medical conditions',t:'text',ph:'e.g. none / list briefly'},
+      {k:'insurer',l:'Current insurer (if any)',t:'text',ph:'e.g. none / Discovery'},
+      {k:'cover',l:'Desired cover level',t:'select',o:['Hospital plan','Comprehensive','Executive / premium']},
+      {k:'employer',l:'Employer cover in place?',t:'select',o:['No','Partial','Yes']}
+    ]},
+    'Life':{icon:'🛡️',fields:[
+      {k:'age',l:'Your age',t:'num',ph:'e.g. 34',req:true},
+      {k:'gender',l:'Gender',t:'select',o:['Female','Male','Prefer not to say']},
+      {k:'occupation',l:'Occupation',t:'text',ph:'e.g. Software engineer',req:true},
+      {k:'smoker',l:'Smoker?',t:'select',o:['Non-smoker','Smoker']},
+      {k:'income',l:'Annual income',t:'money',ph:'e.g. 640000',req:true},
+      {k:'cover',l:'Cover amount',t:'money',ph:'e.g. 4500000',req:true},
+      {k:'dependants',l:'Dependants',t:'select',o:['0','1','2','3','4+']}
+    ]},
+    'Travel':{icon:'✈️',fields:[
+      {k:'destination',l:'Destination',t:'text',ph:'e.g. United Kingdom',req:true},
+      {k:'depart',l:'Departure date',t:'date',req:true},
+      {k:'return',l:'Return date',t:'date',req:true},
+      {k:'travellers',l:'Number of travellers',t:'num',ph:'e.g. 2',req:true},
+      {k:'tripValue',l:'Trip value',t:'money',ph:'e.g. 25000'},
+      {k:'tripBasis',l:'Trip basis',t:'select',o:['Single trip','Annual multi-trip']},
+      {k:'purpose',l:'Purpose',t:'select',o:['Leisure','Business','Study','Medical']},
+      {k:'conditions',l:'Existing medical conditions',t:'text',ph:'e.g. none'}
+    ]}
+  };
+
+  // Marketplace providers per type + market. url = provider site for the website fallback (no live API yet).
+  const PROVIDERS={
+    ZA:{cur:'R',
+      'Motor':[
+        {p:'OUTsurance',from:640,r:4.3,feat:'Cashback bonus · 24/7 assist',url:'https://www.outsurance.co.za/'},
+        {p:'Discovery Insure',from:720,r:4.4,feat:'Vitality Drive rewards',url:'https://www.discovery.co.za/'}],
+      'Home':[
+        {p:'Santam',from:410,r:4.4,feat:'Building + contents · SA\'s largest',url:'https://www.santam.co.za/'},
+        {p:'OUTsurance',from:390,r:4.3,feat:'Combined home & contents',url:'https://www.outsurance.co.za/'},
+        {p:'Old Mutual iWYZE',from:430,r:4.1,feat:'Flexible building cover',url:'https://www.iwyze.co.za/'}],
+      'Health':[
+        {p:'Discovery Health',from:2675,r:4.6,feat:'Largest medical scheme · Vitality',url:'https://www.discovery.co.za/'},
+        {p:'Momentum Health',from:2490,r:4.4,feat:'Multiply rewards',url:'https://www.momentum.co.za/'},
+        {p:'Bonitas',from:2350,r:4.3,feat:'Wide hospital network',url:'https://www.bonitas.co.za/'}],
+      'Life':[
+        {p:'Absa Life',from:990,r:4.8,partner:true,feat:'Instant cover · no medicals to R5M',url:'https://www.vault22.com/'},
+        {p:'Sanlam',from:1180,r:4.6,feat:'Full underwriting · riders',url:'https://www.sanlam.co.za/'},
+        {p:'1Life',from:1090,r:4.4,feat:'Online life cover',url:'https://www.1life.co.za/'}],
+      'Travel':[
+        {p:'TIC (Travel Insurance Consultants)',from:110,r:4.4,feat:'Specialist travel cover',url:'https://www.tic.co.za/'},
+        {p:'Hollard',from:120,r:4.2,feat:'Leisure & business trips',url:'https://www.hollard.co.za/'},
+        {p:'Santam',from:135,r:4.4,feat:'Worldwide medical',url:'https://www.santam.co.za/'}]
+    },
+    AE:{cur:'AED',
+      'Motor':[
+        {p:'Sukoon (Oman Insurance)',from:145,r:4.5,feat:'Comprehensive · agency repair',url:'https://www.sukoon.com/'},
+        {p:'GIG Gulf (AXA)',from:160,r:4.4,feat:'Off-road & GCC cover',url:'https://www.giggulf.ae/en/'},
+        {p:'Salama Takaful',from:135,r:4.3,partner:true,takaful:true,feat:'Shariah-compliant motor Takaful',url:'https://www.salama.ae/'}],
+      'Home':[
+        {p:'Sukoon',from:38,r:4.5,feat:'Building + contents',url:'https://www.sukoon.com/'},
+        {p:'GIG Gulf',from:45,r:4.4,feat:'Contents & valuables',url:'https://www.giggulf.ae/en/'},
+        {p:'Salama Takaful',from:40,r:4.3,partner:true,takaful:true,feat:'Home Takaful cover',url:'https://www.salama.ae/'}],
+      'Health':[
+        {p:'Daman',from:550,r:4.5,feat:'UAE\'s largest health insurer',url:'https://www.damanhealth.ae/'},
+        {p:'Sukoon',from:520,r:4.4,feat:'DHA / DOH compliant plans',url:'https://www.sukoon.com/'},
+        {p:'Orient Insurance',from:495,r:4.2,feat:'Family health plans',url:'https://www.insuranceuae.com/'}],
+      'Life':[
+        {p:'MetLife',from:120,r:4.5,feat:'Term & whole-of-life',url:'https://www.metlife.ae/'},
+        {p:'Zurich International',from:135,r:4.4,feat:'Global life cover',url:'https://www.zurich.ae/'},
+        {p:'Sukoon',from:110,r:4.3,feat:'Life & family protection',url:'https://www.sukoon.com/'}],
+      'Travel':[
+        {p:'Sukoon',from:35,r:4.5,feat:'Schengen & worldwide',url:'https://www.sukoon.com/'},
+        {p:'GIG Gulf',from:40,r:4.4,feat:'Single & annual multi-trip',url:'https://www.giggulf.ae/en/'},
+        {p:'Salama Takaful',from:32,r:4.3,partner:true,takaful:true,feat:'Travel Takaful',url:'https://www.salama.ae/'}]
+    }
+  };
+
+  // ---- Future-ready quote-engine scaffolding ----
+  // Attach a placeholder integration object to every provider so live quote APIs can slot in later
+  // with minimal refactoring. supportedProducts is derived from the data itself (types the provider appears under).
+  function provSlug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+  (function enrichProviders(){
+    Object.keys(PROVIDERS).forEach(function(mkt){
+      const region=PROVIDERS[mkt]; const byName={};
+      Object.keys(region).forEach(function(type){ if(type==='cur')return; region[type].forEach(function(q){ (byName[q.p]=byName[q.p]||[]); if(byName[q.p].indexOf(type)<0) byName[q.p].push(type); }); });
+      Object.keys(region).forEach(function(type){ if(type==='cur')return; region[type].forEach(function(q){
+        q.integration={ providerId:provSlug(q.p), quoteEndpoint:null, auth:null, supportedProducts:byName[q.p], quoteStatus:'coming_soon' };
+      }); });
+    });
+  })();
+  // Provider-card visuals: initials logo + deterministic brand colour.
+  const LOGO_COLORS=['#95052A','#0B2239','#3B82F6','#8B5CF6','#F59E0B','#EF4444','#14B8A6','#6366F1','#0EA5E9','#DB2777'];
+  function provInitials(n){return n.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+  function logoColor(n){let s=0;for(let i=0;i<n.length;i++)s+=n.charCodeAt(i);return LOGO_COLORS[s%LOGO_COLORS.length];}
+
+  // Backend-ready store of submitted applications (mock — structured for future insurer-API submission).
+  let INSURANCE_APPLICATIONS=[];
+  try{const _a=JSON.parse(localStorage.getItem('v22_ins_apps')||'[]'); if(Array.isArray(_a)) INSURANCE_APPLICATIONS=_a;}catch(e){}
+  const USER_MARKET='ZA'; // BUG-3: default market comes from the user's profile/region, not the marketplace toggle
+  let appType=null, mktMarket=USER_MARKET; // mktMarket drives only the marketplace view, never the application payload
+  let pendingApp=null, mktPrefs=null, mktDetails=null, mktTakaful=false; // carry preferences + entered details into matching
+  // BUG-7: seed the application sequence from persisted data so IDs stay unique across reloads (never re-create APP-0001).
+  let appSeq=INSURANCE_APPLICATIONS.reduce((m,a)=>{const n=parseInt(String((a&&a.id)||'').replace('APP-',''),10);return isNaN(n)?m:Math.max(m,n);},0)+1;
+
+  // Insurance type selection screen (Get insured entry point)
+  const TYPE_PICKER=[
+    {t:'Motor', icon:'🚗', label:'Car Insurance',    sub:'Vehicle cover'},
+    {t:'Home',  icon:'🏠', label:'Home Insurance',   sub:'Building & contents'},
+    {t:'Life',  icon:'🛡️', label:'Life Insurance',   sub:'Life & dependants'},
+    {t:'Health',icon:'🏥', label:'Health Insurance', sub:'Medical cover'},
+    {t:'Travel',icon:'✈️', label:'Travel Insurance', sub:'Trips & medical abroad'}
+  ];
+  function openTypePicker(){
+    document.getElementById('typeGrid').innerHTML=TYPE_PICKER.map(function(x){
+      return '<div class="tp" tabindex="0" role="button" aria-label="'+x.label+'" onclick="pickType(\''+x.t+'\')"><div class="ico">'+x.icon+'</div><div><div class="tt">'+x.label+'</div><div class="ts">'+x.sub+'</div></div></div>';
+    }).join('');
+    document.getElementById('typeModal').classList.add('show');
+  }
+  function closeTypePicker(){document.getElementById('typeModal').classList.remove('show');}
+  function pickType(t){ closeTypePicker(); getInsurance(t); }
+  function getInsurance(type){
+    appType=type;
+    const spec=APP_FORMS[type]; if(!spec) return;
+    document.getElementById('applyTitle').textContent='Get insured — '+type+' '+spec.icon;
+    const curLbl=USER_MARKET==='ZA'?'ZAR':'AED';
+    document.getElementById('applyBody').innerHTML=
+      '<div class="sub" style="margin-bottom:12px">Complete this once. We save your details so we can request live quotes and match you to '+type+' providers.</div>'+
+      '<label class="field-lbl">Region</label><select class="inp" id="app_market" onchange="updateAppCur()"><option value="ZA"'+(USER_MARKET==='ZA'?' selected':'')+'>South Africa (ZAR)</option><option value="AE"'+(USER_MARKET==='AE'?' selected':'')+'>United Arab Emirates (AED)</option></select>'+
+      spec.fields.map(f=>{
+        const id='app_'+f.k;
+        const req=f.req?' *':'';
+        if(f.t==='select') return '<label class="field-lbl" style="margin-top:12px">'+f.l+req+'</label><select class="inp" id="'+id+'">'+f.o.map(o=>'<option>'+o+'</option>').join('')+'</select>';
+        if(f.t==='date')   return '<label class="field-lbl" style="margin-top:12px">'+f.l+req+'</label><input class="inp" id="'+id+'" type="date">';
+        if(f.t==='num')    return '<label class="field-lbl" style="margin-top:12px">'+f.l+req+'</label><input class="inp" id="'+id+'" type="text" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" placeholder="'+(f.ph||'')+'">';
+        if(f.t==='money')  return '<label class="field-lbl" style="margin-top:12px">'+f.l+' (<span class="appcur">'+curLbl+'</span>)'+req+'</label><input class="inp" id="'+id+'" type="text" inputmode="numeric" maxlength="12" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" placeholder="'+(f.ph||'')+'">';
+        return '<label class="field-lbl" style="margin-top:12px">'+f.l+req+'</label><input class="inp" id="'+id+'" maxlength="80" placeholder="'+(f.ph||'')+'">';
+      }).join('')+
+      '<div class="callout" style="margin-top:14px;font-size:12px">Your details are stored securely and only shared with an insurer when you choose to request a quote.</div>';
+    document.getElementById('applyModal').classList.add('show');
+  }
+  function closeApply(){document.getElementById('applyModal').classList.remove('show');}
+  // Currency shown in the form follows the form's own Region selector (BUG-3) — independent of the marketplace toggle.
+  function appCurrency(){const el=document.getElementById('app_market');const m=el?el.value:USER_MARKET;return m==='ZA'?'ZAR':'AED';}
+  function updateAppCur(){const c=appCurrency();document.querySelectorAll('#applyBody .appcur').forEach(s=>{s.textContent=c;});}
+
+  function saveApplication(){
+    // BUG-4: once the form modal is closing, ignore further clicks so only one submission proceeds.
+    const modal=document.getElementById('applyModal');
+    if(!modal.classList.contains('show')) return;
+    const spec=APP_FORMS[appType]; if(!spec) return;
+    // BUG-3: market comes from the form's own Region selector (default = user profile), not any global toggle.
+    const market=(document.getElementById('app_market')||{}).value||USER_MARKET;
+    const currency=market==='ZA'?'ZAR':'AED';
+    const data={};
+    for(const f of spec.fields){
+      const el=document.getElementById('app_'+f.k); if(!el) continue;
+      let v=el.value.trim();
+      if(f.req && !v){ el.focus(); el.style.borderColor='var(--red)'; toast('Please complete '+f.l); return; }
+      // BUG-8: empty optional numerics serialise as null (not ""), keeping the payload well-typed.
+      data[f.k]=(f.t==='num'||f.t==='money')?(v===''?null:Number(v)):v;
+    }
+    // Details captured → carry them into the lightweight Preferences step (Srujan flow) before saving/matching.
+    pendingApp={type:appType, market:market, currency:currency, details:data};
+    closeApply();
+    openPreferences();
+  }
+
+  // ---- Preferences step: cover type + budget + preferred insurer (kept short) ----
+  const PREF_SPECS={
+    'Motor':{l:'Cover type',o:['Comprehensive','Third Party Fire & Theft','Third Party']},
+    'Home':{l:'Cover type',o:['Building + Contents','Building only','Contents only']},
+    'Health':{l:'Cover level',o:['Comprehensive','Hospital plan','Executive / Premium']},
+    'Life':{l:'Cover basis',o:['Level term','Increasing term','Whole of life']},
+    'Travel':{l:'Trip type',o:['Single trip','Annual multi-trip']}
+  };
+  function openPreferences(){
+    if(!pendingApp) return;
+    const t=pendingApp.type, cur=pendingApp.currency, ps=PREF_SPECS[t]||{l:'Cover type',o:['Standard']};
+    document.getElementById('prefTitle').textContent='Your preferences — '+t;
+    document.getElementById('prefBody').innerHTML=
+      '<div class="sub" style="margin-bottom:12px">A couple of quick preferences so Tara can rank the best '+t+' matches for you.</div>'+
+      '<label class="field-lbl">'+ps.l+'</label><select class="inp" id="pref_cover">'+ps.o.map(o=>'<option>'+o+'</option>').join('')+'</select>'+
+      '<label class="field-lbl" style="margin-top:12px">Preferred monthly budget (<span>'+cur+'</span>) <span style="color:var(--muted);font-weight:500">· optional</span></label><input class="inp" id="pref_budget" type="text" inputmode="numeric" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" placeholder="e.g. 800">'+
+      '<label class="field-lbl" style="margin-top:12px">Preferred insurer <span style="color:var(--muted);font-weight:500">· optional</span></label><input class="inp" id="pref_insurer" maxlength="60" placeholder="e.g. no preference">';
+    document.getElementById('prefModal').classList.add('show');
+  }
+  function closePref(){document.getElementById('prefModal').classList.remove('show');}
+  // ---- Simulated backend. Swap InsuranceAPI.saveApplication for a real endpoint later (same signature). ----
+  const InsuranceAPI={
+    // POST /insurance/applications → resolves {ok, id}. Replace the setTimeout body with a real fetch() call.
+    saveApplication:function(payload){
+      return new Promise(function(resolve){
+        setTimeout(function(){
+          INSURANCE_APPLICATIONS.push(payload);
+          try{localStorage.setItem('v22_ins_apps',JSON.stringify(INSURANCE_APPLICATIONS));}catch(e){}
+          resolve({ok:true, id:payload.id});
+        }, 850);
+      });
+    }
+  };
+  let savingApp=false;
+  function savePreferences(){
+    const modal=document.getElementById('prefModal');
+    if(!modal.classList.contains('show')||!pendingApp||savingApp) return; // double-submit guard
+    const budgetRaw=(document.getElementById('pref_budget')||{}).value||'';
+    const prefs={
+      coverType:(document.getElementById('pref_cover')||{}).value||'',
+      monthlyBudget:budgetRaw===''?null:Number(budgetRaw),
+      preferredInsurer:((document.getElementById('pref_insurer')||{}).value||'').trim()||null
+    };
+    // Backend-ready payload — the exact shape we'd POST to the insurer/quote API.
+    const application={
+      id:'APP-'+String(appSeq++).padStart(4,'0'),
+      type:pendingApp.type,
+      market:pendingApp.market,
+      currency:pendingApp.currency,
+      status:'submitted',
+      createdISO:new Date().toISOString().slice(0,10),
+      applicant:{name:'Aishani', ref:'V22-69289C05'},
+      details:pendingApp.details,
+      preferences:prefs
+    };
+    const t=pendingApp.type, mk=pendingApp.market, det=pendingApp.details;
+    pendingApp=null; savingApp=true;
+    closePref();
+    // 1) loading state → 2) simulated backend save → 3) success confirmation → 4) marketplace
+    const ov=document.getElementById('searchOv');
+    document.getElementById('searchLines').innerHTML='<div class="sline"><span class="spin"></span> Saving your application…</div>';
+    ov.classList.add('show');
+    InsuranceAPI.saveApplication(application).then(function(res){
+      document.getElementById('searchLines').innerHTML=
+        '<div class="sline sdone">✓ Application saved · '+res.id+'</div>'+
+        '<div class="sline sdone">✓ Preferences applied</div>'+
+        '<div class="sline"><span class="spin"></span> Finding your best matches…</div>';
+      setTimeout(function(){ ov.classList.remove('show'); savingApp=false; openMarketplace(t, mk, prefs, det); }, 800);
+    });
+  }
+
+  // Marketplace filtered to the submitted type, with a market toggle + provider-website fallback.
+  // mktMarket is local to the marketplace view and never feeds back into an application payload (BUG-3).
+  function openMarketplace(type, market, prefs, details){
+    appType=type;
+    mktMarket=market||mktMarket||USER_MARKET;
+    mktPrefs=prefs||null;
+    mktDetails=details||null;
+    mktTakaful=false;
+    renderMarketplace();
+    document.getElementById('quotesModal').classList.add('show');
+  }
+  function setMarket(m){mktMarket=m;mktTakaful=false;renderMarketplace();}
+  function toggleTakaful(){mktTakaful=!mktTakaful;renderMarketplace();}
+  function fmtCur(n){return mktMarket==='ZA'?('R'+Number(n).toLocaleString('en-ZA')):('AED '+Number(n).toLocaleString('en-US'));}
+  // Personalised summary drawn from what the user typed into the form.
+  function personalizeMatch(){
+    const d=mktDetails||{};
+    if(appType==='Motor'&&(d.make||d.model)) return 'your '+[d.make,d.model].filter(Boolean).join(' ');
+    if(appType==='Home'&&d.ptype) return 'your '+String(d.ptype).toLowerCase();
+    if(appType==='Travel'&&d.destination) return 'your trip to '+d.destination;
+    if(appType==='Life'&&d.cover) return 'your '+fmtMoney(d.cover, mktMarket==='ZA'?'ZAR':'AED')+' cover';
+    if(appType==='Health'&&d.members) return 'your '+String(d.members).toLowerCase();
+    return 'your '+String(appType).toLowerCase()+' cover';
+  }
+  // Apply preferences (budget filter + preferred-insurer sort + Takaful filter) to the provider list.
+  function marketProviders(){
+    let list=((PROVIDERS[mktMarket]||{})[appType]||[]).slice();
+    let note='';
+    if(mktTakaful) list=list.filter(q=>q.takaful);
+    const budget=mktPrefs&&mktPrefs.monthlyBudget;
+    if(budget){ const f=list.filter(q=>q.from<=budget); if(f.length) list=f; else note='No providers under '+fmtCur(budget)+'/mo — showing all options.'; }
+    const pi=mktPrefs&&mktPrefs.preferredInsurer;
+    if(pi){ const s=pi.toLowerCase(); list.sort((a,b)=>(b.p.toLowerCase().indexOf(s)>-1?1:0)-(a.p.toLowerCase().indexOf(s)>-1?1:0)); }
+    return {list:list, note:note};
+  }
+  function renderMarketplace(){
+    const hasTakaful=((PROVIDERS[mktMarket]||{})[appType]||[]).some(q=>q.takaful);
+    const res=marketProviders(), list=res.list, n=list.length;
+    const cover=mktPrefs&&mktPrefs.coverType?mktPrefs.coverType:'';
+    const budget=mktPrefs&&mktPrefs.monthlyBudget;
+    const ctx=[cover, budget?('under '+fmtCur(budget)+'/mo'):''].filter(Boolean).join(' · ');
+    document.getElementById('quotesTitle').textContent='Absa Marketplace — '+appType;
+    document.getElementById('quotesBody').innerHTML=
+      '<div class="tara" style="margin-top:0;margin-bottom:12px"><div class="av">T</div><div>'+
+        '<div class="tag">Tara · Matches</div>'+
+        '<h4 style="margin:2px 0">Tara found '+n+' insurance match'+(n===1?'':'es')+' for '+personalizeMatch()+'.</h4>'+
+        '<p style="margin:0">'+(ctx?'Filtered to '+ctx+'. ':'')+'Live quotes are coming soon — for now, continue on the provider\'s site.</p>'+
+      '</div></div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'+
+        '<div class="mkt-toggle"><button class="'+(mktMarket==='ZA'?'on':'')+'" onclick="setMarket(\'ZA\')">🇿🇦 SA</button><button class="'+(mktMarket==='AE'?'on':'')+'" onclick="setMarket(\'AE\')">🇦🇪 UAE</button></div>'+
+        (hasTakaful?'<label class="toggle" style="font-size:12.5px"><span>Shariah-compliant (Takaful) only</span><input type="checkbox" id="takafulToggle"'+(mktTakaful?' checked':'')+' onchange="toggleTakaful()"><span class="sw"></span></label>':'')+
+      '</div>'+
+      (res.note?'<div class="sub" style="color:var(--amber);margin-bottom:10px">'+res.note+'</div>':'')+
+      (list.length?list.map(function(q,i){
+        var prod=((q.integration&&q.integration.supportedProducts)||[appType]).join(' · ');
+        var live=q.integration&&q.integration.quoteStatus==='live';
+        return '<div class="prov-card"><div style="display:flex;gap:11px;align-items:flex-start">'+
+          '<div class="plogo" style="background:'+logoColor(q.p)+'">'+provInitials(q.p)+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">'+
+              '<div style="font-size:14px;font-weight:700">'+q.p+(q.partner?' <span class="pill p-green" style="font-size:10px">Absa partner</span>':'')+(q.takaful?' <span class="pill" style="font-size:10px;background:var(--teal-soft);color:var(--teal-d)">Takaful</span>':'')+'</div>'+
+              '<div style="text-align:right;white-space:nowrap"><div style="font-size:15px;font-weight:800">'+fmtCur(q.from)+'<span style="font-size:11px;color:var(--muted)">/mo from</span></div><div class="feat">Indicative · ★ '+q.r+'</div></div>'+
+            '</div>'+
+            '<div class="feat" style="margin-top:3px">'+q.feat+'</div>'+
+            '<div class="feat" style="margin-top:3px">Products: '+prod+'</div>'+
+            '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+              '<button class="btn primary" style="padding:6px 12px" onclick="visitProvider('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M14 5h5v5M19 5l-9 9M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/></svg>Visit Website</button>'+
+              (live?'<button class="btn" style="padding:6px 12px" onclick="requestQuote('+i+')">Request Quote</button>':'<button class="btn" style="padding:6px 12px" disabled title="Live quotes coming soon">Request Quote · Coming Soon</button>')+
+              '<button class="btn" style="padding:6px 12px" onclick="addProviderPolicy('+i+')">Add to my policies</button>'+
+            '</div>'+
+          '</div></div></div>';
+      }).join('')
+        :'<div class="sub">No '+appType+' providers match — try widening your budget or the Takaful filter.</div>');
+  }
+  function visitProvider(i){
+    const q=marketProviders().list[i]; if(!q) return;
+    // Fallback until live quote APIs are connected: hand off to the insurer's own site.
+    if(q.url && q.url!=='#'){ window.open(q.url,'_blank','noopener'); toast('Opening '+q.p+' — complete your quote there'); }
+    else toast('Absa partner — quote flow coming in-app');
+  }
+  // Future hook: when q.integration.quoteStatus flips to 'live', call q.integration.quoteEndpoint here.
+  function requestQuote(i){ const q=marketProviders().list[i]; if(!q) return; toast('Live quotes coming soon for '+q.p); }
+  function addProviderPolicy(i){
+    const q=marketProviders().list[i]; if(!q) return;
+    const currency=mktMarket==='ZA'?'ZAR':'AED';
+    // canonical type so it lands in the right dashboard tile (BUG-1); its own currency so totals never mix (BUG-2).
+    POLICIES.push({id:polSeq++,type:canonType(appType),provider:q.p,coverage:'Pending quote',premium:q.from,renewalISO:'2027-06-30',currency:currency,market:mktMarket,status:'Pending quote',policyNo:genPolicyNo(appType),dateAddedISO:todayISO()});
+    closeQuotes(); renderInsurance(); // always re-render so the FFL score + dashboard reflect the new policy without a refresh
+    toast('Added '+q.p+' to your policies');
   }
 
   // ---- Placement: top-right profile dropdown + Budget entry (action item G) ----
   function toggleUserMenu(e){e.stopPropagation();document.getElementById('userWrap').classList.toggle('open');}
   document.addEventListener('click',()=>{const w=document.getElementById('userWrap');if(w)w.classList.remove('open');});
+  function showBudget(){
+    showView('view-budget');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const el=document.querySelector('[data-go="budget"]'); if(el) el.classList.add('active');
+  }
+
+  // ---- Admin / User view of the CFI report (action item G) ----
+  function setCfiMode(mode){
+    const sec=document.getElementById('view-bank');
+    const holder=document.getElementById('cfiHolder');
+    const ub=document.getElementById('cfiUserBtn'), ab=document.getElementById('cfiAdminBtn');
+    if(mode==='admin'){
+      sec.classList.add('admin-mode');
+      if(holder) holder.textContent='V22-69289C05';
+      ab.classList.add('on'); ub.classList.remove('on');
+    }else{
+      sec.classList.remove('admin-mode');
+      if(holder) holder.textContent='Aishani';
+      ub.classList.add('on'); ab.classList.remove('on');
+    }
+  }
+
+  // close any modal on Escape
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeFieldModal();closePolicyModal();closeQuotes();closeApply();closePref();closeTypePicker();}});
+
+  // ============ F3: mobile navigation drawer ============
+  function toggleSidebar(){
+    const s=document.querySelector('.sidebar'), b=document.getElementById('sideBackdrop');
+    const open=s && !s.classList.contains('open');
+    if(s) s.classList.toggle('open',open); if(b) b.classList.toggle('show',open);
+  }
+  // close the drawer after choosing a nav item on mobile
+  document.querySelectorAll('.sidebar .nav-item').forEach(function(n){
+    n.addEventListener('click',function(){ if(window.innerWidth<=900){ const s=document.querySelector('.sidebar'), b=document.getElementById('sideBackdrop'); if(s)s.classList.remove('open'); if(b)b.classList.remove('show'); } });
+  });
+  // responsive tables: wrap each in a horizontally scrollable container (keeps table layout intact)
+  document.querySelectorAll('.content table').forEach(function(t){
+    if(t.parentElement && t.parentElement.classList.contains('tbl-scroll')) return;
+    const w=document.createElement('div'); w.className='tbl-scroll'; t.parentNode.insertBefore(w,t); w.appendChild(t);
+  });
+
+  // ============ F4: accessible modals/dialogs ============
+
   function showBudget(){
     showView('view-budget');
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
