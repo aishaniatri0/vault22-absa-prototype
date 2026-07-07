@@ -577,8 +577,8 @@
     const doDrive=()=>{
       frames[t.app].classList.add('active'); injectChrome(t.app);
       if(t.app==='goals'){
-        // Investments landing (id null) vs the Trade/US-stocks wallet page (id 'trade')
-        const v = (id==='trade') ? 'wallet' : 'landing';
+        // Investments landing (id null) vs the Trade page = Discover / browse-and-trade (id 'trade')
+        const v = (id==='trade') ? 'discover' : 'landing';
         const call=()=>{ try{ frames.goals.contentWindow.__gotoInvest(v); }catch(e){} };
         call(); setTimeout(call, 350);
       } else {
