@@ -535,7 +535,7 @@
     soon.classList.remove('active');
     crumb.textContent = r.label;
     // Investments: show the sub-nav tab bar matching the live app and default to Wallet
-    if(key==='investments'){ openInvSub(); showInvTab('trade'); return; }
+    if(key==='investments'){ openInvSub(); showInvTab(null); return; }
     document.getElementById('invTabs').classList.remove('on');
     // show only the target app frame
     Object.values(frames).forEach(f=>f.classList.remove('active'));
@@ -549,24 +549,22 @@
 
   /* ---- Investments sub-navigation (Wallet/Trade/Portfolio/Money Market/Absa Money Market Fund/Model Portfolio) ---- */
   const INV_TABS = [
-    {id:'trade',     label:'Trade',          app:'goals',     drive:'investments',  ic:'<path d="M4 16l5-5 3 3 7-8"/><path d="M15 6h5v5"/>'},
+    {id:'trade',     label:'Trade',          app:'goals',     drive:'invest_trade', ic:'<path d="M4 16l5-5 3 3 7-8"/><path d="M15 6h5v5"/>'},
     {id:'absammf',   label:'Absa MMF',       app:'invest',    drive:null,           ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M9 12h6"/>'},
     {id:'forecast',  label:'Market Forecast',app:'forecast',  drive:null,           ic:'<path d="M4 16l5-6 3 3 4-6 4 5"/><path d="M3 20h18"/>'},
   ];
-  let invTab='trade';
-  // Sub-nav now lives in the LEFT sidebar, nested under "Investments"
+  let invTab=null;   // null = Investments landing (overview); else a sub-page id
+  // Sub-nav lives in the LEFT sidebar, nested under "Investments".
+  // Clicking "Investments" (parent) = the My Investments landing; sub-items are Trade / Absa MMF / Market Forecast.
   function renderInvTabs(){
     const sub=document.getElementById('invSub');
     if(!sub) return;
     sub.innerHTML = INV_TABS.map(t=>`<button class="nav-subitem${t.id===invTab?' on':''}" data-inv="${t.id}"><span class="dot"></span><span>${t.label}</span></button>`).join('');
     sub.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>showInvTab(b.dataset.inv));
-  }
-  function openInvSub(){
-    const sub=document.getElementById('invSub'); if(sub) sub.classList.add('open');
     const inv=document.querySelector('.nav-item[data-key="investments"]');
-    if(inv){ inv.classList.remove('active'); inv.classList.add('parent-open'); }
-    renderInvTabs();
+    if(inv){ inv.classList.toggle('active', invTab===null); inv.classList.toggle('parent-open', invTab!==null); }
   }
+  function openInvSub(){ const sub=document.getElementById('invSub'); if(sub) sub.classList.add('open'); renderInvTabs(); }
   function closeInvSub(){
     const sub=document.getElementById('invSub'); if(sub) sub.classList.remove('open');
     const inv=document.querySelector('.nav-item[data-key="investments"]');
@@ -574,12 +572,18 @@
   }
   function showInvTab(id){
     invTab=id; renderInvTabs();
-    const t=INV_TABS.find(x=>x.id===id)||INV_TABS[0];
+    const t = id===null ? {app:'goals', drive:'investments'} : (INV_TABS.find(x=>x.id===id)||INV_TABS[0]);
     Object.values(frames).forEach(f=>f.classList.remove('active'));
     const doDrive=()=>{
       frames[t.app].classList.add('active'); injectChrome(t.app);
-      if(t.drive==='invest_trade'){ drive('goals','investments'); setTimeout(()=>{ try{ const d=frames.goals.contentDocument; const b=[...d.querySelectorAll('button,a')].find(e=>/browse tickers|discover|trade/i.test(e.textContent)); if(b) b.click(); }catch(e){} }, 700); }
-      else drive(t.app, t.drive);
+      if(t.app==='goals'){
+        // Investments landing (id null) vs the Trade/US-stocks wallet page (id 'trade')
+        const v = (id==='trade') ? 'wallet' : 'landing';
+        const call=()=>{ try{ frames.goals.contentWindow.__gotoInvest(v); }catch(e){} };
+        call(); setTimeout(call, 350);
+      } else {
+        drive(t.app, t.drive);
+      }
     };
     ensureLoaded(t.app, doDrive);
     if(loaded[t.app]) doDrive();
