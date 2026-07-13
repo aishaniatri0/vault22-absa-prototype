@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absa · Onboarding</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Brand marks. Both symbol ids are kept so app.js's <use> references still
+       resolve; the artwork is now Absa's, not Vault22's. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="v22mark" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="17" fill="#fff"/>
+      <image href="../../absa-logo.jpg" x="5" y="5" width="54" height="54"
+             preserveAspectRatio="xMidYMid meet"/>
+    </symbol>
+    <!-- white-on-maroon variant, used on the onboarding brand panel -->
+    <symbol id="v22mark-white" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="17" fill="#fff"/>
+      <image href="../../absa-logo.jpg" x="5" y="5" width="54" height="54"
+             preserveAspectRatio="xMidYMid meet"/>
+    </symbol>
+  </svg>
+
+  <div id="root"></div>
+  <div id="modal-root"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

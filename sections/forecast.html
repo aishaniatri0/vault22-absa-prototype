@@ -8,15 +8,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
+  /* Absa design system. --teal is this app's PRIMARY brand token (its name is
+     historical); it is Absa crimson now. --green stays a real green: Absa's own
+     design shows credit amounts in green, so gains/losses keep their semantics. */
   :root{
-    --navy:#0B2239; --teal:#00C389; --teal-d:#01a878; --teal-soft:#E4F8F0; --bg:#F4F6F9;
-    --card:#FFFFFF; --line:#EAEEF3; --muted:#6B7A8D; --muted-2:#92A0AF; --ink:#0F2233;
-    --red:#E5484D; --red-soft:#FDECEC; --amber:#F08C2E; --amber-soft:#FCEEDD;
-    --green:#1FA971; --green-soft:#E4F6EE; --blue:#3B6FE0; --blue-soft:#ECF1FC;
-    --gray-pill:#EEF1F5; --shadow:0 1px 3px rgba(16,35,51,.06),0 6px 24px rgba(16,35,51,.05); --radius:16px;
+    --navy:#4A0016; --teal:#95052A; --teal-d:#77021E; --teal-soft:#FCEEF1; --bg:#F8F6F6;
+    --card:#FFFFFF; --line:#ECE7E8; --muted:#6B6B6B; --muted-2:#9B9294; --ink:#1A1A1A;
+    --red:#C42B2B; --red-soft:#FDECEC; --amber:#F08C2E; --amber-soft:#FCEEDD;
+    --green:#168335; --green-soft:#E7F3EA; --blue:#3B6FE0; --blue-soft:#ECF1FC;
+    --gray-pill:#F2EDEE; --shadow:0 1px 3px rgba(26,26,26,.06),0 6px 24px rgba(26,26,26,.05); --radius:16px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Onest',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
   .app{display:flex;min-height:100vh}
   .sidebar{width:248px;flex-shrink:0;background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;padding:22px 14px}
   .logo{display:flex;align-items:center;gap:9px;padding:6px 10px 18px;border-bottom:1px solid var(--line);margin-bottom:12px}
@@ -42,7 +45,7 @@
   .search{flex:1;max-width:520px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:30px;padding:10px 18px;color:var(--muted)}
   .search svg{width:17px;height:17px;stroke:var(--muted)}.search input{border:0;outline:0;font-family:inherit;font-size:14px;width:100%;background:transparent;color:var(--ink)}
   .top-right{margin-left:auto;display:flex;align-items:center;gap:12px}
-  .uava{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#00C389,#01a878);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+  .uava{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#95052A,#77021E);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
   .content{padding:24px 30px 70px;max-width:1320px;width:100%;margin:0 auto}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
   .grid{display:grid;gap:18px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
@@ -74,6 +77,10 @@
   .gauge .lab{position:absolute;bottom:0;left:0;right:0;text-align:center}
   .gauge .big{font-size:34px;font-weight:800;line-height:1}
   .gauge .dir{font-size:13px;font-weight:700;margin-top:3px}
+  /* The dial reads a probability, not money moving. It shares the .pos class with
+     real price changes, so scope it: the dial takes the Absa brand colour while
+     +/- amounts keep their green/red. */
+  .gauge .dir.pos{color:var(--teal)}
   .hero .meta .nm{font-size:13px;color:var(--muted);font-weight:600}
   .hero .meta h3{font-size:22px;font-weight:800;margin:2px 0 2px}
   .hero .drv{display:flex;gap:18px;flex-wrap:wrap}
@@ -124,15 +131,15 @@
   .calrow{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
   .calrow:last-child{border-bottom:0}
   .tara-shell{position:relative;border-radius:calc(var(--radius) + 3px);margin-bottom:18px}
-  .tara-shell::before{content:"";position:absolute;inset:-3px;border-radius:calc(var(--radius) + 4px);z-index:0;background:linear-gradient(120deg,#00C389,#0B2239,#1FA971,#0B2239,#00C389);background-size:300% 300%;filter:blur(12px);opacity:.5;animation:taraGlow 6s ease-in-out infinite}
+  .tara-shell::before{content:"";position:absolute;inset:-3px;border-radius:calc(var(--radius) + 4px);z-index:0;background:linear-gradient(120deg,#95052A,#4A0016,#95052A,#4A0016,#95052A);background-size:300% 300%;filter:blur(12px);opacity:.5;animation:taraGlow 6s ease-in-out infinite}
   @keyframes taraGlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
   @media(prefers-reduced-motion:reduce){.tara-shell::before{animation:none}}
   .tara{position:relative;z-index:1;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;color:var(--ink);display:flex;gap:16px}
-  .tara .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#00C389,#0B2239);display:grid;place-items:center;font-weight:800;color:#fff;flex-shrink:0;font-size:18px}
+  .tara .av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#95052A,#4A0016);display:grid;place-items:center;font-weight:800;color:#fff;flex-shrink:0;font-size:18px}
   .tara .tag2{font-size:11px;font-weight:700;color:var(--teal-d);letter-spacing:.05em;text-transform:uppercase}
-  .tara .suit{font-size:13px;color:#196848;margin-top:10px;background:var(--green-soft);border-radius:10px;padding:9px 12px}
+  .tara .suit{font-size:13px;color:#95052A;margin-top:10px;background:var(--green-soft);border-radius:10px;padding:9px 12px}
   .tara .acts{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-  .btn{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:#33495d}
+  .btn{display:inline-flex;align-items:center;gap:7px;border-radius:9999px;padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:#fff;color:#33495d}
   .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
   .btn.mini{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25);color:#fff}
   .tip{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--muted-2);color:var(--muted-2);font-size:10px;font-weight:700;cursor:help;position:relative}
@@ -258,7 +265,7 @@
   .pf-val{text-align:right}.pf-v{font-size:15px;font-weight:800}.pf-c{font-size:12px;margin-top:2px}
   .pf-act{display:flex;gap:7px}
   .pf-act .btn{padding:7px 15px}
-  .pers-chip{font-size:11px;font-weight:700;color:#196848;background:var(--green-soft);padding:4px 10px;border-radius:20px;white-space:nowrap}
+  .pers-chip{font-size:11px;font-weight:700;color:#95052A;background:var(--green-soft);padding:4px 10px;border-radius:20px;white-space:nowrap}
   .ec-row{display:grid;grid-template-columns:82px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
   .ec-row:last-child{border-bottom:0}
   .ec-when b{font-size:13px;display:block}.ec-when span{font-size:11px;color:var(--muted-2)}
@@ -276,7 +283,7 @@
   .ern-vals{display:flex;gap:14px;text-align:right}
   @media(max-width:560px){.ern-row{flex-wrap:wrap}.ern-vals{width:100%;justify-content:flex-start;text-align:left;gap:20px;margin-top:6px}.ern-vals .ec-v{font-size:12.5px}}
   .tm-head{display:flex;gap:11px;align-items:center;margin-bottom:16px}
-  .tm-av{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#00C389,#0B2239);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
+  .tm-av{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#95052A,#4A0016);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
   .tm-nm{font-weight:800;font-size:16px}.tm-nm span{font-size:12px;color:var(--muted-2);font-weight:600}
   .tm-px{font-size:13px;color:var(--muted);margin-top:1px}
   .tm-lbl{font-size:12px;color:var(--muted);margin-bottom:6px}
@@ -313,13 +320,17 @@
   .tsum-drv{display:flex;align-items:center;gap:9px;font-size:13.5px;padding:5px 0}
   .tsum-watch{font-size:13.5px;font-weight:600;background:#f7f9fb;border:1px solid var(--line);border-radius:11px;padding:11px 13px}
   @media(max-width:560px){.pf-row{grid-template-columns:1fr auto}.pf-act{grid-column:1/-1;justify-content:flex-end}}
+  a.src{text-decoration:none;transition:background .15s,color .15s}
+  a.src:hover,a.src:focus-visible{background:#e2e8f0;color:#334155}
+  .pf-meta{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.55}.pf-meta b{color:#33495d;font-weight:700}
+  .pf-pl{font-size:12.5px;font-weight:800;margin-top:2px}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <div class="backdrop" id="backdrop" onclick="toggleNav()"></div>
   <aside class="sidebar">
-    <div class="logo"><svg viewBox="0 0 32 32" fill="none"><path d="M4 5l8 17 4-8.5L20 22 28 5h-6.5l-5.5 12L11 5H4z" fill="#00C389"/></svg><span>Vault22</span></div>
+    <div class="logo"><svg viewBox="0 0 32 32" fill="none"><path d="M4 5l8 17 4-8.5L20 22 28 5h-6.5l-5.5 12L11 5H4z" fill="#95052A"/></svg><span>Vault22</span></div>
     <div class="nav-label">Menu</div>
     <div class="nav-item" onclick="toast('Home')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</div>
     <div class="nav-item" onclick="toast('Transactions')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>Transactions</div>
@@ -377,7 +388,7 @@
       <div id="condWrap" style="margin-bottom:18px"></div>
       <div id="chartWrap"></div>
       <div class="card">
-        <h2 class="sec">What's moving it - drivers <span class="tip" data-tip="Each tile shows a factor pushing the forecast up (green) or down (red). Bigger = stronger influence today.">i</span> <span class="src">Vault22 model</span></h2>
+        <h2 class="sec">What's moving it - drivers <span class="tip" data-tip="Each tile shows a factor pushing the forecast up (green) or down (red). Bigger = stronger influence today.">i</span> <span class="src">Absa model</span></h2>
         <div class="sub" id="heatSub">Colour shows direction - green is supportive, red is a headwind. The number is the relative weight on today's outlook (0-100), strongest first.</div>
         <div class="heat" id="heat"></div>
       </div>
@@ -448,9 +459,9 @@
       {co:'Netflix',tkr:'NFLX',off:11,when:'amc',eps:'4.74',epsPrev:'3.83',rev:'9.5B',imp:'high'}
     ],
     PORTFOLIO:[
-      {sym:'NVDA',name:'NVIDIA',units:'40 shares',value:'$5,136',chg:'+1.9%',tone:'pos'},
-      {sym:'AAPL',name:'Apple',units:'25 shares',value:'$5,352',chg:'-0.3%',tone:'neg'},
-      {sym:'MSFT',name:'Microsoft',units:'12 shares',value:'$5,432',chg:'+0.8%',tone:'pos'}
+      {sym:'NVDA',name:'NVIDIA',units:'40 shares',avg:'$95.00',last:'$128.40',value:'$5,136',chg:'+1.9%',tone:'pos',pl:'+$1,336',plPct:'+35.2%',plTone:'pos'},
+      {sym:'AAPL',name:'Apple',units:'25 shares',avg:'$225.00',last:'$214.08',value:'$5,352',chg:'-0.3%',tone:'neg',pl:'-$273',plPct:'-4.9%',plTone:'neg'},
+      {sym:'MSFT',name:'Microsoft',units:'12 shares',avg:'$410.00',last:'$452.67',value:'$5,432',chg:'+0.8%',tone:'pos',pl:'+$512',plPct:'+10.4%',plTone:'pos'}
     ],
     MODEL_INPUTS:[
       ['Price trend','How the price has moved lately - today, this week and over the last month'],
@@ -540,9 +551,9 @@
       {off:9,time:'00:00',cc:'',e:'Spot ETH ETF options decision',note:'regulatory',imp:'med'}
     ],
     PORTFOLIO:[
-      {sym:'BTC',name:'Bitcoin',units:'0.15 BTC',value:'$10,260',chg:'+2.1%',tone:'pos'},
-      {sym:'ETH',name:'Ethereum',units:'2.4 ETH',value:'$8,448',chg:'+1.4%',tone:'pos'},
-      {sym:'SOL',name:'Solana',units:'30 SOL',value:'$5,040',chg:'+3.8%',tone:'pos'}
+      {sym:'BTC',name:'Bitcoin',units:'0.15 BTC',avg:'$52,000',last:'$68,400',value:'$10,260',chg:'+2.1%',tone:'pos',pl:'+$2,460',plPct:'+31.5%',plTone:'pos'},
+      {sym:'ETH',name:'Ethereum',units:'2.4 ETH',avg:'$2,900',last:'$3,520',value:'$8,448',chg:'+1.4%',tone:'pos',pl:'+$1,488',plPct:'+21.4%',plTone:'pos'},
+      {sym:'SOL',name:'Solana',units:'30 SOL',avg:'$140.00',last:'$168.00',value:'$5,040',chg:'+3.8%',tone:'pos',pl:'+$840',plPct:'+20.0%',plTone:'pos'}
     ],
     MODEL_INPUTS:[
       ['Price trend','How the coin has moved lately - today, this week and over the last month'],
@@ -632,7 +643,7 @@
     const up=d.prob, ang=(up/100)*180;
     const gauge='<div class="gaugewrap"><div class="gauge"><svg role="img" aria-label="Forecast probability '+up+' percent '+(up>=50?'higher':'lower')+', confidence '+d.conf+'" viewBox="0 0 240 130" width="240" height="130">'
       +'<path d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke="#eef2f6" stroke-width="18" stroke-linecap="round"/>'
-      +'<path d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke="'+(up>=55?'var(--green)':up>=50?'var(--amber)':'var(--red)')+'" stroke-width="18" stroke-linecap="round" stroke-dasharray="'+(ang/180*314)+' 314"/>'
+      +'<path d="M20 120 A100 100 0 0 1 220 120" fill="none" stroke="'+(up>=55?'var(--teal)':up>=50?'var(--amber)':'var(--red)')+'" stroke-width="18" stroke-linecap="round" stroke-dasharray="'+(ang/180*314)+' 314"/>'
       +'</svg><div class="lab"><div class="big">'+up+'%</div><div class="dir '+(up>=50?'pos':'neg')+'">probability '+(up>=50?'higher ↑':'lower ↓')+'</div></div></div></div>';
     const pos=d.drivers.filter(x=>x.i>0).slice(0,3), neg=d.drivers.filter(x=>x.i<0).slice(0,3);
     const li=(arr,c)=>arr.map(x=>'<li><span class="dot" style="background:'+c+'"></span>'+x.l+'</li>').join('');
@@ -678,12 +689,12 @@
     const xax=ticks.map(i=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-8)+'" font-size="10" fill="#92A0AF" text-anchor="'+(i===0?'start':i===last?'end':'middle')+'">'+lab(i)+'</text>').join('');
     const svg='<svg role="img" aria-label="'+(isStock?'Price chart for '+d.name+' with support, resistance, stop-loss and target levels':'Price chart for '+d.name+' with support and resistance levels')+'" viewBox="0 0 '+W+' '+H+'" width="100%" height="280">'+bars
       +lvLine(lv.resistance,'#E5484D','Resistance '+fmtP(d,lv.resistance),'6 4')
-      +(isStock?lvLine(lv.target,'#1FA971','Target '+fmtP(d,lv.target),'2 4'):'')
+      +(isStock?lvLine(lv.target,'#95052A','Target '+fmtP(d,lv.target),'2 4'):'')
       +lvLine(lv.support,'#3B6FE0','Support '+fmtP(d,lv.support),'6 4')
       +(isStock?lvLine(lv.stop,'#F08C2E','Stop-loss '+fmtP(d,lv.stop),'2 4'):'')
-      +'<polyline points="'+pts+'" fill="none" stroke="#0B2239" stroke-width="2.4"/>'
-      +'<circle cx="'+x(last).toFixed(1)+'" cy="'+y(a[last]).toFixed(1)+'" r="4" fill="#0B2239"/>'+xax+'</svg>';
-    const legend='<div class="legend"><span><i style="border-color:#0B2239"></i>Price</span><span><i style="border-color:#3B6FE0"></i>Support</span><span><i style="border-color:#E5484D"></i>Resistance</span>'+(isStock?'<span><i style="border-color:#F08C2E"></i>Stop-loss</span><span><i style="border-color:#1FA971"></i>Target</span>':'')+'<span style="margin-left:auto;color:#92A0AF">bars = relative volume</span></div>';
+      +'<polyline points="'+pts+'" fill="none" stroke="#4A0016" stroke-width="2.4"/>'
+      +'<circle cx="'+x(last).toFixed(1)+'" cy="'+y(a[last]).toFixed(1)+'" r="4" fill="#4A0016"/>'+xax+'</svg>';
+    const legend='<div class="legend"><span><i style="border-color:#4A0016"></i>Price</span><span><i style="border-color:#3B6FE0"></i>Support</span><span><i style="border-color:#E5484D"></i>Resistance</span>'+(isStock?'<span><i style="border-color:#F08C2E"></i>Stop-loss</span><span><i style="border-color:#95052A"></i>Target</span>':'')+'<span style="margin-left:auto;color:#92A0AF">bars = relative volume</span></div>';
     let extra;
     if(isStock){
       const entry=parseFloat((''+d.price).replace(/[^0-9.]/g,'')), short=d.signal==='Sell', risk=short?(lv.stop-entry):(entry-lv.stop), reward=short?(entry-lv.target):(lv.target-entry), rr=risk>0?(reward/risk):0;
@@ -705,22 +716,22 @@
     w.innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><h2 class="sec" style="margin:0">Key stats &amp; signal <span class="tip" data-tip="A simple read derived from the drivers above. Information to help you decide - not a recommendation to act.">i</span></h2>'
       +'<span class="signal '+cls+'">'+(sg==='Buy'?'▲':sg==='Sell'?'▼':'■')+' '+sg+'</span></div>'
       +'<div class="stat-grid">'+d.stats.map(s=>'<div class="stat"><div class="k">'+s.k+(STAT_TIPS[s.k]?' <span class="tip" data-tip="'+STAT_TIPS[s.k]+'">i</span>':'')+'</div><div class="v">'+s.v+'</div></div>').join('')+'</div>'
-      +(MODE==='personalised'?'<div style="margin-top:14px;font-size:13px;color:#196848;background:var(--green-soft);border-radius:10px;padding:11px 13px">👤 Personalised · Based on your <b>'+PROFILE.risk+'</b> risk profile: '+d.suit+'</div>':'<div style="margin-top:14px;font-size:12px;color:var(--muted)">Switch to <b>Personalised</b> (top-right) to see how this fits your risk profile.</div>')
+      +(MODE==='personalised'?'<div style="margin-top:14px;font-size:13px;color:#95052A;background:var(--teal-soft);border-radius:10px;padding:11px 13px">👤 Personalised · Based on your <b>'+PROFILE.risk+'</b> risk profile: '+d.suit+'</div>':'<div style="margin-top:14px;font-size:12px;color:var(--muted)">Switch to <b>Personalised</b> (top-right) to see how this fits your risk profile.</div>')
       +'</div>';
   }
   function renderOptions(d){
     const w=document.getElementById('optWrap'); if(!w)return;
     if(MARKET==='crypto' || !d.opt){ w.innerHTML=''; return; }
     const o=d.opt;
-    const head='<h2 class="sec">Options activity <span class="tip" data-tip="What the options market implies - positioning, hedging pressure and key price levels. A map of forces, not a crystal ball.">i</span> <span class="prem-badge">PREMIUM</span> <span class="src">Options chain</span></h2>';
+    const head='<h2 class="sec">Analysis <span class="tip" data-tip="What the market implies - positioning, hedging pressure and key price levels. A map of forces, not a crystal ball.">i</span> <span class="prem-badge">PREMIUM</span> <span class="src">Options chain</span></h2>';
     if(!PREMIUM){
       const teaser=['Put / call ratio','Implied volatility','Dealer gamma','Skew','Option walls','Unusual flow']
         .map(x=>'<div class="opt-tz"><span class="opt-lock">🔒</span>'+x+'</div>').join('');
       w.innerHTML='<div class="card optlock">'+head
-        +'<div class="sub">Unlock the options-market layer to see how large traders are positioned for '+d.name+' - a map of hedging pressure and key price levels.</div>'
+        +'<div class="sub">Unlock the analysis layer to see how large traders are positioned for '+d.name+' - a map of hedging pressure and key price levels.</div>'
         +'<div class="opt-teaser">'+teaser+'</div>'
         +'<button class="btn primary" onclick="setPremium(true)">✨ Unlock with Premium</button>'
-        +'<div class="opt-free">Free plan includes the full daily forecast, drivers, levels and news. Premium adds this options layer. <span style="color:var(--muted-2)">Prototype preview - no payment.</span></div>'
+        +'<div class="opt-free">Free plan includes the full daily forecast, drivers, levels and news. Premium adds this analysis layer. <span style="color:var(--muted-2)">Prototype preview - no payment.</span></div>'
         +'</div>';
       return;
     }
@@ -735,7 +746,7 @@
     const flow='<div style="margin-top:14px;font-size:13px;font-weight:700">Notable flow <span class="tip" data-tip="Unusually large or aggressive options trades. Can reveal large players - but a big put can be a bet or a hedge, so read with care.">i</span></div><div class="news" style="margin-top:6px">'+o.flow.map(f=>'<div class="nitem"><span class="ndot" style="background:'+(f.s==='pos'?'var(--green)':f.s==='neg'?'var(--red)':'var(--muted-2)')+'"></span><div class="nh" style="font-size:13px">'+f.t+'</div></div>').join('')+'</div>';
     const note='<div style="margin-top:14px;font-size:13px;color:#33495d;background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:11px 13px">📊 '+o.note+'</div>';
     const headU='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:2px">'
-      +'<h2 class="sec" style="margin:0">Options activity <span class="tip" data-tip="What the options market implies - positioning, hedging pressure and key price levels. A map of forces, not a crystal ball.">i</span> <span class="prem-badge">PREMIUM</span> <span class="src">Options chain</span></h2>'
+      +'<h2 class="sec" style="margin:0">Analysis <span class="tip" data-tip="What the market implies - positioning, hedging pressure and key price levels. A map of forces, not a crystal ball.">i</span> <span class="prem-badge">PREMIUM</span> <span class="src">Options chain</span></h2>'
       +'<button class="btn" style="margin-left:auto;padding:7px 14px" onclick="setPremium(false)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Lock preview</button></div>';
     w.innerHTML='<div class="card">'+headU+'<div class="sub">What the options market implies for '+d.name+' - positioning, hedging and key levels.</div>'+grid+walls+flow+note+'</div>';
   }
@@ -760,7 +771,7 @@
   }
   function barChart30(vals){
     const W=520,H=120,pad=6,base=H/2, maxA=Math.max(...vals.map(v=>Math.abs(v)))||1, bw=(W-pad*2)/vals.length;
-    const bars=vals.map((v,i)=>{const h=Math.max(1,(Math.abs(v)/maxA)*(H/2-10)), x=pad+i*bw, y=v>=0?base-h:base; return '<rect x="'+(x+bw*0.16).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw*0.68).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1.5" fill="'+(v>=0?'#1FA971':'#E5484D')+'"/>';}).join('');
+    const bars=vals.map((v,i)=>{const h=Math.max(1,(Math.abs(v)/maxA)*(H/2-10)), x=pad+i*bw, y=v>=0?base-h:base; return '<rect x="'+(x+bw*0.16).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+(bw*0.68).toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1.5" fill="'+(v>=0?'#95052A':'#E5484D')+'"/>';}).join('');
     return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" height="108" role="img" aria-label="Nominal daily change over the last 30 sessions">'+bars+'<line x1="'+pad+'" y1="'+base+'" x2="'+(W-pad)+'" y2="'+base+'" stroke="#dfe6ee" stroke-width="1"/></svg>';
   }
   function renderSide(d){
@@ -769,7 +780,7 @@
     const chartBlock='<div style="margin-top:16px;font-size:13px;font-weight:700">Nominal daily change - last 30 sessions <span class="tip" data-tip="Each bar is one session\'s price move for '+d.name+'. Green = up day, red = down day. A quick read on recent rhythm and volatility.">i</span></div>'
       +'<div class="sub" style="font-size:12px;margin:3px 0 6px">'+ups+' of the last 30 sessions closed higher for '+d.name+'.</div>'+barChart30(series);
     if(d.kind==='index'){
-      w.innerHTML='<div class="card"><h2 class="sec">Historical similarity <span class="tip" data-tip="We find past days that looked most like today (trend, volatility, sentiment) and show what happened next. Often more useful than a black-box call.">i</span> <span class="src">Vault22 model</span></h2>'
+      w.innerHTML='<div class="card"><h2 class="sec">Historical similarity <span class="tip" data-tip="We find past days that looked most like today (trend, volatility, sentiment) and show what happened next. Often more useful than a black-box call.">i</span> <span class="src">Absa model</span></h2>'
         +'<div class="sub">How the market behaved after the days most similar to today.</div>'
         +'<div class="simrow"><div class="sim"><div class="v">'+d.similar.count+'</div><div class="k">similar days found</div></div><div class="sim"><div class="v pos">'+d.similar.avg+'</div><div class="k">avg next-day move</div></div><div class="sim"><div class="v">'+d.similar.win+'%</div><div class="k">were higher next day</div></div></div>'
         +chartBlock+'</div>';
@@ -803,9 +814,11 @@
     const w=document.getElementById('portfolioWrap'); if(!w)return;
     const P=MKT.PORTFOLIO; if(!P){w.innerHTML='';return;}
     const rows=P.map(h=>'<div class="pf-row"><div class="pf-nm"><b>'+h.name+'</b> <span class="pf-sym">'+h.sym+'</span><div class="pf-u">'+h.units+'</div></div>'
-      +'<div class="pf-val"><div class="pf-v">'+h.value+'</div><div class="pf-c '+h.tone+'">'+h.chg+' today</div></div>'
+      +'<div class="pf-val"><div class="pf-v">'+h.value+'</div><div class="pf-c '+h.tone+'">'+h.chg+' today</div>'
+      +'<div class="pf-meta">Avg cost <b>'+h.avg+'</b> · Latest <b>'+h.last+'</b></div>'
+      +'<div class="pf-pl '+h.plTone+'">P&amp;L '+h.pl+' ('+h.plPct+')</div></div>'
       +'<div class="pf-act"><button class="btn" onclick="goInvest(\''+h.sym+'\',\'buy\')">Buy</button><button class="btn" onclick="goInvest(\''+h.sym+'\',\'sell\')">Sell</button></div></div>').join('');
-    w.innerHTML='<div class="card"><h2 class="sec">Your portfolio <span class="tip" data-tip="Your current holdings, imported from your Investments page. Buy or Sell opens the trade module on the Invest page.">i</span> <span class="src">From your holdings</span></h2>'
+    w.innerHTML='<div class="card"><h2 class="sec">Your portfolio <span class="tip" data-tip="Your current holdings, imported from your Investments page, with average cost, latest price and current profit or loss. Buy or Sell opens the trade module on the Invest page.">i</span> <span class="src">From your holdings</span></h2>'
       +'<div class="sub">Holdings imported from your Investments page - trade any of them without leaving your forecast view.</div>'
       +'<div class="pf-list">'+rows+'</div></div>';
   }
@@ -843,7 +856,7 @@
       +'<div class="tm-units" id="tmUnits">'+(amt?'&asymp; '+units.toFixed(isCrypto?4:2)+' '+(isCrypto?d.sym:'shares')+' at '+d.price:'Enter an amount to buy or sell')+'</div>'
       +'<div class="tm-break"><div><span>Amount</span><b id="tmB1">'+tmMoney(amt)+'</b></div><div><span>Admin fee (1%)</span><b id="tmB2">'+tmMoney(fee)+'</b></div><div class="tot"><span>Total '+(buy?'debit':'credit')+'</span><b id="tmB3">'+tmMoney(total)+'</b></div></div>'
       +'<button class="btn primary" style="width:100%;justify-content:center;margin-top:15px" onclick="tmToConfirm()">Continue</button>'
-      +'<div class="tm-note">Prototype of the Vault22 Invest trade module. No real order is placed.</div>';
+      +'<div class="tm-note">Prototype of the Absa Invest trade module. No real order is placed.</div>';
     tmOpen(html,1);
   }
   function tmAmtIn(){TM.amount=parseFloat(document.getElementById('tmAmt').value)||0;tmRecalc();}
@@ -881,7 +894,7 @@
       +'<div class="tm-crow"><span>Reference</span><b>'+ref+'</b></div>'
       +'<div class="tm-crow"><span>Placed</span><b>'+AS_OF+'</b></div>'
       +'<button class="btn primary" style="width:100%;justify-content:center;margin-top:16px" onclick="closeDrawer()">Done</button>'
-      +'<div class="tm-note">Prototype of the Vault22 Invest trade module. No real order is placed.</div>';
+      +'<div class="tm-note">Prototype of the Absa Invest trade module. No real order is placed.</div>';
     tmOpen(html,3); toast('✓ Order placed (demo)');
   }
   window.goInvest=goInvest; window.openTradeModule=openTradeModule; window.tmSetSide=tmSetSide;
@@ -995,7 +1008,7 @@
   function closeDrawer(){const dr=document.getElementById('drawer'),bk=document.getElementById('drawerBk'); if(dr)dr.classList.remove('show'); if(bk)bk.classList.remove('show'); stopVoice();}
   window.openDrawer=openDrawer; window.closeDrawer=closeDrawer;
   function dOpen(inner){openDrawer('<button class="drawer-x" aria-label="Close" onclick="closeDrawer()">✕</button>'+inner);}
-  function taraChatHead(msg){return '<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:15px"><div style="width:38px;height:38px;font-size:15px;border-radius:50%;background:linear-gradient(135deg,#00C389,#0B2239);color:#fff;display:grid;place-items:center;font-weight:800;flex-shrink:0">T</div><div><div style="font-size:11px;font-weight:700;color:var(--teal-d);text-transform:uppercase;letter-spacing:.05em">✦ Tara</div><div style="font-size:12.5px;color:var(--muted)">'+msg+'</div></div></div>';}
+  function taraChatHead(msg){return '<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:15px"><div style="width:38px;height:38px;font-size:15px;border-radius:50%;background:linear-gradient(135deg,#95052A,#4A0016);color:#fff;display:grid;place-items:center;font-weight:800;flex-shrink:0">T</div><div><div style="font-size:11px;font-weight:700;color:var(--teal-d);text-transform:uppercase;letter-spacing:.05em">✦ Tara</div><div style="font-size:12.5px;color:var(--muted)">'+msg+'</div></div></div>';}
   function taraAlert(sym){const d=INST[sym];
     dOpen(taraChatHead('Big-move alerts · '+d.name)
       +'<div style="font-size:14px;line-height:1.55;margin-bottom:15px">Sure - I can ping you when <b>'+d.name+'</b> makes a big move. How large a daily move should trigger an alert?</div>'
@@ -1007,7 +1020,7 @@
     var d=INST[sym];
     dOpen(taraChatHead('Big-move alerts · '+d.name)
       +'<div style="display:flex;gap:10px;align-items:center;background:var(--green-soft);border-radius:12px;padding:14px 16px;margin-bottom:14px">'
-      +'<span style="font-size:22px">🔔</span><div style="font-size:14px;line-height:1.5;color:#196848"><b>Alert set.</b> I\'ll notify you whenever <b>'+d.name+'</b> moves more than <b>±'+p+'%</b> in a single trading day - by push and in your notifications.</div></div>'
+      +'<span style="font-size:22px">🔔</span><div style="font-size:14px;line-height:1.5;color:#95052A"><b>Alert set.</b> I\'ll notify you whenever <b>'+d.name+'</b> moves more than <b>±'+p+'%</b> in a single trading day - by push and in your notifications.</div></div>'
       +'<div style="font-size:12.5px;color:var(--muted);margin-bottom:16px">Currently '+d.name+' is at '+d.price+'. A ±'+p+'% day would be a move of about '+moveEstimate(d,p)+'. You can change or remove this any time in alert settings.</div>'
       +'<div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn primary" onclick="closeDrawer()">Got it</button><button class="btn" onclick="taraAlert(\''+sym+'\')">Change threshold</button></div>');
   }
@@ -1091,7 +1104,7 @@
       +row('Resistance',fmtP(d,lv.resistance))
       +row('Risk : reward','1 : '+rr)
       +'<button class="btn primary" style="margin-top:16px;width:100%;justify-content:center" onclick="toast(\'✓ Stop-loss / target order set (demo)\');closeDrawer()">Set order</button>'
-      +'<div class="tm-note">Prototype of the Vault22 Invest trade module. No real order is placed.</div>');
+      +'<div class="tm-note">Prototype of the Absa Invest trade module. No real order is placed.</div>');
   }
   window.orderTicket=orderTicket;
   function doRefresh(){const b=document.getElementById('refreshBtn'), a=document.getElementById('asOf'); if(!b||b.disabled)return; b.classList.add('spin'); b.disabled=true; if(a)a.textContent='refreshing…'; setTimeout(()=>{b.classList.remove('spin'); b.disabled=false; if(a)a.textContent='just now'; render(CUR); toast('Latest data loaded');},850);}

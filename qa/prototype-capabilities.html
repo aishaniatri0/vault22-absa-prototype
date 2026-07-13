@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>merged prototype capability audit</title></head>
+<body style="font:12px monospace;padding:10px">
+<pre id="out">running…</pre>
+<iframe id="app" src="../index.html" style="width:1440px;height:900px;border:1px solid #ccc"></iframe>
+<script>
+/* Every prototype merged into this shell was signed off standalone. This audit checks
+   that each one's approved capabilities still work HERE - i.e. that the merge (chrome
+   injection, scenario drawer, re-skin) didn't quietly break a feature. */
+const out=[];
+const app=document.getElementById('app'), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let section='';
+const sec=n=>out.push('\n── '+n+' ──');
+const ok=(k,v)=>out.push((v?'PASS':'FAIL')+'  '+k);
+const fn=(w,n)=>typeof w[n]==='function';           // function declarations land on window
+const txt=d=>{ try{ return d.body.innerText; }catch(e){ return ''; } };
+const has=(d,s)=>txt(d).toLowerCase().includes(s.toLowerCase());
+
+app.addEventListener('load', async ()=>{ try{
+  const W=app.contentWindow, D=app.contentDocument;
+  await sleep(5000);
+  const frame=id=>D.getElementById('fr-'+id);
+  const load=async (nav,sub)=>{ if(sub){ W.go('investments'); await sleep(900); W.showInvTab(sub); } else W.go(nav); await sleep(2600); };
+
+  /* ---------------- BUDGET ---------------- */
+  sec('BUDGET  (categories · alerts · approaches · zero-based · report · forecast)');
+  await load('budget');
+  const BW=frame('budget').contentWindow, BD=frame('budget').contentDocument;
+  ok('renders the budget dashboard', has(BD,'Budget Management'));
+  ok('cash-flow forecast card', has(BD,'Cash flow forecast'));
+  ok('zero-based assignment card', has(BD,'Budget assignment'));
+  ok('Tara budget insights', has(BD,'Insights for you'));
+  ok('spending alerts (50/80/100 + custom)', fn(BW,'toggleThreshold') && fn(BW,'addCustomAlert'));
+  ok('Need/Want/Savings classification', fn(BW,'setCatClass') && fn(BW,'classSegHTML'));
+  ok('budgeting approaches + preview/apply', fn(BW,'openApproachPreview') && fn(BW,'applyApproachPreview') && fn(BW,'suggestBudgets'));
+  ok('category drawer (shrinks dashboard)', fn(BW,'openCategory') && fn(BW,'openDrawerShrink'));
+  ok('setup wizard', fn(BW,'openSetupWizard'));
+  ok('link-account flow', fn(BW,'openLinkFlow') && fn(BW,'openManageAccounts'));
+  ok('rebalance', fn(BW,'openRebalance'));
+  ok('CSV export', fn(BW,'downloadCSV'));
+  ok('on-track / over-budget scenario', fn(BW,'setScenario') && fn(BW,'setLinked'));
+  BW.setScenario('over'); await sleep(500);
+  ok('  → over-budget recomputes', has(BD,'Over budget'));
+  BW.setScenario('ontrack'); await sleep(400);
+
+  /* ---------------- GOALS / WEALTH JOURNEY ---------------- */
+  sec('GOALS / WEALTH JOURNEY  (goals · risk · Smart Saver · wallet)');
+  await load('goals');
+  const GW=frame('goals').contentWindow, GD=frame('goals').contentDocument;
+  ok('GoalsStore + goal maths', !!GW.GoalsStore && !!GW.goalMath && !!GW.GoalPace);
+  ok('goals router (create/detail/assign/allocate)', !!GW.GoalsRouter);
+  ok('goal types seeded', !!GW.GOAL_TYPES && GW.GoalsStore.getGoals().length>0);
+  ok('compliance store + invest gate', !!GW.CompStore && typeof GW.investOK==='function');
+  ok('Risk Assessment screen + questions', !!GW.RiskAssessmentScreen && !!GW.RA_RISK_QS);
+  ok('Smart Saver store (invest/withdraw/sweep)', !!GW.SmartSaverStore && !!GW.SMART_SAVER);
+  /* My Savings only holds funds once you're invested (mySavingsFunds() returns [] otherwise),
+     so flip Investment Status on before asserting. The standalone used a MY_SAVINGS_FUNDS const;
+     the merged build exposes window.mySavingsFunds(). */
+  ok('My Savings surfaces exist', !!GW.MySavingsOverview && !!GW.MySavingsHomeCard && typeof GW.mySavingsFunds==='function');
+  W.setScen('invested',true); await sleep(700);
+  ok('My Savings populates when invested', GW.mySavingsFunds().length>0);
+  W.setScen('invested',false); await sleep(500);
+  ok('ZAR wallet + bank accounts', !!GW.ZarWalletStore && !!GW.BankAccountsStore);
+  ok('goals list renders', has(GD,'goal'));
+  W.go('home'); await sleep(2200);
+  ok('home: net worth / budget / goals cards', has(GD,'Home'));
+  ok('home: "Your Reports" section (from User Reports)', has(GD,'Your Reports'));
+
+  /* ---------------- USER REPORTS ---------------- */
+  sec('USER REPORTS  (3 reports · PDF · insights · FFL · insurance)');
+  W.absaReport('profile',false); await sleep(2500);
+  const RW=frame('reports').contentWindow, RD=frame('reports').contentDocument;
+  ok('User Profile Report renders', has(RD,'Financial Profile') || has(RD,'Profile'));
+  ok('PDF export pipeline', fn(RW,'downloadPDF'));
+  ok('all three report views exist',
+     !!RD.getElementById('report-profile') && !!RD.getElementById('report-spending') && !!RD.getElementById('report-bank'));
+  ok('insights feed (+ dismiss / why)', fn(RW,'renderInsightsFeed') && fn(RW,'dismissInsight') && fn(RW,'toggleWhy'));
+  ok('Financial Fitness Level', fn(RW,'updateOverallFFL'));
+  ok('profile completeness fields', fn(RW,'openFieldModal') && fn(RW,'completenessPct'));
+  ok('insurance module (policies/quotes/providers)', fn(RW,'renderInsurance') && fn(RW,'openQuotes') && fn(RW,'savePolicy'));
+  W.absaReport('bank',false); await sleep(1800);
+  ok('CFI report + user/admin toggle', has(RD,'Client Financial Intelligence') && fn(RW,'setCfiMode'));
+
+  /* ---------------- ONBOARDING ---------------- */
+  sec('ONBOARDING  (fork · 7 journeys · connect + failures · presets)');
+  await load('onboarding');
+  const OW=frame('onboarding').contentWindow, OD=frame('onboarding').contentDocument;
+  ok('bridge exposed to the shell', !!OW.__absaOnb);
+  ok('7 intents (the fork)', OW.__absaOnb.journeys().length===7);
+  ok('9 bank-link outcomes', OW.__absaOnb.failures().length===9);
+  ok('5 screen jumps', OW.__absaOnb.screens().length===5);
+  ok('demo presets A + B', fn(OW,'loadDemoA') && fn(OW,'loadDemoB'));
+  ok('connect flow (link / retry / fallback)', fn(OW,'openConnect') && fn(OW,'retryLink') && fn(OW,'simulateLink'));
+  ok('adaptive dashboard', fn(OW,'landDashboard'));
+  OW.__absaOnb.demoB(); await sleep(1500);
+  ok('  → Demo B lands the dashboard', has(OD,'Hi ') || has(OD,'Tara'));
+  OW.__absaOnb.reset(); await sleep(600);
+
+  /* ---------------- MARKET FORECAST ---------------- */
+  sec('MARKET FORECAST  (instruments · equities/crypto · personalised · trade)');
+  await load(null,'forecast');
+  const FW=frame('forecast').contentWindow, FD=frame('forecast').contentDocument;
+  ok('forecast renders', has(FD,'Market Forecast') || has(FD,'tomorrow'));
+  ok('equities / crypto switch', fn(FW,'setMarket'));
+  ok('Information / Personalised mode', fn(FW,'setMode'));
+  ok('instrument selector + favourites', fn(FW,'buildSelector') && fn(FW,'toggleFav'));
+  ok('drivers / stats / news / calendar / earnings',
+     fn(FW,'renderHeat') && fn(FW,'renderStats') && fn(FW,'renderNews') && fn(FW,'renderCalendar') && fn(FW,'renderEarnings'));
+  ok('premium options layer', fn(FW,'setPremium'));
+  ok('trade module (buy/sell)', fn(FW,'openTradeModule') && fn(FW,'orderTicket'));
+  ok('portfolio holdings + P&L', fn(FW,'renderPortfolio') && has(FD,'P&L'));
+  ok('Tara explain / read-aloud', fn(FW,'explainForecast') && fn(FW,'taraRead'));
+  FW.setMarket('crypto'); await sleep(900);
+  ok('  → crypto market loads', has(FD,'Bitcoin') || has(FD,'BTC'));
+  FW.setMarket('equities'); await sleep(700);
+
+  /* ---------------- LEADERBOARD ---------------- */
+  sec('LEADERBOARD  (for you · legends · compare · build similar · DNA)');
+  await load(null,'leaderboard');
+  const LW=frame('leaderboard').contentWindow, LD=frame('leaderboard').contentDocument;
+  ok('leaderboard renders', has(LD,'Leaderboard') || has(LD,'investing styles'));
+  /* USER / COMMUNITY / Follow / Tara are top-level `const`s, i.e. lexical bindings, so they
+     are NOT properties of window. Test the FEATURES instead of reaching for the globals. */
+  ok('legends + community + strategies render', fn(LW,'viewLegends') && fn(LW,'viewCommunity') && fn(LW,'viewStrategies'));
+  ok('investor profile modal', fn(LW,'openProfile'));
+  ok('compare + holdings overlap', fn(LW,'openCompare') && fn(LW,'computeOverlap'));
+  ok('Build Similar flow', fn(LW,'openBuild') && fn(LW,'adjustAllocation'));
+  ok('Investor DNA + AI match', fn(LW,'matchFor') && fn(LW,'dnaRefresh') && !!LD.getElementById('dnaMiniStyle'));
+  ok('follow / watchlist', fn(LW,'viewFollowing') && !!LD.getElementById('navFollowCount'));
+  ok('Tara panel', !!LD.getElementById('taraPanel'));
+  ok('compliance disclaimer (not advice)', fn(LW,'disclaimer'));
+
+  /* ---------------- ABSA MMF ---------------- */
+  sec('ABSA MMF  (buy · sell · recurring · statements · transactions)');
+  await load(null,'absammf');
+  const MW=frame('invest').contentWindow, MD=frame('invest').contentDocument;
+  ok('bridge exposed', !!MW.__absaMMF);
+  ok('buy / sell drawers', fn(MW,'openDrawer') && fn(MW,'confirmBuy') && fn(MW,'confirmSell'));
+  ok('recurring payment setup + cancel', fn(MW,'recValid') && has(MD,'Unit trusts'));
+  ok('transactions + statements panels', fn(MW,'togglePanel') && fn(MW,'txnList') && fn(MW,'stmtList'));
+  ok('transaction details drawer', fn(MW,'openTxn'));
+
+  document.getElementById('out').textContent='CAPABILITY AUDIT — merged prototypes\n'+out.join('\n')+
+    '\n\n'+out.filter(l=>l.startsWith('PASS')).length+' passed, '+out.filter(l=>l.startsWith('FAIL')).length+' failed';
+}catch(e){ document.getElementById('out').textContent=out.join('\n')+'\n\nTHREW: '+e.message; }
+});
+</script>
+</body></html>

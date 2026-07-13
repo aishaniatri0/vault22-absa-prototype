@@ -69,7 +69,7 @@ h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.3px}
 .prod .id{font-size:12px;color:var(--muted);margin-top:2px}
 .prod .rt{display:flex;align-items:center;gap:14px}
 .prod .bal{text-align:right}
-.prod .bal .lbl{font-size:11px;color:var(--muted)}
+.prod .bal .lbl{font-size:11px;color:var(--absa)}   /* live app: the label is crimson, not grey */
 .prod .bal .amt{font-weight:700;font-size:14px}
 .search{display:inline-flex;align-items:center;gap:6px;color:var(--absa);font-weight:600;font-size:14px;cursor:pointer}
 .search svg{width:16px;height:16px}
@@ -152,9 +152,11 @@ h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.3px}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px}
 .acct{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;margin-bottom:18px}
 .acct .an{font-weight:600;font-size:14px}.acct .am{font-size:12px;color:var(--muted)}.acct .ab{margin-left:auto;font-weight:600;font-size:13.5px;color:var(--ink-2)}.acct .cv{color:var(--muted)}
-.amt{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:16px 18px;margin-bottom:12px}
-.amt .c{font-weight:600;color:var(--muted)}
-.amt input{flex:1;border:none;outline:none;font-size:18px;font-weight:700;text-align:right;font-family:inherit;width:100%;background:none;color:var(--ink)}
+/* NOTE: there was a bare `.amt{background;border;border-radius;padding}` rule here for a
+   drawer amount field. The drawer actually uses `.amtbox` (see below), so the rule was
+   dead for its own purpose - but `.amt` also matches the fund row's balance
+   (`.prod .bal .amt`), which is why the balance rendered inside a bordered box instead of
+   as plain right-aligned text like the live app. Removed. */
 .chips{display:flex;gap:9px;flex-wrap:wrap}
 .chip{padding:9px 18px;border-radius:999px;background:#F1F1F2;font-size:13.5px;font-weight:600;transition:.15s}
 .chip:hover{background:#E7E7E9}.chip.on{background:var(--absa);color:#fff}
@@ -311,6 +313,22 @@ svg{flex:none}
 .dbtn.sec{background:#fff;border:1.5px solid var(--absa);color:var(--absa)}
 .dbtn.sec:hover{background:#FBF0F3}
 .dbtn+.dbtn{margin-top:12px}
+/* secondary action in a drawer footer (Absa: white pill, crimson border + label) */
+/* the live app renders the recurring schedule as a grey pill under the amount */
+.sched-pill{display:inline-block;background:#EFEDEE;color:#5A5052;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px}
+/* Transaction-details summary card (live app repeats the list row at the top of the drawer) */
+.txd-head{display:flex;align-items:center;gap:14px}
+.txd-ic{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;color:var(--absa);flex:none}
+.txd-ic svg{width:20px;height:20px}
+.txd-t{font-weight:700;font-size:14.5px}
+.txd-d{font-size:12.5px;color:var(--muted);margin-top:2px}
+.txd-amt{font-weight:700;font-size:14.5px}
+.txd-amt.pos{color:var(--green)}   /* live app shows credit amounts in green */
+.txd-st{font-size:12.5px;color:var(--muted);margin-top:2px}
+.dbtn.ghost{background:#fff;color:var(--absa);border:1.5px solid var(--absa)}
+.dbtn.ghost:hover{background:#FCEEF1}
+/* error mark: crimson disc on a soft pink halo, per the Absa design */
+.errx{box-shadow:0 0 0 14px #FBE2E8}
 .dfoot{margin-top:4px}
 /* form controls inside cards */
 .dcard .fl{font-size:14px;font-weight:700;color:var(--ink);margin:0 0 8px}
@@ -438,10 +456,12 @@ const S={
   fromIdx:0, acctOpen:false, dayOpen:false, calMonth:6, calYear:2026,   // calMonth 0-based (6=July)
   get from(){ return this.accounts[this.fromIdx]; },
   recurring:{ active:false, step:0, amount:0, freq:'Weekly', dayOfWeek:'', dayOfMonth:'', dateStr:'' },  // setup draft
-  recPlan:{ active:true, amount:46000, freq:'Monthly', dayOfWeek:'', dayOfMonth:12, failed:false },     // active managed plan
+  // active managed plan - mirrors the live account: quarterly, UGX 50,000, 23rd every 3 months
+  recPlan:{ active:true, amount:50000, freq:'Quarterly', dayOfWeek:'', dayOfMonth:23, failed:false },
   txns:[],
   drawer:null,   // buy|sell|detail|recsetup|txn
-  buy:{step:1,amount:0}, sell:{step:1,amount:0}, detailTC:false, detailProduct:null, txnIdx:0
+  buy:{step:1,amount:0}, sell:{step:1,amount:0}, detailTC:false, detailProduct:null, txnIdx:0,
+  sellOutcome:'success'   // 'success' | 'error' -> drives the design's network-failure screen
 };
 const MIN=10000;
 /* demo data (matches OTT populated states) */
@@ -459,6 +479,8 @@ const BALANCED={ id:'MP00000002', name:'Balanced Growth Portfolio', short:'Balan
 
 /* ---------- icons ---------- */
 const IC={
+  /* the live app's Sell zero-state uses a plain grey currency glyph, not an illustration */
+  dollar:'<svg viewBox="0 0 24 24" fill="none" stroke="#B6B4B6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:52px;height:52px"><path d="M12 2v20"/><path d="M17 6.5A3.5 3.5 0 0 0 13.5 3h-2a3.5 3.5 0 0 0 0 7h1a3.5 3.5 0 0 1 0 7h-2A3.5 3.5 0 0 1 7 13.5"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8" stroke-width="1.8" stroke-linecap="round"/></svg>',
   chevR:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
   chevD:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
@@ -493,31 +515,30 @@ function render(){ $('#app').innerHTML = S.view==='dashboard'?viewDash():viewLan
 function go(v){ S.view=v; if(v==='landing'){S.panel=null;} render(); }
 
 /* ---------- LANDING ---------- */
+/* Landing = the live Absa Uganda desktop screen, exactly:
+   LEFT  "Your investment portfolio" -> a single "Unit trusts" card. The live app has
+         NO Treasury bonds / Fixed deposit cards and NO "Explore our investment options".
+   RIGHT "Unit Trusts" + Search -> one fund row (name, account no., Available balance, View).
+         No "Balanced Growth Portfolio / Open" row.
+   The balance on the fund row is plain right-aligned text, not a boxed pill. */
 function viewLanding(){
-  const cats=[['unit','Unit trusts',ugx(S.fund.available)],['treasury','Treasury bonds','—'],['fixed','Fixed deposit','—']];
   return `<div class="wrap"><div class="cols">
     <div>
       <h2 class="sec-h">Your investment portfolio</h2>
-      ${cats.map(c=>`<div class="cat ${S.cat===c[0]?'on':''}" onclick="S.cat='${c[0]}';render()">
-        <div class="nm">${c[1]}</div>
-        <div class="rt"><div><div class="lbl">Total balance</div><div class="val dnum">${c[2]}</div></div><span class="chev">${IC.chevR}</span></div></div>`).join('')}
-      <h2 class="sec-h" style="margin-top:24px">Explore our investment options</h2>
-      <div class="explore" onclick="openDetail(BALANCED)"><div class="thumb">${IC.wallet}</div><div class="mid"><div class="s">Open a new</div><div class="b">Investment</div></div><div class="plus">${IC.plus}</div></div>
+      <div class="cat on">
+        <div class="nm">Unit trusts</div>
+        <div class="rt"><div><div class="lbl">Total balance</div><div class="val dnum">${ugx(S.fund.available)}</div></div><span class="chev">${IC.chevR}</span></div>
+      </div>
     </div>
     <div>${rightColumn()}</div>
   </div></div>`;
 }
 function rightColumn(){
-  if(S.cat==='unit'){
-    return `<div class="sec-row"><h2 class="sec-h" style="margin:0">Unit Trusts</h2><span class="search" onclick="toast('Search unit trusts')">${IC.search} Search</span></div>
-      <div class="prod hasbal" onclick="go('dashboard')">
-        <div><div class="nm">${esc(S.fund.name)}</div><div class="id">${esc(S.fund.id)}</div></div>
-        <div class="rt"><div class="bal"><div class="lbl">Available balance</div><div class="amt dnum">${ugx(S.fund.available)}</div></div><span class="link">View</span></div></div>
-      <div class="prod" onclick="openDetail(BALANCED)"><div class="nm">${esc(BALANCED.name)}</div><span class="link">Open</span></div>`;
-  }
-  const label=S.cat==='treasury'?'Treasury bonds':'Fixed deposit';
-  return `<div class="sec-row"><h2 class="sec-h" style="margin:0">${label}</h2></div>
-    <div class="empty-cat">You don't have any ${label.toLowerCase()} yet.<br/><span class="link" onclick="openDetail(BALANCED)">Explore investment options</span></div>`;
+  return `<div class="sec-row"><h2 class="sec-h" style="margin:0">Unit Trusts</h2><span class="search" onclick="toast('Search unit trusts')">${IC.search} Search</span></div>
+    <div class="prod hasbal" onclick="go('dashboard')">
+      <div><div class="nm">${esc(S.fund.name)}</div><div class="id">${esc(S.fund.id)}</div></div>
+      <div class="rt"><div class="bal"><div class="lbl">Available balance</div><div class="amt dnum">${ugx(S.fund.available)}</div></div><span class="link">View</span></div>
+    </div>`;
 }
 
 /* ---------- DASHBOARD ---------- */
@@ -543,16 +564,14 @@ function viewDash(){
             </div>
           </div>
         </div>
+        <h2 class="sec-h" style="margin:20px 0 12px">What would you like to do?</h2>
         <div class="actions-card">
-          <h3>What would you like to do?</h3>
           <div class="action-grid">${acts.map(a=>`<div class="action ${S.panel===a[0]?'on':''}" onclick="togglePanel('${a[0]}')"><div class="ic">${a[2]}</div><div class="lb">${a[1]}</div></div>`).join('')}</div>
         </div>
         ${S.panel?inlinePanel():''}
       </div>
       <div>
-        <h2 class="sec-h">Explore our investment options</h2>
-        <div class="explore" onclick="openDetail(BALANCED)"><div class="thumb">${IC.wallet}</div><div class="mid"><div class="s">Open a new</div><div class="b">Investment</div></div><div class="plus">${IC.plus}</div></div>
-        <div class="sec-row" style="margin-top:20px"><h2 class="sec-h" style="margin:0">Unit trusts</h2><span class="link" onclick="go('landing')">View all</span></div>
+        <div class="sec-row"><h2 class="sec-h" style="margin:0">Unit trusts</h2><span class="link" onclick="go('landing')">View all</span></div>
         <div class="prod hasbal"><div><div class="nm">${esc(f.name)}</div><div class="id">${esc(f.id)}</div></div>
           <div class="rt"><div class="bal"><div class="lbl">Available balance</div><div class="amt dnum">${ugx(f.available)}</div></div><span class="link">View</span></div></div>
       </div>
@@ -584,7 +603,7 @@ function inlinePanel(){
         <div style="text-align:center;padding:6px 0 18px">
           <div class="muted" style="font-size:13px">Current ${r.freq.toLowerCase()} payment</div>
           <div class="dnum" style="font-size:26px;font-weight:800;color:var(--absa);margin-top:2px">${ugx(r.amount)}</div>
-          <div class="muted" style="font-size:13px;margin-top:2px">${recScheduleLabel(r)}</div>
+          <div style="margin-top:8px"><span class="sched-pill">${recScheduleLabel(r)}</span></div>
         </div>
         <div style="border-top:1px solid var(--line)">
           <div class="crow" style="padding:14px 0;border-bottom:1px solid var(--line)"><span class="k">Investment start date</span><span class="v">04 Dec 2025</span></div>
@@ -601,7 +620,13 @@ function inlinePanel(){
   const longPanel = (S.panel==='transactions'||S.panel==='statements');
   return `<div class="inline-panel" id="inlinePanel"><div class="ip-head"><button class="x" onclick="S.panel=null;render()">${IC.x}</button><h3>${titles[S.panel]}</h3>${S.panel==='transactions'?`<button class="x" onclick="toast('Filter transactions')" style="margin-left:auto">${IC.filter}</button>`:''}</div><div class="ip-body${longPanel?' long':''}">${body}</div></div>`;
 }
-function recScheduleLabel(r){ return r.freq==='Weekly'?('Every '+(r.dayOfWeek||'Monday')) : ((r.dayOfMonth?ordinal(+r.dayOfMonth):'12th')+' of each month'); }
+/* Matches the live app's wording: weekly -> "Every Monday", monthly -> "12th of each month",
+   quarterly -> "23rd every 3 months". */
+function recScheduleLabel(r){
+  if(r.freq==='Weekly') return 'Every '+(r.dayOfWeek||'Monday');
+  const d = r.dayOfMonth?ordinal(+r.dayOfMonth):'12th';
+  return r.freq==='Quarterly' ? (d+' every 3 months') : (d+' of each month');
+}
 function txnList(){
   const groups={}; TXNS.forEach((t,i)=>{ (groups[t.group]=groups[t.group]||[]).push({...t,i}); });
   let html='';
@@ -624,7 +649,24 @@ function openTxn(i){ S.txnIdx=i; S.drawer='txn'; renderDrawer(); $('#scrim').cla
 function dwTxn(){
   const t=TXNS[S.txnIdx]||TXNS[0], credit=t.dir>0;
   const isInterest=t.kind==='Interest', isPending=t.status==='Pending';
-  return dh(t.type,null,"S.panel='transactions';closeDrawer()")+`<div class="db">
+  /* Live app: the drawer is titled "Transaction details" (not the transaction's own
+     type), has only a close button, and leads with a summary card repeating the row
+     from the list - icon, type, date, amount in green, and the status. The list shows
+     "Processing"; the detail shows "Pending Aggregation". */
+  return dh('Transaction details',null,null)+`<div class="db">
+    <div class="dcard tight" style="margin-bottom:14px">
+      <div class="txd-head">
+        <div class="txd-ic">${IC.txns}</div>
+        <div style="flex:1">
+          <div class="txd-t">${esc(t.type)}</div>
+          <div class="txd-d">${t.date} 2026</div>
+        </div>
+        <div style="text-align:right">
+          <div class="txd-amt ${credit?'pos':''} dnum">${credit?'':'-'}${ugx(t.amount)}</div>
+          <div class="txd-st">${isPending?'Pending Aggregation':(t.status||'Completed')}</div>
+        </div>
+      </div>
+    </div>
     <div class="dcard">
       <div class="crow"><span class="k">Type</span><span class="v">${esc(t.kind)}</span></div>
       <div class="crow"><span class="k">Reference</span><span class="v">000085752257</span></div>
@@ -640,7 +682,9 @@ function dh(title,step,back){
   const prog = step?`<div class="dprog"><i class="${step>=1?'on':''}"></i><i class="${step>=2?'on':''}"></i></div>`:'';
   return `<div class="dh">${bk}<h3>${esc(title)}</h3><button class="b" onclick="tryClose()">${IC.x}</button></div>${prog}`;
 }
-function dhX(onclose){ return `<div class="dh"><span style="width:30px"></span><h3></h3><button class="b" onclick="${onclose||'closeDrawer()'}">${IC.x}</button></div>`; }
+function dhX(onclose,title){ return `<div class="dh"><span style="width:30px"></span><h3>${title||''}</h3><button class="b" onclick="${onclose||'closeDrawer()'}">${IC.x}</button></div>`; }
+/* error mark (Absa design: solid crimson circle, white ✕, pink halo) */
+const DX='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 function procView(title){ return `<div class="dh"><span style="width:30px"></span><h3></h3><span style="width:30px"></span></div><div class="db"><div class="procwrap"><div class="pspin"></div><div class="proctitle">${title}</div><div class="procsub">Please wait a moment...</div></div></div>`; }
 /* decorative maroon check illustration (success screens) */
 const DCHECK2='<svg class="dcheck2" viewBox="0 0 130 130" fill="none"><circle cx="65" cy="66" r="46" fill="#ECECEE"/><path d="M42 67l15 15 33-37" stroke="#95052A" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M96 40l8-4M99 52l7 1M90 30l3 6M34 44l-7-3M28 58l-6 2" stroke="#E8830C" stroke-width="3" stroke-linecap="round"/><circle cx="104" cy="46" r="3" fill="#E8830C"/><circle cx="30" cy="34" r="3" fill="#D6336C"/><circle cx="100" cy="86" r="2.5" fill="#D6336C"/></svg>';
@@ -725,7 +769,8 @@ function dwBuy(){
     <div class="dfoot"><button class="dbtn" onclick="closeDrawer()">Done</button></div></div>`;
   // ---- step 2: confirm ----
   if(b.step===2) return dh('Confirm buy order',2,"S.buy.step=1;renderDrawer()")+`<div class="db">
-    <div class="dcard"><div class="cardh">One-time payment</div>
+    ${/* live app: the one-time card carries NO header, just the four rows */''}
+    <div class="dcard">${b.recurring?'<div class="cardh">One-time payment</div>':''}
       <div class="crow"><span class="k">Buy type</span><span class="v">One-time</span></div>
       <div class="crow"><span class="k">Buy amount</span><span class="v dnum">${ugx(b.amount)}</span></div>
       <div class="crow"><span class="k">To investment</span><span class="v">${esc(f.name)}</span></div>
@@ -738,7 +783,8 @@ function dwBuy(){
       <div class="crow"><span class="k">Buy amount</span><span class="v dnum">${ugx(b.amount)}</span></div>
       <div class="crow"><span class="k">From account</span><span class="v">${acctLine(a)}</span></div>
     </div>`:''}
-    <div class="dfoot"><button class="dbtn" onclick="confirmBuy()">${b.recurring?'Set up recurring payment':'Buy'}</button></div></div>`;
+    ${/* live app labels the confirm CTA "Deposit", not "Buy" */''}
+    <div class="dfoot"><button class="dbtn" onclick="confirmBuy()">${b.recurring?'Set up recurring payment':'Deposit'}</button></div></div>`;
   // ---- step 1: form ----
   const over=b.amount>a.balance, cap=b.amount>CAP, err=over?"Entered amount exceeds your account's available balance":(cap?('Only a maximum of '+ugx(CAP)+' is allowed'):'');
   return dh('Buy units',1)+`<div class="db">
@@ -775,6 +821,24 @@ function dwSell(){
   const s=S.sell,f=S.fund,a=S.from,chips=[10000,50000,100000,500000];
   const amount = s.mode==='full'?f.available:s.amount;
   if(s.step==='loading') return procView('Processing your sell order');
+  // ---- network error (live app / design: "There seems to be a problem") ----
+  if(s.step==='error') return dhX()+`<div class="db"><div class="errwrap">
+    <div class="errx">${DX}</div>
+    <div class="errtitle">There seems to be a problem</div>
+    <div class="succ-sub">Please check your internet connection is stable and try again.</div>
+    </div><div class="dfoot" style="display:flex;flex-direction:column;gap:10px">
+      <button class="dbtn" onclick="retrySell()">Retry (${s.retries==null?3:s.retries})</button>
+      <button class="dbtn ghost" onclick="closeDrawer()">Cancel</button>
+    </div></div>`;
+  // ---- no holdings: the live app's Sell zero-state ----
+  if(f.available<=0) return dhX(null,'Sell units')+`<div class="db"><div class="ip-empty" style="padding:60px 20px">
+    <div class="ill">${IC.dollar}</div>
+    <p>No active holdings</p>
+    <div class="s">You don't have any active investments to sell. Make a deposit to get started.</div>
+    </div><div class="dfoot" style="display:flex;flex-direction:column;gap:10px">
+      <button class="dbtn" onclick="openDrawer('buy')">Buy units</button>
+      <button class="dbtn ghost" onclick="closeDrawer()">Back to Dashboard</button>
+    </div></div>`;
   // ---- success ----
   if(s.step===3) return dhX()+`<div class="db"><div class="succ-wrap">${DCHECK2}
     <div class="succ-amt dnum">${ugx(amount)}</div>
@@ -795,7 +859,12 @@ function dwSell(){
     <div class="dcard tight"><div class="iban" style="margin:0">${IC.info}<span>Sell order will take within 1-2 days after Fund House confirmation.</span></div></div>
     <div class="dfoot"><button class="dbtn" onclick="confirmSell()">Withdraw</button></div></div>`;
   // ---- form ----
-  const err = s.mode==='partial'&&s.amount>0&&s.amount>(f.available-MIN) ? 'A minimum balance of '+ugx0(MIN)+' must remain in your account.' : '';
+  /* Validation copy matches the Absa design exactly: it names the overage, and the
+     empty case is its own message. Max sellable = available - the UGX 10,000 minimum. */
+  const overBy = s.amount - (f.available - MIN);
+  const err = s.mode==='partial' && s.amount>0 && overBy>0
+    ? 'A minimum balance of '+ugx0(MIN)+' must remain in your account. Your entered amount is '+ugx0(overBy)+' over the allowed limit'
+    : '';
   return dh('Sell units',1)+`<div class="db">
     <div class="dcard">
       <div class="crow" style="padding:0 0 14px"><span class="k" style="font-weight:700;color:var(--ink)">${esc(f.name)}</span><span class="v" style="text-align:right"><span style="font-weight:400;color:var(--muted);font-size:12.5px;display:block">Available balance</span><span class="dnum">${ugx(f.available)}</span></span></div>
@@ -812,7 +881,28 @@ function dwSell(){
     <div class="dfoot"><button class="dbtn" id="sCont" ${sellValid()?'':'disabled'} onclick="S.sell.step=2;renderDrawer()">Continue</button></div></div>`;
 }
 function onSell(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;S.sell.amount=n;renderDrawer();refocus('sAmt');}
-function confirmSell(){const n=S.sell.mode==='full'?S.fund.available:S.sell.amount;S.fund.available-=n;S.fund.current-=n;S.fund.invested=Math.max(0,S.fund.invested-n);S.from.balance+=Math.max(0,n-FEE);S.sell.step='loading';renderDrawer();setTimeout(()=>{if(S.drawer==='sell'){S.sell.step=3;renderDrawer();}},1000);}
+function confirmSell(){
+  S.sell.step='loading'; renderDrawer();
+  setTimeout(()=>{
+    if(S.drawer!=='sell') return;
+    // Scenario drawer can force the network-failure screen from the Absa design.
+    if(S.sellOutcome==='error'){
+      if(S.sell.retries==null) S.sell.retries=3;
+      S.sell.step='error'; renderDrawer(); return;
+    }
+    const n=S.sell.mode==='full'?S.fund.available:S.sell.amount;
+    S.fund.available-=n; S.fund.current-=n;
+    S.fund.invested=Math.max(0,S.fund.invested-n);
+    S.from.balance+=Math.max(0,n-FEE);
+    S.sell.step=3; renderDrawer();
+  },1000);
+}
+/* Retry decrements the counter, matching the design's "Retry (3)". */
+function retrySell(){
+  S.sell.retries=Math.max(0,(S.sell.retries==null?3:S.sell.retries)-1);
+  if(S.sell.retries===0) S.sellOutcome='success';   // last retry always goes through
+  confirmSell();
+}
 
 /* UNIT TRUST DETAILS (drawer) */
 function openDetail(prod){ S.drawer='detail'; S.detailProduct=prod; S.detailTC=false; renderDrawer(); $('#scrim').classList.add('show'); $('#drawer').classList.add('show'); }
@@ -899,6 +989,29 @@ const _dlgHTML='<div class="dlg"><div class="warn">'+IC.warn+'</div><h4>Are you 
 function restoreDlg(){ $('#dlgScrim').innerHTML=_dlgHTML; }
 
 render();
+
+/* ---------------------------------------------------------------------------
+   ABSA SHELL BRIDGE
+   The shell's global Scenario drawer drives the MMF demo states. Holdings drive
+   the Sell zero-state ("No active holdings"), and the sell outcome drives the
+   network-failure screen ("There seems to be a problem" / Retry). Both exist in
+   the Absa design but had no way to be reached in the prototype.
+   --------------------------------------------------------------------------- */
+window.__absaMMF = {
+  // S is a top-level const, i.e. a lexical binding, so it is NOT a property of window.
+  // Expose it for the shell and the QA harness.
+  state(){ return S; },
+  // 'holdings' = funded (default), 'none' = the live account's zero-balance state
+  setHoldings(v){
+    if(v==='none'){ S.fund.available=0; S.fund.current=0; S.fund.invested=0; S.fund.pl=0; S.fund.plPct=0; S.fund.units=0; }
+    else { S.fund.available=100000; S.fund.current=99000; S.fund.invested=90000; S.fund.pl=10000; S.fund.plPct=12.5; S.fund.units=1000; }
+    render(); if(S.drawer) renderDrawer();
+  },
+  getHoldings(){ return S.fund.available>0 ? 'holdings' : 'none'; },
+  // 'success' (default) | 'error' -> the design's network-failure screen on Withdraw
+  setSellOutcome(v){ S.sellOutcome = v==='error' ? 'error' : 'success'; },
+  getSellOutcome(){ return S.sellOutcome; },
+};
 </script>
 </body>
 </html>

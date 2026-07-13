@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>ABSA MMF flows</title></head>
+<body style="font:12px monospace;padding:10px">
+<pre id="out">running…</pre>
+<iframe id="app" src="../index.html" style="width:1440px;height:900px;border:1px solid #ccc"></iframe>
+<script>
+/* Walks the ABSA MMF flows against the reference captured from the live desktop app
+   (see ABSA-MMF-REFERENCE.md): Sell (funded + zero-state + error), Recurring, Statements. */
+const out=[],log=(k,v)=>out.push((v?'PASS':'FAIL')+'  '+k);
+const app=document.getElementById('app'),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const has=(d,s)=>d.body.innerText.toLowerCase().includes(s.toLowerCase());
+
+app.addEventListener('load', async ()=>{ try{
+  const W=app.contentWindow,D=app.contentDocument;
+  await sleep(4500);
+  W.go('investments'); await sleep(1200);
+  W.showInvTab('absammf'); await sleep(3000);
+  const F=D.getElementById('fr-invest'), IW=F.contentWindow, ID=F.contentDocument;
+  const S=()=>IW.__absaMMF.state();
+  log('MMF section loaded + bridge', !!(IW.__absaMMF && S()));
+
+  IW.go('dashboard'); await sleep(600);
+  log('fund detail: "What would you like to do?"', has(ID,'What would you like to do'));
+  log('fund detail: 4 action tiles', ID.querySelectorAll('.action').length===4);
+  log('fund detail: no "Explore" column (live has none)', !has(ID,'Explore our investment options'));
+  log('fund detail: Unit trusts side column + View all', has(ID,'Unit trusts') && has(ID,'View all'));
+
+  // ---- inline panels ----
+  IW.togglePanel('recurring'); await sleep(500);
+  log('recurring: quarterly plan, matches live', has(ID,'Current quarterly payment') && has(ID,'UGX 50,000'));
+  log('recurring: schedule pill "23rd every 3 months"', has(ID,'23rd every 3 months'));
+  log('recurring: Cancel recurring payment button', has(ID,'Cancel recurring payment'));
+
+  IW.togglePanel('statements'); await sleep(500);
+  // The live test account simply has no statements; the real product does (see the
+  // "view report statement" design set), so the prototype ships a list AND the zero-state.
+  log('statements: panel renders the statement list', ID.querySelectorAll('#inlinePanel *').length>3);
+  S().stmtsEmpty=true;   // force the zero-state
+  const emptyOK = IW.document.documentElement.innerHTML.includes("You don't have any statements at the moment")
+               && IW.document.documentElement.innerHTML.includes('Check this space later');
+  log('statements: zero-state copy matches the live wording', emptyOK);
+
+  IW.togglePanel('account'); await sleep(500);
+  log('account details: yield + units rows', has(ID,'Annual yield') && has(ID,'Units'));
+  IW.togglePanel('account'); await sleep(300);
+
+  // ---- SELL: funded, partial ----
+  IW.openDrawer('sell'); await sleep(600);
+  log('sell: Partial/Full toggle', has(ID,'Partial sale') && has(ID,'Full sale'));
+  log('sell: min-balance info callout', has(ID,'minimum balance of UGX 10,000'));
+  S().sell.amount = S().fund.available - 5000;   // 5,000 over the allowed limit
+  IW.renderDrawer(); await sleep(400);
+  log('sell: over-limit copy names the overage (design wording)',
+      has(ID,'over the allowed limit') && has(ID,'UGX 5,000'));
+  log('sell: Continue disabled while invalid', ID.getElementById('sCont').disabled===true);
+
+  S().sell.amount = 50000; IW.renderDrawer(); await sleep(400);
+  log('sell: Continue enabled when valid', ID.getElementById('sCont').disabled===false);
+  S().sell.step=2; IW.renderDrawer(); await sleep(400);
+  log('sell confirm: title + rows', has(ID,'Confirm sell order') && has(ID,'Sell type') && has(ID,'Remaining amount'));
+  log('sell confirm: Withdraw button + 1-2 days callout',
+      has(ID,'Withdraw') && has(ID,'1-2 days after Fund House confirmation'));
+
+  // ---- SELL: success ----
+  IW.confirmSell(); await sleep(1600);
+  log('sell success: submitted + Pending + Reference',
+      has(ID,'Sell order submitted successfully') && has(ID,'Pending') && has(ID,'Done'));
+
+  // ---- SELL: network error (scenario) ----
+  W.setScen('mmfSell','error'); await sleep(300);
+  IW.openDrawer('sell'); S().sell.amount=20000; S().sell.step=2; IW.renderDrawer(); await sleep(300);
+  IW.confirmSell(); await sleep(1600);
+  log('sell error: "There seems to be a problem" + Retry',
+      has(ID,'There seems to be a problem') && has(ID,'Retry'));
+  W.setScen('mmfSell','success'); await sleep(300);
+
+  // ---- SELL: zero-state (mirrors the live UGX 0.00 account) ----
+  W.setScen('mmfHoldings','none'); await sleep(600);
+  IW.openDrawer('sell'); await sleep(500);
+  log('sell zero-state: "No active holdings" + Buy units / Back to Dashboard',
+      has(ID,'No active holdings') && has(ID,'Buy units') && has(ID,'Back to Dashboard'));
+  W.setScen('mmfHoldings','holdings'); await sleep(600);
+  IW.closeDrawer();
+
+  document.getElementById('out').textContent='RESULTS\n'+out.join('\n')+'\n\n'+
+    out.filter(l=>l.startsWith('PASS')).length+' passed, '+out.filter(l=>l.startsWith('FAIL')).length+' failed';
+  }catch(e){ document.getElementById('out').textContent='RESULTS\n'+out.join('\n')+'\n\nTHREW: '+e.message; }
+});
+</script>
+</body></html>

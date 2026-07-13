@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>bank-link failure states</title></head>
+<body style="font:12px monospace;padding:10px">
+<pre id="out">running…</pre>
+<iframe id="app" src="../index.html" style="width:1440px;height:900px;border:1px solid #ccc"></iframe>
+<script>
+/* Drives a real Connect-your-bank attempt for each Bank-link outcome and asserts
+   the onboarding app actually lands on that outcome's screen. */
+const out=[]; const log=(k,v)=>out.push((v?'PASS':'FAIL')+'  '+k);
+const app=document.getElementById('app');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+app.addEventListener('load', async ()=>{
+  const W=app.contentWindow, D=app.contentDocument;
+  await sleep(4000);
+
+  // onboarding has no sidebar button any more - it must still route
+  log('no Onboarding sidebar item', !D.querySelector('.nav-item[data-key="onboarding"]'));
+  W.go('onboarding');
+  await sleep(3000);
+  const FR=D.getElementById('fr-onboarding');
+  log('go("onboarding") still routes without a nav button', FR.classList.contains('active'));
+  const OW=FR.contentWindow;
+  log('onboarding booted', !!(OW && OW.__absaOnb));
+
+  /* The 7 true failure states render the failure screen with this copy. Note the
+     other two entries in the drawer's list are NOT failures: simulateLink() sends
+     partial_sync to the success screen and already_linked straight through
+     finishLink(), so they are asserted separately below. */
+  const CASES=[
+    ['timeout','Connection timed out'],
+    ['bank_down',"Bank's connection is down"],
+    ['wrong_credentials',"didn't match"],
+    ['no_accounts',"couldn't find accounts"],
+    ['mfa_loop','verification looped'],
+    ['not_supported',"can't link this provider"],
+    ['generic','general error'],
+  ];
+
+  // Drive the real Connect flow: journey -> intro -> form -> verify -> outcome
+  async function linkABank(){
+    OW.__absaOnb.startJourney('understand');
+    await sleep(700);
+    const OD=OW.document;
+    // the journey screen's CTA opens the Connect modal
+    const connect=[...OD.querySelectorAll('button')].find(b=>/Connect an account/i.test(b.textContent));
+    if(!connect) return 'no journey CTA';
+    connect.click();
+    await sleep(400);
+    const add=[...OD.querySelectorAll('button')].find(b=>/Add account details/i.test(b.textContent));
+    if(!add) return 'no intro CTA';
+    add.click();
+    await sleep(300);
+    const bank=OD.getElementById('cf-bank'), acct=OD.getElementById('cf-acct'), type=OD.getElementById('cf-type');
+    if(!bank||!acct||!type) return 'no form';
+    bank.value='Absa';           bank.dispatchEvent(new OW.Event('change'));
+    acct.value='123456789';      acct.dispatchEvent(new OW.Event('input'));
+    type.value=type.options[1].value; type.dispatchEvent(new OW.Event('change'));
+    const next=OD.getElementById('cf-next');
+    if(!next || next.disabled) return 'Next still disabled';
+    next.click();
+    await sleep(2400);           // 1.3s simulated verify + render
+    return null;
+  }
+
+  for(const [key, needle] of CASES){
+    W.setScen('onbFail', key);
+    await sleep(150);
+    const err=await linkABank();
+    if(err){ log('outcome '+key.padEnd(18)+' ('+err+')', false); OW.__absaOnb.reset(); await sleep(400); continue; }
+    const txt=OW.document.body.innerText.toLowerCase();
+    log('outcome '+key.padEnd(18), txt.includes(needle.toLowerCase()));
+    OW.__absaOnb.reset();
+    await sleep(400);
+  }
+
+  // The two non-failure outcomes
+  W.setScen('onbFail','partial_sync'); await sleep(150);
+  await linkABank();
+  log('partial_sync lands on the success screen, not a failure',
+      /account added/i.test(OW.document.body.innerText));
+  OW.__absaOnb.reset(); await sleep(400);
+
+  /* already_linked skips both the failure AND the "account added" screens: it calls
+     finishLink() directly, which lands the dashboard (and pops the Meet-Tara overlay). */
+  W.setScen('onbFail','already_linked'); await sleep(150);
+  await linkABank();
+  const at=OW.document.body.innerText;
+  log('already_linked skips the modal and lands the dashboard',
+      !/account added/i.test(at) && /(Hi |Tara|dashboard)/i.test(at));
+  OW.__absaOnb.reset(); await sleep(400);
+
+  // Success path, plus the retry-once posture: retryLink() clears FORCE_FAIL
+  W.setScen('onbFail','');
+  await sleep(150);
+  const e2=await linkABank();
+  const t=OW.document.body.innerText.toLowerCase();
+  log('outcome Success (no failure screen)',
+      !e2 && !/didn't match|connection is down|timed out|general error/.test(t));
+
+  OW.__absaOnb.reset(); await sleep(400);
+  W.setScen('onbFail','timeout'); await sleep(150);
+  await linkABank();
+  const retry=[...OW.document.querySelectorAll('button')].find(b=>/retry/i.test(b.textContent));
+  log('failure screen offers Retry', !!retry);
+  if(retry){ retry.click(); await sleep(2400);
+    const rt=OW.document.body.innerText.toLowerCase();
+    log('Retry clears the forced failure and succeeds', !/timed out/.test(rt));
+  }
+  W.setScen('onbFail','');
+
+  document.getElementById('out').textContent='RESULTS\n'+out.join('\n')+
+    '\n\n'+out.filter(l=>l.startsWith('PASS')).length+' passed, '+out.filter(l=>l.startsWith('FAIL')).length+' failed';
+});
+</script>
+</body></html>

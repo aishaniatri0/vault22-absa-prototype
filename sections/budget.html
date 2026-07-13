@@ -11,6 +11,7 @@
   /* ===== Live-parity tokens (measured from production) ===== */
   :root{
     --green:#DC0032; --green-h:#B8002A;
+    --pos:#168335; --pos-soft:#E7F3EA;   /* semantic positive, per the Absa design */
     --shell:#F5F5F5; --card:#FFFFFF;
     --ink:#22252B;        /* headings */
     --g900:#111827; --g800:#1F2937; --g600:#4B5563; --g500:#6B7280; --g400:#9CA3AF;
@@ -50,7 +51,7 @@
   .nav a.active{background:var(--grey);font-weight:600}
   .nav a.active::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--green)}
   .nav a .pillbadge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:9999px;background:var(--green);color:#fff}
-  .nav a .pillbadge.beta{background:#EAF3FF;color:#DC0032}
+  .nav a .pillbadge.beta{background:#EAF3FF;color:#3B82F6}
   .nav a .avm{width:22px;height:22px;border-radius:50%;object-fit:cover;background:#cbd5e1}
   .nav .divider{height:1px;background:var(--line);margin:10px 6px}
   /* content column */
@@ -331,7 +332,7 @@
   .catsearch{flex:1;max-width:260px;min-width:150px;border:1px solid var(--line);border-radius:9999px;padding:8px 14px;font-family:inherit;font-size:13px;color:var(--g900);background:#fff}
   .catsearch::placeholder{color:var(--g400)}
   .catsearch:focus{border-color:var(--green);outline:none}
-  .sg-head{gap:12px}
+  .sg-head{gap:12px;flex-wrap:wrap}
   .toggle.off{background:#D1D5DB}
   .toggle.off::after{left:3px;right:auto}
   .ins{transition:background .15s}
@@ -380,7 +381,7 @@
   .fc-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .fc-top .k{font-size:13px;font-weight:700;color:var(--g900)}
   .fc-pill{font-size:10px;font-weight:800;padding:3px 9px;border-radius:9999px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
-  .fc-pill.good{background:#FCEEF1;color:var(--green)}
+  .fc-pill.good{background:var(--pos-soft);color:var(--pos)}
   .fc-pill.warn{background:#FCEEDD;color:var(--amber)}
   .fc-pill.bad{background:#FDECEC;color:var(--red)}
   .focus-card .fc-main{font-size:26px;font-weight:800;color:var(--g900);margin-top:10px;letter-spacing:-.5px;line-height:1.1}
@@ -397,6 +398,7 @@
   .zbs-bar>span{display:block;height:100%;border-radius:6px;transition:width .3s}
   .zbs-main{font-size:18px;font-weight:800;margin-top:9px;letter-spacing:-.3px}
   .zbs-main.good{color:var(--green)}.zbs-main.warn{color:var(--amber)}.zbs-main.bad{color:var(--red)}
+  .zbs-appr{font-size:11px;font-weight:600;color:var(--g400)}
   /* year: numbers sit BELOW the full-width chart */
   .yearchart{width:100%}
   .yearchart svg{width:100%;height:auto}
@@ -507,19 +509,94 @@
   .tset button:hover{background:rgba(255,255,255,.24)}
   @media(max-width:560px){.tset{flex-wrap:wrap}.tset button{width:100%}}
   /* ===== real Vault22 logo (extracted from the live app) ===== */
-  .logomark{display:inline-block;background:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDMwIDMwIj48cmVjdCB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIHJ4PSI3IiBmaWxsPSIjREMwMDMyIi8+PHBhdGggZD0iTTggOCBMMTUgMjIgTDIyIDgiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIzIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz48L3N2Zz4=') center/contain no-repeat}
+  .logomark{display:inline-block;background:url('data:image/png;base64,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') center/contain no-repeat}
   .logo .logomark{width:30px;height:30px}
   .spinlogo .logomark{width:34px;height:34px}
   .fl .logomark{width:26px;height:26px}
   /* income card aligns to the top of the summary card (kill inherited gcard margin) */
   #incomeArea .gcard{margin-top:0}
+  /* ===== Stephen review pass: new components ===== */
+  /* labelled trend button (discoverability) */
+  .trendbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#fff;border-radius:9999px;padding:5px 11px;font-size:11.5px;font-weight:600;color:var(--g600);cursor:pointer;font-family:inherit;white-space:nowrap}
+  .trendbtn:hover{border-color:var(--green);color:var(--green)}
+  .trendbtn svg{width:15px;height:15px;stroke:currentColor;fill:none}
+  @media(max-width:560px){.trendbtn span{display:none}.trendbtn{padding:6px}}
+  /* discoverability hint under the spending header */
+  .disco-hint{display:flex;align-items:flex-start;gap:9px;background:#FDF4F6;border:1px solid #FCEEF1;border-radius:12px;padding:11px 14px;margin:0 0 14px;font-size:12.5px;color:var(--g600);line-height:1.5}
+  .disco-hint .dh-ic{flex-shrink:0}
+  .disco-hint b{color:var(--g800);font-weight:700}
+  /* clearer "open details" affordance on flat category rows */
+  .cicons.openhint{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--g400)}
+  .cicons.openhint svg{width:16px;height:16px;stroke:currentColor;fill:none}
+  .fcat:hover .cicons.openhint{color:var(--green)}
+  @media(max-width:640px){.cicons.openhint .opentxt{display:none}}
+  /* per-group Trend bar (shown above the list when a spending group is selected) */
+  .grouptrend{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--g50);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+  .grouptrend .gt-l{font-size:14px;font-weight:700;color:var(--g900);display:flex;align-items:baseline;gap:8px;flex:1;min-width:0}
+  .grouptrend .gt-c{font-size:11.5px;font-weight:500;color:var(--g500)}
+  /* Need / Want / Savings filter chips: a labelled group after the spending-group chips */
+  .chiplabel{display:inline-flex;align-items:center;font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.05em;margin-left:6px;padding-left:12px;border-left:1px solid var(--line)}
+  .chip.typechip{border-style:dashed}
+  .chip.typechip.on{border-style:solid}
+  /* Needs / Wants / Savings badge (small chip on rows + previews) */
+  .clschip{font-size:10px;font-weight:800;padding:2px 8px;border-radius:9999px;white-space:nowrap;letter-spacing:.01em}
+  /* classification segmented control in the category drawer */
+  .dsubtle{font-size:12.5px;color:var(--g500);margin:-6px 0 12px;line-height:1.5}
+  .clsseg{display:flex;width:100%;border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+  .clsbtn{flex:1 1 auto;white-space:nowrap;border:0;border-left:1px solid var(--line);background:#fff;padding:10px 10px;font-size:12px;font-weight:700;font-family:inherit;color:var(--g600);cursor:pointer;transition:.12s;text-align:center}
+  .clsbtn:first-child{border-left:0}
+  .clsbtn:hover{background:var(--g50)}
+  /* spending-alert thresholds */
+  .dalert .c.ok{color:var(--green);font-weight:600}
+  .alert-opts{margin-top:14px;border-top:1px solid var(--line);padding-top:14px}
+  .alert-lbl{font-size:12px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+  .alert-chips{display:flex;gap:8px;flex-wrap:wrap}
+  .athresh{border:1.5px solid var(--line);background:#fff;border-radius:9999px;padding:7px 15px;font-size:13px;font-weight:700;font-family:inherit;color:var(--g600);cursor:pointer;transition:.12s}
+  .athresh:hover{border-color:#cfd8e2}
+  .athresh.on{background:#FCEEF1;border-color:var(--green);color:var(--green)}
+  .athresh.custom{background:#FCEEF1;border-color:var(--green);color:var(--green)}
+  .athresh.add{border-style:dashed;color:var(--g500)}
+  .alert-custom{display:flex;gap:8px;margin-top:10px;align-items:center}
+  .alert-custom .dinput{flex:1}
+  .athresh-add-btn{border:0;background:var(--green);color:#fff;border-radius:10px;padding:0 18px;height:44px;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer}
+  .athresh-add-btn:hover{background:var(--green-h)}
+  /* ===== budgeting approach preview drawer ===== */
+  .appr-intro{font-size:13px;color:var(--g600);line-height:1.55;background:#FDF4F6;border:1px solid #FCEEF1;border-radius:12px;padding:12px 14px;margin-top:10px}
+  .appr-tot{display:flex;align-items:center;gap:14px;margin:14px 0 12px;padding:12px 14px;background:var(--g50);border:1px solid var(--line);border-radius:12px}
+  .appr-tot .pk{font-size:10.5px;color:var(--g500);display:block}
+  .appr-tot b{font-size:17px;font-weight:800;color:var(--g900)}
+  .appr-accept{width:100%;border:1.5px solid var(--green);background:#fff;color:var(--green);border-radius:10px;padding:11px;font-size:13.5px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:14px}
+  .appr-accept:hover{background:#FCEEF1}
+  .prows{display:flex;flex-direction:column}
+  .prow{padding:12px 0;border-bottom:1px solid var(--line)}
+  .prow:last-child{border-bottom:0}
+  .pcat{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .pcat .pname{font-size:13.5px;font-weight:700;color:var(--g900)}
+  .pnums{display:flex;align-items:center;gap:10px}
+  .pnums .pk{font-size:10px;color:var(--g500);display:block;margin-bottom:2px}
+  .pcur{flex-shrink:0}.pcur b{font-size:14px;font-weight:700;color:var(--g600)}
+  .parrow{color:var(--g400);flex-shrink:0}
+  .psug{flex:1;min-width:0}
+  .psug input{width:100%;max-width:120px;border:1px solid var(--line2);border-radius:9px;padding:8px 10px;font-size:14px;font-weight:700;font-family:inherit;color:var(--g900)}
+  .psug input:focus{border-color:var(--green);outline:none}
+  .pdiff{flex-shrink:0;font-size:12.5px;font-weight:800;min-width:64px;text-align:right}
+  .pdiff.up{color:var(--green)}.pdiff.down{color:var(--red)}.pdiff.flat{color:var(--g400)}
+  /* mobile polish: report header wraps, net-worth gap tightens, group-trend bar stays tidy */
+  @media(max-width:560px){
+    .subhead{flex-wrap:wrap}
+    .subhead .right{margin-left:0;width:100%;flex-wrap:wrap;justify-content:flex-start}
+    .nw{gap:22px 40px}
+    .grouptrend{flex-wrap:wrap}
+    .alert-chips{gap:8px 8px}
+    .repgrid{grid-template-columns:1fr!important}
+  }
 </style>
 <style id="absa-embed-style">
 html.absa-embedded .sidebar,html.absa-embedded aside.sidebar{width:0!important;min-width:0!important;max-width:0!important;padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
 html.absa-embedded .logo,html.absa-embedded .header-logo,html.absa-embedded .logomark,html.absa-embedded .app-logo,html.absa-embedded .brand-logo{display:none!important}
 html.absa-embedded .topbar,html.absa-embedded header.topbar,html.absa-embedded .header,html.absa-embedded .app-header{display:none!important}
 html.absa-embedded .main,html.absa-embedded .page,html.absa-embedded .content,html.absa-embedded main{margin-left:0!important;width:auto!important;max-width:none!important;flex:1 1 auto!important}
-html.absa-embedded .app,html.absa-embedded .layout,html.absa-embedded .shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
+html.absa-embedded .app,html.absa-embedded .shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
 html.absa-embedded body{overflow-x:hidden}
 </style>
 <script>if(window.self!==window.top){document.documentElement.classList.add('absa-embedded');}</script>
@@ -535,7 +612,7 @@ html.absa-embedded body{overflow-x:hidden}
       <div class="bell" id="bell" onclick="openNotifs(event)"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><span class="b" id="bellBadge">5</span></div>
       <div class="pill" id="curPill" onclick="openCurrencyMenu(event)">R&nbsp;ZAR <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
       <div class="pill" id="regionPill" onclick="openRegionMenu(event)"><span class="flags">🇿🇦🇻🇳🇸🇬</span>+3&nbsp; 6 regions <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-      <div class="pill user" onclick="openAccountMenu(event)"><span class="av">n</span><span class="uname">Aishani Atri</span> <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="pill user" onclick="openAccountMenu(event)"><span class="av">n</span><span class="uname">ngandev0309</span> <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
     </div>
   </header>
 
@@ -544,23 +621,23 @@ html.absa-embedded body{overflow-x:hidden}
     <aside class="sidebar">
       <div class="menu-head"><h2>Menu</h2><div class="collapse" onclick="toggleSidebar()" title="Collapse menu"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></div></div>
       <nav class="nav">
-        <a class="ext" title="Home lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</a>
-        <a class="ext" title="Transactions live in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>Transactions</a>
+        <a class="ext" title="Home lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</a>
+        <a class="ext" title="Transactions live in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg>Transactions</a>
         <a class="active" onclick="showView('budget')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="5" width="18" height="6" rx="2"/><rect x="3" y="13" width="11" height="6" rx="2"/></svg>Budget</a>
-        <a class="ext" title="Investments live in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 19V5"/><path d="M4 15l5-5 4 4 7-8"/></svg>Investments</a>
-        <a class="ext" title="My Wealth lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>My Wealth <span class="sub">Accounts</span></a>
-        <a class="ext" title="Financial Fitness lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 9v6M18 9v6M4 11v2M20 11v2M6 12h12"/></svg>Financial Fitness</a>
-        <a class="ext" title="Goals live in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Goals</a>
-        <a class="ext" title="Family Circle lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.2"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/></svg>Family Circle</a>
-        <a class="ext" title="Debt lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Debt</a>
-        <a class="ext" title="Insurance lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 9v6M18 9v6M4 11v2M20 11v2M6 12h12"/></svg>Insurance</a>
-        <a class="ext" title="Crypto Portfolio lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M10 8v8M10 8h3.2a2 2 0 0 1 0 4H10M10 12h3.7a2 2 0 0 1 0 4H10"/></svg>Crypto Portfolio</a>
-        <a class="ext" title="Marketplace lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Marketplace</a>
-        <a class="ext" title="Insights live in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Insights</a>
-        <a class="ext" title="Product Updates live in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg>Product Updates<span class="pillbadge">New</span></a>
+        <a class="ext" title="Investments live in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 19V5"/><path d="M4 15l5-5 4 4 7-8"/></svg>Investments</a>
+        <a class="ext" title="My Wealth lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>My Wealth <span class="sub">Accounts</span></a>
+        <a class="ext" title="Financial Fitness lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 9v6M18 9v6M4 11v2M20 11v2M6 12h12"/></svg>Financial Fitness</a>
+        <a class="ext" title="Goals live in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>Goals</a>
+        <a class="ext" title="Family Circle lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2.2"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/></svg>Family Circle</a>
+        <a class="ext" title="Debt lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Debt</a>
+        <a class="ext" title="Insurance lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M6 9v6M18 9v6M4 11v2M20 11v2M6 12h12"/></svg>Insurance</a>
+        <a class="ext" title="Crypto Portfolio lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M10 8v8M10 8h3.2a2 2 0 0 1 0 4H10M10 12h3.7a2 2 0 0 1 0 4H10"/></svg>Crypto Portfolio</a>
+        <a class="ext" title="Marketplace lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="3" y="4" width="7" height="7" rx="1"/><rect x="14" y="4" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Marketplace</a>
+        <a class="ext" title="Insights live in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Insights</a>
+        <a class="ext" title="Product Updates live in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/></svg>Product Updates<span class="pillbadge">New</span></a>
         <div class="divider"></div>
-        <a class="ext" title="Tara AI lives in the full Vault22 app"><span class="avm"></span>Tara AI</a>
-        <a class="ext" title="Connect Telegram lives in the full Vault22 app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg>Connect Telegram<span class="pillbadge beta">BETA</span></a>
+        <a class="ext" title="Tara AI lives in the full Absa app"><span class="avm"></span>Tara AI</a>
+        <a class="ext" title="Connect Telegram lives in the full Absa app"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M21 4L3 11l6 2 2 6 3-4 4 3z"/></svg>Connect Telegram<span class="pillbadge beta">BETA</span></a>
       </nav>
     </aside>
 
@@ -579,7 +656,7 @@ html.absa-embedded body{overflow-x:hidden}
         </div>
 
         <div class="bcrumb-row">
-          <nav class="bcrumb" style="margin-bottom:0"><span class="muted" title="Home lives in the full Vault22 app">Home</span> / <span class="here">Budget</span></nav>
+          <nav class="bcrumb" style="margin-bottom:0"><span class="muted" title="Home lives in the full Absa app">Home</span> / <span class="here">Budget</span></nav>
           <div class="demobar" style="margin:0"><span>Preview</span><label class="sw" title="Preview the linked vs new-user experience"><input type="checkbox" id="linkedToggle" checked onchange="setLinked(this.checked)"><span class="tk"></span><span id="demoLbl">Account linked</span></label></div>
         </div>
         <div class="phead">
@@ -593,7 +670,7 @@ html.absa-embedded body{overflow-x:hidden}
           </div>
         </div>
 
-        <div class="linkcta" id="linkcta"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 10h18M7 15h4"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div><div><h3>Link an account to see your budget</h3><p>Connect a bank or card and Vault22 builds your budget automatically. It arrives categorised, tracked and ready in seconds.</p></div><button class="pillbtn green go" style="min-width:auto" onclick="openLinkFlow()">Link an account</button></div>
+        <div class="linkcta" id="linkcta"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 10h18M7 15h4"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div><div><h3>Link an account to see your budget</h3><p>Connect a bank or card and Absa builds your budget automatically. It arrives categorised, tracked and ready in seconds.</p></div><button class="pillbtn green go" style="min-width:auto" onclick="openLinkFlow()">Link an account</button></div>
 
         <div class="topgrid">
           <div class="sumcard" id="sumCard" style="position:relative"></div>
@@ -614,9 +691,11 @@ html.absa-embedded body{overflow-x:hidden}
         <div class="sg-head">
           <h2>Spending</h2>
           <input class="catsearch" id="catSearch" type="search" placeholder="Search categories" aria-label="Search spending categories" oninput="setSearch(this.value)" />
+          <button class="trendbtn" onclick="openTrend('Spending','remaining')" title="View your spending trend in the drawer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Spending trend</span></button>
           <div class="sortseg" role="group" aria-label="Sort categories"><button class="on" id="sortAZ" onclick="setSort('az')">A-Z</button><button id="sortAmt" onclick="setSort('amount')">Amount</button></div>
         </div>
         <div class="chiprow" id="filterChips" style="margin-bottom:8px"></div>
+        <div class="disco-hint" id="discoHint"><span class="dh-ic">💡</span><span>Select any category to open its <b>details drawer</b> to set its budget, spending alerts and type. Use the <b>Trend</b> button on income, or pick a spending group above to reveal that group's <b>Trend</b> button, to open its budget trend.</span></div>
         <div id="catlist"></div>
         <div class="scenariobar" id="scenariobar">
           <div class="sc-l"><span class="sc-t">Preview scenario</span><span class="sc-d">Switch to see what a member experiences when they overspend</span></div>
@@ -634,7 +713,7 @@ html.absa-embedded body{overflow-x:hidden}
           <button class="backbtn" onclick="showView('budget')">‹ Back to Budget</button>
           <div>
             <h1>Monthly Spending Report</h1>
-            <div class="crumb">Aishani Atri · <span id="repCrumbMonth">Jul 2026</span></div>
+            <div class="crumb">ngandev0309 · <span id="repCrumbMonth">Jul 2026</span></div>
           </div>
           <div class="right">
             <div class="datenav" style="margin:0"><button onclick="navReport(-1)" aria-label="Previous month">‹</button><span class="d" id="repMonth" style="font-size:14px">Jul 2026</span><button onclick="navReport(1)" aria-label="Next month">›</button></div>
@@ -662,7 +741,7 @@ html.absa-embedded body{overflow-x:hidden}
             <div class="bar"><i style="width:28%"></i></div>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="repgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div class="rcard">
             <h3>Top Spending Categories</h3>
             <div id="repTopCats"></div>
@@ -761,7 +840,10 @@ const CURS={
   GBP:{sym:'£',rate:0.043,name:'British Pound',pill:'£&nbsp;GBP'},
   EUR:{sym:'€',rate:0.051,name:'Euro',pill:'€&nbsp;EUR'}};
 let CUR='ZAR';
-const money=n=>{const c=CURS[CUR];return c.sym+(Number(n)*c.rate).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});};
+/* Stephen: remove decimal places from displayed summary values. All dashboard KPIs, cards,
+   forecast and trend figures render through money(), so rounding here strips cents everywhere.
+   Budget editing still supports decimals via the raw numeric inputs (they don't use money()). */
+const money=n=>{const c=CURS[CUR];return c.sym+Math.round(Number(n)*c.rate).toLocaleString('en-US',{maximumFractionDigits:0});};
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.transform='translateX(-50%) translateY(0)';clearTimeout(window._t);window._t=setTimeout(()=>t.style.transform='translateX(-50%) translateY(120px)',2000);}
 function showView(v){document.querySelectorAll('.view').forEach(s=>s.classList.remove('show'));document.getElementById('view-'+v).classList.add('show');window.scrollTo(0,0);}
 function toggleNav(){document.body.classList.toggle('navopen');}
@@ -772,16 +854,19 @@ let periodLabel='1 - 31 Jul 2026', periodCentre='1 - 31 Jul<br>2026';
 const chatIcon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
 const chevD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
 const chevR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+/* Discoverability (Stephen req 3): a clearly labelled button so the budget-trend drawer is
+   obvious, instead of a bare chat icon reviewers couldn't find. */
+function trendBtn(name,type){return `<button class="trendbtn" onclick="event.stopPropagation();openTrend('${name.replace(/'/g,"")}','${type}')" title="View ${name} budget trend">${chatIcon}<span>Trend</span></button>`;}
 
 /* ---- summary (month / year) ---- */
-const YEAR={range:'Jan 2026 - Dec 2026',centre:'Jan 2026<br>-<br>Dec 2026',eomK:'Expected EoY',eom:"On track for the year",eomC:'var(--green)',pace:null,
+const YEAR={range:'Jan 2026 – Dec 2026',centre:'Jan 2026<br>–<br>Dec 2026',eomK:'Expected EoY',eom:"On track for the year",eomC:'var(--pos)',pace:null,
     stats:[{v:318942,k:'Spent this year'},{v:668616,k:'Budget this year'},{v:349674,k:'Left this year'}]};
 const MONTHS=[
-  {range:'1 - 30 Jun 2026',centre:'1 - 30 Jun<br>2026',eomK:'End of month',eom:'Finished on track',eomC:'var(--green)',pace:'under',arc:0.99,safe:0,safeSub:'this budget period has ended',
+  {range:'1 - 30 Jun 2026',centre:'1 - 30 Jun<br>2026',eomK:'End of month',eom:'Finished on track',eomC:'var(--pos)',pace:'under',arc:0.99,safe:0,safeSub:'this budget period has ended',
    stats:[{v:598120.55,k:'Spent this month'},{v:602967.29,k:'Budget this month'},{v:4846.74,k:'Underspent'},{v:'0 Days',k:'left on your budget'}]},
-  {range:'1 - 31 Jul 2026',centre:'1 - 31 Jul<br>2026',eomK:'Expected EoM',eom:"You're on track",eomC:'var(--green)',pace:'ahead',arc:0.012,safe:19852.38,safeSub:'for the 30 days left in this budget',
+  {range:'1 - 31 Jul 2026',centre:'1 - 31 Jul<br>2026',eomK:'Expected EoM',eom:"You're on track",eomC:'var(--pos)',pace:'ahead',arc:0.012,safe:19852.38,safeSub:'for the 30 days left in this budget',
    stats:[{v:7395.75,k:'Spent this month'},{v:602967.29,k:'Budget this month'},{v:595571.54,k:'Left'},{v:'30 Days',k:'left on your budget'}]},
-  {range:'1 - 31 Aug 2026',centre:'1 - 31 Aug<br>2026',eomK:'Expected EoM',eom:'Just getting started',eomC:'var(--green)',pace:'under',arc:0.004,safe:19451.20,safeSub:'for the 31 days in this budget',
+  {range:'1 - 31 Aug 2026',centre:'1 - 31 Aug<br>2026',eomK:'Expected EoM',eom:'Just getting started',eomC:'var(--pos)',pace:'under',arc:0.004,safe:19451.20,safeSub:'for the 31 days in this budget',
    stats:[{v:2140,k:'Spent this month'},{v:602967.29,k:'Budget this month'},{v:600827.29,k:'Left'},{v:'31 Days',k:'left on your budget'}]},
 ];
 let monthIdx=1;
@@ -789,7 +874,7 @@ function curMonth(){return MONTHS[monthIdx];}
 function navMonth(d){if(period!=='month')return;const n=Math.max(0,Math.min(MONTHS.length-1,monthIdx+d));if(n===monthIdx)return;monthIdx=n;renderSummary();renderFocus();toast('Now showing '+curMonth().range);}
 function donutSingle(arc){arc=(arc==null)?0.012:arc;const C=553,off=C*(1-Math.min(1,arc));return `<svg viewBox="0 0 200 200" width="176" height="176"><circle cx="100" cy="100" r="88" fill="none" stroke="#E5E7EB" stroke-width="11"/><circle cx="100" cy="100" r="88" fill="none" stroke="#DC0032" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 100 100)"/></svg>`;}
 function donutMulti(){
-  const segs=[['#DC0032',34],['#F6C043',33],['#DC0032',12],['#F59E0B',21]]; const C=2*Math.PI*88; let off=0;
+  const segs=[['#7C6FE8',34],['#F6C043',33],['#DC0032',12],['#F59E0B',21]]; const C=2*Math.PI*88; let off=0;
   return `<svg viewBox="0 0 200 200" width="200" height="200"><circle cx="100" cy="100" r="88" fill="none" stroke="#EEF0F3" stroke-width="11"/>${segs.map(([col,pc])=>{const len=C*pc/100,dash=`${len-4} ${C-len+4}`,o=-off*C/100;off+=pc;return `<circle cx="100" cy="100" r="88" fill="none" stroke="${col}" stroke-width="11" stroke-dasharray="${dash}" stroke-dashoffset="${o}" transform="rotate(-90 100 100)"/>`;}).join('')}</svg>`;
 }
 /* ENHANCEMENT: Year shows a bar chart (spent vs budget vs average per month) */
@@ -808,7 +893,7 @@ function yearBars(){
 function julMonth(){
   const sp=totSpent(), bd=totBudget(), left=bd-sp, ratio=bd?sp/bd:0, elapsed=(30-DAYS_LEFT)/30;
   return {range:MONTHS[1].range,centre:MONTHS[1].centre,eomK:'Expected EoM',
-    eom:left>=0?"You're on track":"Heading over budget",eomC:left>=0?'var(--green)':'var(--red)',
+    eom:left>=0?"You're on track":"Heading over budget",eomC:left>=0?'var(--pos)':'var(--red)',
     pace:left>=0?null:'ahead',arc:ratio,
     stats:[{v:money(sp),k:'Spent this month'},{v:money(bd),k:'Budget this month'},{v:money(Math.abs(left)),k:left>=0?'Left':'Over',red:left<0},{v:DAYS_LEFT+' Days',k:'left on your budget'}]};
 }
@@ -842,7 +927,7 @@ function renderSummary(){
   document.getElementById('sumCard').innerHTML=editBtn+nav+mid+bottom;
 }
 /* "Where your money's going": spend split by group, fills the summary card and adds insight */
-const GROUP_COLORS={daytoday:'#DC0032',recurring:'#DC0032',invest:'#F6C043',insurance:'#DC0032',comms:'#F59E0B',debt:'#EF4444',bankfees:'#94A3B8',utilities:'#DC0032'};
+const GROUP_COLORS={daytoday:'#DC0032',recurring:'#7C6FE8',invest:'#F6C043',insurance:'#3B82F6',comms:'#F59E0B',debt:'#EF4444',bankfees:'#94A3B8',utilities:'#DC0032'};
 function spendBreakdown(){
   const gs=groups.map(g=>({id:g.id,name:g.name,spent:g.cats.reduce((a,c)=>a+(+c.spent||0),0)})).filter(g=>g.spent>0).sort((a,b)=>b.spent-a.spent);
   const total=gs.reduce((a,g)=>a+g.spent,0)||1;
@@ -869,7 +954,7 @@ function renderIncome(){
       <div class="grow" onclick="openIncomeDetail()" style="cursor:pointer" role="button" tabindex="0" title="View income breakdown">
         <div><div class="gname">Income</div><div class="gamt">${money(d.recv)} <span class="b">/ ${money(d.exp)}</span> <svg class="info" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#9CA3AF" stroke-width="2" style="vertical-align:-2px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></div><div class="csub" style="color:${d.noteC};font-size:12px;margin-top:3px">${money(d.noteAmt)} ${d.noteTxt}</div></div>
         <div class="gicons" style="margin-left:auto">
-          <button class="iconbtn" onclick="event.stopPropagation();openTrend('Income','received')" title="View Income trend">${chatIcon}</button>
+          ${trendBtn('Income','received')}
           <span class="gchev chev" style="display:inline-flex">${chevR}</span>
         </div>
       </div>
@@ -931,6 +1016,32 @@ const groups=[
     {n:'Rates & Taxes',spent:1900,budget:1900,avg:1900}]},
 ];
 const DAYS_LEFT=17;
+
+/* ===== Needs / Wants / Savings & Investments classification (Stephen req 5) =====
+   One easily editable config. Patrick can later replace this mapping with the official one.
+   Precedence: a per-category override (c.cls, set by the user in the drawer) > CATEGORY_CLASS
+   (this default map) > GROUP_CLASS (sensible fallback for the whole spending group). */
+const CATEGORY_CLASS={
+  /* Needs */
+  'Groceries':'need','Transport & Fuel':'need','Rent / Bond':'need','Domestic Help':'need',
+  'Car Insurance':'need','Medical Aid':'need','Home & Contents Insurance':'need','Life Insurance':'need',
+  'Mobile':'need','Fibre Internet':'need','Electricity':'need','Water':'need','Rates & Taxes':'need',
+  'Bank Charges':'need','Card Fees':'need','Credit Card':'need','Personal Loan':'need','Store Card':'need','Gym':'need',
+  /* Wants */
+  'Eating Out & Takeaways':'want','Coffee':'want','Shopping':'want','Entertainment':'want',
+  'DSTV / Streaming':'want','Subscriptions':'want',
+  /* Savings & Investments */
+  'Emergency Fund':'save','Investments':'save','Retirement Annuity':'save'
+};
+const GROUP_CLASS={daytoday:'want',recurring:'need',invest:'save',insurance:'need',comms:'need',debt:'need',bankfees:'need',utilities:'need'};
+const CLASS_META={
+  need:{lbl:'Need',short:'Need',c:'#3B82F6',bg:'#EAF1FE'},
+  want:{lbl:'Want',short:'Want',c:'#B4791F',bg:'#FBEFD8'},
+  save:{lbl:'Savings & Investments',short:'Savings',c:'#95052A',bg:'#FCEEF1'}};
+function catObjByName(name){for(const g of groups){const c=g.cats.find(x=>x.n===name);if(c)return {c,g};}return null;}
+function catClass(name){const f=catObjByName(name);if(f&&f.c.cls)return f.c.cls;if(CATEGORY_CLASS[name])return CATEGORY_CLASS[name];return (f&&GROUP_CLASS[f.g.id])||'need';}
+function classBadge(name){const m=CLASS_META[catClass(name)];return `<span class="clschip" style="color:${m.c};background:${m.bg}">${m.short}</span>`;}
+
 function catsFlat(){return groups.flatMap(g=>g.cats);}
 function totSpent(){return catsFlat().reduce((a,c)=>a+(+c.spent||0),0);}
 function totBudget(){return catsFlat().reduce((a,c)=>a+(+c.budget||0),0);}
@@ -962,13 +1073,13 @@ function renderZeroBased(){
   if(!linked){el.innerHTML='';return;}
   const inc=incomeFor(), budgeted=budgetedFor(), toAssign=inc-budgeted;
   let cls,pill,main,note;
-  if(Math.abs(toAssign)<=50){cls='good';pill='Balanced';main='Every rand has a job';note='Your budget matches your income exactly.';}
-  else if(toAssign>0){cls='warn';pill='To assign';main=money(toAssign)+' still to assign';note='Give this money a job to complete your zero-based budget.';}
-  else{cls='bad';pill='Over';main=money(-toAssign)+' over-allocated';note='You have budgeted more than your income. Trim a category to balance.';}
+  if(Math.abs(toAssign)<=50){cls='good';pill='Balanced';main='Every rand is assigned';note='All of your income is assigned to a budget. This tracks assignment, not spending (see the forecast above for spend).';}
+  else if(toAssign>0){cls='warn';pill='To assign';main=money(toAssign)+' still to assign';note='Give this money a job to complete your budget. This tracks assignment, not spending.';}
+  else{cls='bad';pill='Over-allocated';main=money(-toAssign)+' over-allocated';note='You have assigned more than your income. Trim a category budget to balance.';}
   el.innerHTML=`<div class="zbs">
-    <div class="fc-top"><div class="k">${apprLabel(curAppr)}</div><div class="fc-pill ${cls}">${pill}</div></div>
+    <div class="fc-top"><div class="k">Budget assignment <span class="zbs-appr">· ${apprLabel(curAppr)}</span></div><div class="fc-pill ${cls}">${pill}</div></div>
     <div class="zbs-row"><span>Income</span><b>${money(inc)}</b></div>
-    <div class="zbs-row"><span>Budgeted</span><b>${money(budgeted)}</b></div>
+    <div class="zbs-row"><span>Assigned to budgets</span><b>${money(budgeted)}</b></div>
     <div class="zbs-bar"><span style="width:${Math.min(100,budgeted/inc*100).toFixed(0)}%;background:${cls==='bad'?'var(--red)':'var(--green)'}"></span></div>
     <div class="zbs-main ${cls}">${main}</div>
     <div class="fc-note">${note}</div>
@@ -984,7 +1095,7 @@ function renderGroups(){
         <div><div class="gname">${g.name}</div><div class="gamt">${money(sp(g))} <span class="b">/ ${money(bd(g))}</span></div></div>
         ${paceHTML(g.pace)}
         <div class="gicons" style="${g.pace?'':'margin-left:auto'}">
-          <button class="iconbtn" onclick="event.stopPropagation();openTrend('${g.name}','remaining')" title="View ${g.name} trend">${chatIcon}</button>
+          ${trendBtn(g.name,'remaining')}
           <span class="gchev chev" style="display:inline-flex">${chevD}</span>
         </div>
       </div>
@@ -1009,23 +1120,32 @@ const catIcon={Alcohol:'🍷',Cash:'💵',Cigarettes:'🚬',Coffee:'☕','Eating
 function allCats(){return groups.flatMap(g=>g.cats.map(c=>({...c,gid:g.id,gname:g.name})));}
 function renderFilters(){
   if(!linked){document.getElementById('filterChips').innerHTML='';return;}
-  const chips=[{id:'all',name:'All',n:allCats().length}].concat(groups.map(g=>({id:g.id,name:g.name,n:g.cats.length})));
-  document.getElementById('filterChips').innerHTML=chips.map(c=>`<button class="chip ${filterG===c.id?'on':''}" onclick="setFilter('${c.id}')">${c.name}<span class="ct">${c.n}</span></button>`).join('');
+  const groupChips=[{id:'all',name:'All',n:allCats().length}].concat(groups.map(g=>({id:g.id,name:g.name,n:g.cats.length})));
+  const gHTML=groupChips.map(c=>`<button class="chip ${filterG===c.id?'on':''}" onclick="setFilter('${c.id}')">${c.name}<span class="ct">${c.n}</span></button>`).join('');
+  // Stephen: also let users filter by Need / Want / Savings & Investments type
+  const typeDefs=[['type:need','Needs'],['type:want','Wants'],['type:save','Savings & Investments']];
+  const tHTML=typeDefs.map(([id,name])=>{const k=id.slice(5),m=CLASS_META[k],n=allCats().filter(c=>catClass(c.n)===k).length;
+    return `<button class="chip typechip ${filterG===id?'on':''}" style="${filterG===id?`background:${m.bg};color:${m.c};border-color:transparent`:''}" onclick="setFilter('${id}')">${name}<span class="ct">${n}</span></button>`;}).join('');
+  document.getElementById('filterChips').innerHTML=gHTML+`<span class="chiplabel">Type</span>`+tHTML;
 }
-function barColor(r){return r>1?'var(--red)':r>0.85?'var(--amber)':'var(--green)';}
+function barColor(r){return r>1?'var(--red)':r>0.85?'var(--amber)':'var(--pos)';}
 function renderCats(){
   const el=document.getElementById('catlist');
   if(!linked){el.innerHTML=`<div class="empty-note" style="padding:30px 4px"><div style="font-size:28px;margin-bottom:8px">🔗</div><div style="font-weight:600;color:var(--g700,#374151);font-size:14px">No spending to show yet</div><div style="margin-top:4px">Link an account and your categories and budgets appear here automatically, tracked and up to date.</div></div>`;return;}
-  let list=filterG==='all'?allCats():allCats().filter(c=>c.gid===filterG);
+  const isGroup=filterG!=='all'&&filterG.indexOf('type:')!==0;
+  const grp=isGroup?groups.find(x=>x.id===filterG):null;
+  // Trend button for the selected spending group (opens the right-side budget-trend drawer)
+  const groupBar=grp?`<div class="grouptrend"><div class="gt-l">${grp.name}<span class="gt-c">${grp.cats.length} categories</span></div><button class="trendbtn" onclick="openTrend('${grp.name.replace(/'/g,"")}','remaining')" title="View ${grp.name} budget trend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Trend</span></button></div>`:'';
+  let list=filterG==='all'?allCats():filterG.indexOf('type:')===0?allCats().filter(c=>catClass(c.n)===filterG.slice(5)):allCats().filter(c=>c.gid===filterG);
   if(query) list=list.filter(c=>c.n.toLowerCase().includes(query.toLowerCase()));
   list.sort(sortMode==='amount'?(a,b)=>b.spent-a.spent:(a,b)=>a.n.localeCompare(b.n));
-  if(!list.length){el.innerHTML=`<div class="empty-note">No categories match &ldquo;${query}&rdquo;.</div>`;return;}
-  el.innerHTML=list.map(c=>{
+  if(!list.length){el.innerHTML=groupBar+`<div class="empty-note">No categories match &ldquo;${query}&rdquo;.</div>`;return;}
+  el.innerHTML=groupBar+list.map(c=>{
     const ratio=c.budget?c.spent/c.budget:(c.spent>0?1.2:0), pct=Math.min(100,ratio*100), funded=c.budget>=c.avg&&c.budget>0, over=c.budget>0&&c.spent>c.budget;
     return `<div class="fcat" tabindex="0" role="button" aria-label="${c.n}, open details" onclick="openCategory('${c.gid}','${c.n.replace(/'/g,"")}')">
       <div class="ic">${catIcon[c.n]||'🧾'}</div>
       <div class="lf">
-        <div class="tr"><span class="nm">${c.n}</span><span class="gp">${c.gname}</span><span class="fund ${funded?'ok':'un'}">${funded?'Funded ✓':'Underfunded'}</span>${over?'<span class="fund un" style="background:var(--red-soft,#FDECEC);color:var(--red)">Over</span>':''}</div>
+        <div class="tr"><span class="nm">${c.n}</span>${classBadge(c.n)}<span class="gp">${c.gname}</span><span class="fund ${funded?'ok':'un'}">${funded?'Funded ✓':'Underfunded'}</span>${over?'<span class="fund un" style="background:var(--red-soft,#FDECEC);color:var(--red)">Over</span>':''}</div>
         <div class="pbar"><i style="width:${pct}%;background:${barColor(ratio)}"></i></div>
       </div>
       <div class="cols">
@@ -1033,7 +1153,7 @@ function renderCats(){
         <div class="c"><div class="k">Budget</div><div class="v sm">${money(c.budget)}</div></div>
         <div class="c avg"><div class="k">Avg</div><div class="v sm">${money(c.avg)}</div></div>
       </div>
-      <div class="cicons" style="color:var(--g400)">${chatIcon}</div>
+      <div class="cicons openhint" style="color:var(--g400)" title="Open details, budget & trend"><span class="opentxt">Details</span>${chevR}</div>
     </div>`;
   }).join('');
 }
@@ -1084,14 +1204,110 @@ const APPR={zero:{lbl:'Zero-based budget',name:'Zero-based',ic:'🎯',split:['Ev
 let curAppr='zero',pickAppr='zero';
 function openApproach(){
   document.getElementById('modalCard').className='mcard';
-  document.getElementById('modalCard').innerHTML=`<div class="mhead"><h3>Choose your budgeting approach</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mdesc">Pick the framework that fits how you manage money. You can switch anytime.</div>${Object.entries(APPR).map(([k,a])=>`<div class="appr ${curAppr===k?'sel':''}" id="ap-${k}" onclick="pickApproach('${k}')"><div class="ac">${a.ic}</div><div style="flex:1"><h4>${a.name}</h4><p>${a.desc}</p><div class="split">${a.split.map(s=>`<span class="sp">${s}</span>`).join('')}</div></div><div class="check">✓</div></div>`).join('')}<div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn green" onclick="saveApproach()">Set as my approach</button></div>`;
+  document.getElementById('modalCard').innerHTML=`<div class="mhead"><h3>Choose your budgeting approach</h3><button class="x" onclick="closeModal()">✕</button></div><div class="mdesc">Pick the framework that fits how you manage money. You can switch anytime.</div>${Object.entries(APPR).map(([k,a])=>`<div class="appr ${curAppr===k?'sel':''}" id="ap-${k}" onclick="pickApproach('${k}')"><div class="ac">${a.ic}</div><div style="flex:1"><h4>${a.name}</h4><p>${a.desc}</p><div class="split">${a.split.map(s=>`<span class="sp">${s}</span>`).join('')}</div></div><div class="check">✓</div></div>`).join('')}<div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn green" onclick="previewApproach()">Preview changes ›</button></div>`;
   pickAppr=curAppr; document.getElementById('modal').classList.add('show');
 }
 function pickApproach(k){pickAppr=k;document.querySelectorAll('.appr').forEach(a=>a.classList.remove('sel'));document.getElementById('ap-'+k).classList.add('sel');}
 function apprLabel(k){return k==='custom'?'Custom budget':APPR[k].lbl;}
-function saveApproach(){curAppr=pickAppr;document.getElementById('apprLbl').textContent=apprLabel(curAppr);renderZeroBased();closeModal();toast('Budgeting approach set: '+(APPR[curAppr]?APPR[curAppr].name:'Custom'));}
 /* open the approach chooser with 50/30/20 preselected (header shortcut) */
 function open503020(){openApproach();pickApproach('s503020');}
+
+/* ===== Budgeting approach preview (Stephen req 4) =====
+   Choosing an approach no longer applies silently. It opens a right-side drawer that shows
+   every category with its Current budget, a Suggested budget for the chosen approach, the
+   Difference and the category classification. The user can accept all, edit individual
+   suggestions, then Save. Only on Save does the dashboard update. */
+let apprPreview=null;
+/* compute a suggested budget per category for an approach. Works on the MONTHLY budget/income
+   (budgets are monthly) and is driven by the Need / Want / Savings classification. */
+function suggestBudgets(appr){
+  const cats=allCats(); const inc=income.month.exp; const cur={}; cats.forEach(c=>cur[c.n]=c.budget||0);
+  const out={};
+  if(appr==='zero' || appr==='custom'){
+    // Zero-based: give every rand a job. Scale current allocations proportionally to hit income.
+    const tot=cats.reduce((a,c)=>a+cur[c.n],0)||1, k=inc/tot;
+    cats.forEach(c=>out[c.n]=Math.max(0,Math.round(cur[c.n]*k)));
+    return out;
+  }
+  let targets;
+  if(appr==='s503020'){
+    targets={need:inc*0.5,want:inc*0.3,save:inc*0.2};
+  } else { // payfirst: 20% to savings off the top, remaining 80% to needs+wants by current ratio
+    const saveT=inc*0.2, rest=inc-saveT;
+    const needCur=cats.filter(c=>catClass(c.n)==='need').reduce((a,c)=>a+cur[c.n],0);
+    const wantCur=cats.filter(c=>catClass(c.n)==='want').reduce((a,c)=>a+cur[c.n],0);
+    const nw=needCur+wantCur||1;
+    targets={save:saveT,need:rest*(needCur/nw),want:rest*(wantCur/nw)};
+  }
+  ['need','want','save'].forEach(cls=>{
+    const members=cats.filter(c=>catClass(c.n)===cls); if(!members.length)return;
+    const base=members.reduce((a,c)=>a+cur[c.n],0);
+    members.forEach(c=>out[c.n]=Math.max(0,Math.round(base>0?targets[cls]*(cur[c.n]/base):targets[cls]/members.length)));
+  });
+  cats.forEach(c=>{if(out[c.n]==null)out[c.n]=cur[c.n];});
+  return out;
+}
+function previewApproach(){const appr=pickAppr;closeModal();openApproachPreview(appr);}
+function openApproachPreview(appr){
+  editCat=null; editDirty=false;
+  const sug=suggestBudgets(appr);
+  const rows=allCats().map(c=>({n:c.n,gid:c.gid,gname:c.gname,cls:catClass(c.n),current:c.budget||0,orig:sug[c.n],suggested:sug[c.n]}));
+  apprPreview={appr,rows};
+  renderApproachPreview();
+  openDrawerShrink();
+}
+function renderApproachPreview(){
+  const p=apprPreview; if(!p)return;
+  const name=p.appr==='custom'?'Custom':APPR[p.appr].name;
+  const totCur=p.rows.reduce((a,r)=>a+r.current,0), totSug=p.rows.reduce((a,r)=>a+(+r.suggested||0),0);
+  const inc=income.month.exp;
+  const intro=p.appr==='s503020'?`Splits your ${money(inc)} income into 50% needs, 30% wants and 20% savings.`
+    :p.appr==='payfirst'?`Moves 20% of your ${money(inc)} income to savings first, then spreads the rest across needs and wants.`
+    :`Assigns every rand of your ${money(inc)} income to a category so nothing is left unbudgeted.`;
+  const rowsHTML=p.rows.map((r,i)=>{
+    const diff=(+r.suggested||0)-r.current, m=CLASS_META[r.cls];
+    const dcls=diff>0?'up':diff<0?'down':'flat';
+    return `<div class="prow">
+      <div class="pcat"><span class="pname">${r.n}</span><span class="clschip" style="color:${m.c};background:${m.bg}">${m.short}</span></div>
+      <div class="pnums">
+        <div class="pcur"><span class="pk">Current</span><b>${money(r.current)}</b></div>
+        <span class="parrow">→</span>
+        <div class="psug"><span class="pk">Suggested</span><input type="text" inputmode="numeric" value="${r.suggested}" data-idx="${i}" oninput="onSuggInput(${i},this)" aria-label="Suggested budget for ${r.n}" /></div>
+        <div class="pdiff ${dcls}">${diff>0?'+':diff<0?'−':''}${money(Math.abs(diff))}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('drawer').innerHTML=`
+    <div class="dhead"><button class="x" onclick="closeDrawer()" aria-label="Close">✕</button><div class="titles"><h3>Preview: ${name}</h3><div class="sub">Review before applying</div></div><span style="width:24px"></span></div>
+    <div class="dbody">
+      <div class="appr-intro">${intro}</div>
+      <div class="appr-tot"><div><span class="pk">Total budgeted now</span><b>${money(totCur)}</b></div><span class="parrow">→</span><div><span class="pk">After changes</span><b id="apSugTotal">${money(totSug)}</b></div></div>
+      <button type="button" class="appr-accept" onclick="acceptAllSuggested()">Accept all suggested values</button>
+      <div class="prows">${rowsHTML}</div>
+    </div>
+    <div class="dfoot" style="flex-direction:row;gap:10px;align-items:center">
+      <button class="dcancel" style="flex:1" onclick="closeDrawer()">Cancel</button>
+      <button class="pillbtn green" style="flex:1;min-width:auto" onclick="applyApproachPreview()">Save changes</button>
+    </div>`;
+}
+function onSuggInput(i,el){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  const r=apprPreview.rows[i]; r.suggested=parseInt(el.value||'0',10)||0;
+  const diff=r.suggested-r.current, dEl=el.closest('.pnums').querySelector('.pdiff');
+  dEl.className='pdiff '+(diff>0?'up':diff<0?'down':'flat');
+  dEl.textContent=(diff>0?'+':diff<0?'−':'')+money(Math.abs(diff));
+  const totSug=apprPreview.rows.reduce((a,x)=>a+(+x.suggested||0),0);
+  document.getElementById('apSugTotal').textContent=money(totSug);
+}
+function acceptAllSuggested(){apprPreview.rows.forEach(r=>r.suggested=r.orig);renderApproachPreview();toast('Reset to suggested values');}
+function applyApproachPreview(){
+  if(!apprPreview)return;
+  apprPreview.rows.forEach(r=>{const g=groups.find(x=>x.id===r.gid);const c=g&&g.cats.find(x=>x.n===r.n);if(c)c.budget=(+r.suggested||0);});
+  curAppr=apprPreview.appr; document.getElementById('apprLbl').textContent=apprLabel(curAppr);
+  const nm=curAppr==='custom'?'Custom':APPR[curAppr].name;
+  apprPreview=null; closeDrawer(); refresh();
+  toast('Applied the '+nm+' approach. Dashboard updated.');
+}
 
 /* onboarding: "Choose your budgeting style" wizard (matches live: 4 styles, 2 steps) */
 const SETUP_STYLES=[
@@ -1193,7 +1409,7 @@ function openCategory(gid,name){
   const chart=`<svg viewBox="0 0 380 170" width="100%" role="img" aria-label="${c.n} 6 month trend">
     ${[0.25,0.5,0.75,1].map(f=>{const v=scaleMax*f,gy=10+H-(v/scaleMax)*H;return `<line x1="40" y1="${gy}" x2="376" y2="${gy}" stroke="#F1F2F4"/><text x="36" y="${gy+4}" text-anchor="end" font-size="9" fill="#9CA3AF">${v>=1000?Math.round(v/1000)+'K':Math.round(v)}</text>`;}).join('')}
     ${avg?`<line x1="40" y1="${10+H-(avg/scaleMax)*H}" x2="376" y2="${10+H-(avg/scaleMax)*H}" stroke="#9CA3AF" stroke-dasharray="4 3"/>`:''}
-    ${bars.map((b,i)=>{const x=48+i*56,bh=Math.max(2,(b/scaleMax)*H),last=i===bars.length-1;return `<rect x="${x}" y="${10+H-bh}" width="34" height="${bh}" rx="4" fill="${last?'#DC0032':'#BFD9FB'}"/><text x="${x+17}" y="168" text-anchor="middle" font-size="9" fill="#9CA3AF">${mlabels[i]}</text>`;}).join('')}
+    ${bars.map((b,i)=>{const x=48+i*56,bh=Math.max(2,(b/scaleMax)*H),last=i===bars.length-1;return `<rect x="${x}" y="${10+H-bh}" width="34" height="${bh}" rx="4" fill="${last?'#3B82F6':'#BFD9FB'}"/><text x="${x+17}" y="168" text-anchor="middle" font-size="9" fill="#9CA3AF">${mlabels[i]}</text>`;}).join('')}
   </svg>`;
   const txns=catTxns(c);
   const txHTML = txns.length
@@ -1215,7 +1431,12 @@ function openCategory(gid,name){
         </div>
         <div class="savedok" id="savedOk">✓ Budget saved</div>
       </div>
-      <div class="dcard dalert"><div class="txt"><div class="t">Enable spending alerts</div><div class="c">Spending alerts are triggered at 50%, 80% and 100% of the budgeted value.</div></div><div class="toggle" role="switch" aria-label="Enable spending alerts" onclick="toggleSwitch(this)"></div></div>
+      <div class="dcard">
+        <h4 style="margin-bottom:12px">Category type</h4>
+        <div class="clsseg" id="clsSeg">${classSegHTML(c.n)}</div>
+        <p class="dsubtle" style="margin:12px 0 0">Budgeting approaches use this to split your money into needs, wants and savings.</p>
+      </div>
+      <div class="dcard" id="alertCard">${alertCardHTML(c)}</div>
       <div class="dcard dalert"><div class="txt"><div class="t">Roll unused budget forward</div><div class="c">Anything you don't spend this month carries into next month for this category.</div></div><div class="toggle off" role="switch" aria-label="Roll unused budget forward" onclick="toggleSwitch(this)"></div></div>
       <div class="d-sec">Transactions</div>
       ${txHTML}
@@ -1250,6 +1471,41 @@ function saveBudget(){
   const ok=document.getElementById('savedOk');if(ok)ok.classList.add('show');
   toast('Budget saved for '+(editCat?editCat.name:'category')+'. Dashboard updated.');
 }
+/* the category currently open in the drawer (for classification + alert edits) */
+function curEditCat(){if(!editCat)return null;const g=groups.find(x=>x.id===editCat.gid);return g&&g.cats.find(x=>x.n.replace(/'/g,"")===editCat.name);}
+
+/* classification editor (Stephen req 5): change a category's Need / Want / Savings type,
+   updates immediately (dashboard recalculates and approaches use the new type). */
+function classSegHTML(name){const cur=catClass(name);return Object.entries(CLASS_META).map(([k,m])=>`<button type="button" class="clsbtn ${cur===k?'on':''}" style="${cur===k?`background:${m.bg};color:${m.c}`:''}" onclick="setCatClass('${k}')">${m.lbl}</button>`).join('');}
+function setCatClass(k){const c=curEditCat();if(!c)return;c.cls=k;const seg=document.getElementById('clsSeg');if(seg)seg.innerHTML=classSegHTML(c.n);refresh();toast('Set to '+CLASS_META[k].lbl);}
+
+/* configurable spending alerts (Stephen req 2): when enabled, reveal 50 / 80 / 100 / custom %
+   thresholds. Multi-select, saved on the category so they persist while the drawer is open. */
+const ALERT_PRESET=[50,80,100];
+function alertCardHTML(c){
+  const on=c.alertOn===true;                     // default OFF: options only appear once the user enables alerts
+  const pcts=(c.alertPcts||[]).slice().sort((a,b)=>a-b);  // nothing pre-selected: the user picks the thresholds
+  const preset=ALERT_PRESET.map(p=>`<button type="button" class="athresh ${pcts.includes(p)?'on':''}" aria-pressed="${pcts.includes(p)}" onclick="toggleThreshold(${p})">${pcts.includes(p)?'✓ ':''}${p}%</button>`).join('');
+  const custom=pcts.filter(p=>!ALERT_PRESET.includes(p)).map(p=>`<button type="button" class="athresh on custom" onclick="toggleThreshold(${p})" title="Remove ${p}% alert">✓ ${p}% ✕</button>`).join('');
+  const summary=on?(pcts.length?`✓ We'll alert you at ${pcts.join('%, ')}% of this budget.`:'Choose the thresholds you want to be alerted at.'):'Get notified as you approach this budget.';
+  return `<div class="dalert"><div class="txt"><div class="t">Enable spending alerts</div><div class="c ${on&&pcts.length?'ok':''}" id="alertSummary">${summary}</div></div><div class="toggle ${on?'':'off'}" role="switch" aria-checked="${on}" aria-label="Enable spending alerts" onclick="toggleAlerts()"></div></div>
+    <div class="alert-opts" id="alertOpts" style="display:${on?'block':'none'}">
+      <div class="alert-lbl">Alert me when spending reaches</div>
+      <div class="alert-chips">${preset}${custom}<button type="button" class="athresh add" onclick="showCustomAlert()">+ Custom</button></div>
+      <div class="alert-custom" id="alertCustom" style="display:none">
+        <input class="dinput" id="customPct" type="text" inputmode="numeric" placeholder="" aria-label="Custom alert percentage (1 to 100)" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,3)" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomAlert();}" />
+        <button type="button" class="athresh-add-btn" onclick="addCustomAlert()">Add</button>
+      </div>
+    </div>`;
+}
+function reRenderAlert(){const c=curEditCat();if(c)document.getElementById('alertCard').innerHTML=alertCardHTML(c);}
+function toggleAlerts(){const c=curEditCat();if(!c)return;c.alertOn=!(c.alertOn===true);reRenderAlert();}
+function toggleThreshold(p){const c=curEditCat();if(!c)return;c.alertPcts=(c.alertPcts||[]).slice();const i=c.alertPcts.indexOf(p);const adding=i<0;if(adding)c.alertPcts.push(p);else c.alertPcts.splice(i,1);reRenderAlert();toast(adding?('Alert set at '+p+'% of budget'):('Alert at '+p+'% removed'));}
+function showCustomAlert(){const el=document.getElementById('alertCustom');if(el){el.style.display='flex';const i=document.getElementById('customPct');if(i)i.focus();}}
+function addCustomAlert(){const c=curEditCat();if(!c)return;const v=parseInt((document.getElementById('customPct').value||'').replace(/[^0-9]/g,''),10);
+  if(!v||v<1||v>100){toast('Enter a percentage between 1 and 100');return;}   // do not allow anything above 100%
+  c.alertPcts=(c.alertPcts||[]).slice();if(!c.alertPcts.includes(v))c.alertPcts.push(v);reRenderAlert();toast('Alert set at '+v+'% of budget');}
+
 /* drawer shrinks the dashboard so both are visible (no dark overlay) */
 function openDrawerShrink(){document.getElementById('drawer').classList.add('show');document.getElementById('backdrop').classList.remove('show');document.body.classList.add('shrink','dopen');}
 function closeDrawer(){
@@ -1274,8 +1530,8 @@ function openTrend(name,type){
     const spent=[0,20000,30000,30000,50000,8000],total=[0,25000,38000,30000,130000,90000],over=[false,false,false,true,false,false],max=120000;
     chart=`<svg viewBox="0 0 620 250" width="100%">
       ${[0,40000,80000,120000].map(v=>`<line x1="60" y1="${14+H-(v/max)*H}" x2="610" y2="${14+H-(v/max)*H}" stroke="#F1F2F4" stroke-dasharray="3 3"/><text x="54" y="${18+H-(v/max)*H}" text-anchor="end" font-size="10" fill="#9CA3AF">${v===0?'0':(v/1000)+'K'}</text>`).join('')}
-      ${spent.map((sVal,i)=>{const x=80+i*88,tot=Math.min(total[i],max),th=(tot/max)*H,sh=(Math.min(sVal,max)/max)*H;const rem=`<rect x="${x}" y="${14+H-th}" width="56" height="${th}" rx="4" fill="#E5E7EB"/>`;const sp=sVal>0?`<rect x="${x}" y="${14+H-sh}" width="56" height="${sh}" rx="4" fill="${over[i]?'#F59E0B':'#DC0032'}"/>`:'';return rem+sp+`<text x="${x+28}" y="${H+34}" text-anchor="middle" font-size="11" fill="#6B7280">${labels[i]}</text>`;}).join('')}</svg>`;
-    legend=`<span><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#DC0032;vertical-align:-1px;margin-right:5px"></span>Spent</span><span><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#E5E7EB;vertical-align:-1px;margin-right:5px"></span>Remaining Budget</span>`;
+      ${spent.map((sVal,i)=>{const x=80+i*88,tot=Math.min(total[i],max),th=(tot/max)*H,sh=(Math.min(sVal,max)/max)*H;const rem=`<rect x="${x}" y="${14+H-th}" width="56" height="${th}" rx="4" fill="#E5E7EB"/>`;const sp=sVal>0?`<rect x="${x}" y="${14+H-sh}" width="56" height="${sh}" rx="4" fill="${over[i]?'#F59E0B':'#3B82F6'}"/>`:'';return rem+sp+`<text x="${x+28}" y="${H+34}" text-anchor="middle" font-size="11" fill="#6B7280">${labels[i]}</text>`;}).join('')}</svg>`;
+    legend=`<span><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#3B82F6;vertical-align:-1px;margin-right:5px"></span>Spent</span><span><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#E5E7EB;vertical-align:-1px;margin-right:5px"></span>Remaining Budget</span>`;
   }
   /* ENHANCEMENT: budget trend opens in the right-side drawer, not a popup */
   document.getElementById('drawer').innerHTML=`<div class="dhead"><button class="x" onclick="closeDrawer()">✕</button><div class="titles"><h3>${name} trend</h3><div class="sub">Spent vs remaining budget</div></div><span style="width:24px"></span></div><div class="dbody"><div style="display:flex;justify-content:center;gap:22px;font-size:12px;color:var(--g500);margin:6px 0 10px">${legend}</div>${chart}</div>`;
@@ -1323,10 +1579,23 @@ function renderReport(){
   document.getElementById('repMerchants').innerHTML=r.merch.map((m,i)=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px"><span>${i+1}. ${m[0]} <span style="color:var(--g400)">(${m[1]})</span></span><b>${money(m[2])}</b></div>`).join('');
 }
 function navReport(d){const n=Math.max(0,Math.min(REPORTS.length-1,reportIdx+d));if(n===reportIdx)return;reportIdx=n;renderReport();toast('Showing '+REPORTS[reportIdx].m+' report');}
-function openReport(){reportIdx=1;renderReport();showView('report');}
+/* There is ONE canonical Monthly Spending Report in the merged prototype: the one
+   the reports section owns (and that the Home "Your Reports" card links to). Budget
+   used to render its own second, different version of the same report. When embedded
+   in the Absa shell, hand off to the canonical one; standalone, fall back to the
+   local view so this file still works on its own. */
+function openReport(){
+  try{
+    if(window.parent!==window && typeof window.parent.absaReport==='function'){
+      window.parent.absaReport('spending', false);
+      return;
+    }
+  }catch(e){}
+  reportIdx=1;renderReport();showView('report');
+}
 function downloadReport(){
   const r=REPORTS[reportIdx], net=r.income-r.expenses, rate=Math.round(net/r.income*100);
-  const txt=`Vault22 Monthly Spending Report\n${r.m} - Aishani Atri\n\nIncome: ${money(r.income)}\nExpenses: ${money(r.expenses)}\nNet cash flow: ${net>=0?'+':'-'}${money(Math.abs(net))}\nSavings rate: ${rate}% (target 20%)\n\nTop categories:\n${r.top.map(t=>t[0]+' '+money(t[1])).join('\n')}\n`;
+  const txt=`Absa Monthly Spending Report\n${r.m} - ngandev0309\n\nIncome: ${money(r.income)}\nExpenses: ${money(r.expenses)}\nNet cash flow: ${net>=0?'+':'-'}${money(Math.abs(net))}\nSavings rate: ${rate}% (target 20%)\n\nTop categories:\n${r.top.map(t=>t[0]+' '+money(t[1])).join('\n')}\n`;
   download('vault22-monthly-report-'+r.m.toLowerCase().replace(' ','-')+'.txt',txt,'text/plain');
   toast('Report downloaded');
 }
@@ -1369,10 +1638,10 @@ function setRegion(nm){regionSel=nm;closeMenu();
   toast('Region set to '+nm);
 }
 function openAccountMenu(e){e.stopPropagation();closeMenu();
-  openMenu(e.currentTarget,`<div class="signedas">Signed in as<br><b>Aishani Atri</b></div><div class="mdiv"></div>`+
+  openMenu(e.currentTarget,`<div class="signedas">Signed in as<br><b>ngandev0309</b></div><div class="mdiv"></div>`+
     `<div class="mi" onclick="closeMenu();openManageAccounts()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>Manage accounts</div>`+
     `<div class="mi" onclick="closeMenu();openSetupWizard()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Budgeting style</div>`+
-    `<div class="mdiv"></div><div class="foot">Profile &amp; settings live in the full Vault22 app</div>`);
+    `<div class="mdiv"></div><div class="foot">Profile &amp; settings live in the full Absa app</div>`);
 }
 /* notifications: real panel, deep-links, unread badge */
 const NOTIFS=[
@@ -1400,7 +1669,7 @@ function mc(html){document.getElementById('modalCard').className='mcard';documen
 function openLinkFlow(){linkIntro();}
 function linkIntro(){
   mc(`<div class="mhead"><h3>Link an account</h3><button class="x" onclick="closeModal()" aria-label="Close">✕</button></div>
-    <div class="mdesc">Connecting an account lets Vault22 build and track your budget automatically.</div>
+    <div class="mdesc">Connecting an account lets Absa build and track your budget automatically.</div>
     <div style="display:flex;flex-direction:column;gap:12px;margin:4px 0 6px">
       ${[['🔒','Bank-grade, read-only','We can see transactions to categorise them. We can never move money.'],['⚡','Set up in about 60 seconds','Your budget is built and categorised instantly.'],['🤖','Tara does the work','Spending is sorted and insights appear automatically.']].map(x=>`<div style="display:flex;gap:12px;align-items:flex-start"><div style="font-size:20px">${x[0]}</div><div><div style="font-weight:700;font-size:14px">${x[1]}</div><div style="font-size:12.5px;color:var(--g500);margin-top:2px">${x[2]}</div></div></div>`).join('')}
     </div>
@@ -1520,7 +1789,7 @@ function updateStartDate(){
   const sel=document.querySelector('#dayGrid .day.sel'); const last=document.getElementById('lastDayBox').classList.contains('on');
   const day=last?'last day':(sel?sel.textContent.trim():'1');
   const ord=n=>{n=parseInt(n);return n+((n%10==1&&n!=11)?'st':(n%10==2&&n!=12)?'nd':(n%10==3&&n!=13)?'rd':'th');};
-  if(!last && day!=='1'){const d=parseInt(day);MONTHS[1].range=day+' Jul - '+(d-1)+' Aug 2026';MONTHS[1].centre=day+' Jul -<br>'+(d-1)+' Aug';}
+  if(!last && day!=='1'){const d=parseInt(day);MONTHS[1].range=day+' Jul – '+(d-1)+' Aug 2026';MONTHS[1].centre=day+' Jul –<br>'+(d-1)+' Aug';}
   else {MONTHS[1].range='1 - 31 Jul 2026';MONTHS[1].centre='1 - 31 Jul<br>2026';}
   periodLabel=MONTHS[1].range; periodCentre=MONTHS[1].centre;   // reflect in both linked + not-linked summary
   period='month'; monthIdx=1; showView('budget'); renderSummary(); renderFocus();
@@ -1549,7 +1818,7 @@ function toggleLastDay(){
   updatePeriodPreview();
 }
 function ordDay(n){n=parseInt(n);return n+((n%10==1&&n!=11)?'st':(n%10==2&&n!=12)?'nd':(n%10==3&&n!=13)?'rd':'th');}
-/* live behaviour: the right-hand "start - until - end" card updates as you pick a day */
+/* live behaviour: the right-hand "start – until – end" card updates as you pick a day */
 function updatePeriodPreview(){
   const sel=document.querySelector('#dayGrid .day.sel');
   const last=document.getElementById('lastDayBox').classList.contains('on');
@@ -1612,7 +1881,7 @@ function submitNewCategory(){
   toast(name+' added to '+added);
 }
 
-renderSummary(); renderIncome(); renderFocus(); renderFilters(); renderCats(); renderTara(); renderZeroBased(); buildDayGrid(); buildAddGroups(); renderReport(); updateBell();
+renderSummary(); renderIncome(); renderFocus(); renderFilters(); renderCats(); renderTara(); renderZeroBased(); buildDayGrid(); buildAddGroups(); renderReport(); updateBell(); repriceStatic();
 document.getElementById('apprLbl').textContent=apprLabel(curAppr);
 document.querySelectorAll('.nav a').forEach(a=>a.addEventListener('click',()=>document.body.classList.remove('navopen')));
 /* close header dropdown when clicking outside it (but not when clicking the pill that opened it) */

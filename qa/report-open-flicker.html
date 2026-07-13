@@ -1,0 +1,37 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><pre id="o">…</pre>
+<iframe id="a" src="../index.html" style="width:1440px;height:900px"></iframe>
+<script>
+const out=[],log=(k,v)=>out.push((v?'PASS':'FAIL')+'  '+k);
+const a=document.getElementById('a'),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+a.addEventListener('load', async ()=>{
+  const W=a.contentWindow,D=a.contentDocument;
+  await sleep(5000);
+  const RW=D.getElementById('fr-reports').contentWindow;
+
+  // spy on the reports app's view switcher: each call = one visible page change
+  let views=[];
+  const orig=RW.showView;
+  RW.showView=function(v){ views.push(v); return orig.apply(this,arguments); };
+
+  const run=async (label,fn)=>{ views=[]; fn(); await sleep(2500);
+    out.push((views.length<=1?'PASS  ':'FAIL  ')+label+' -> '+views.length+' view switch(es): ['+views.join(' , ')+']'); };
+
+  await run('absaReport("spending")', ()=>W.absaReport('spending',false));
+  await run('absaReport("profile")',  ()=>W.absaReport('profile',false));
+  await run('openReports("all")',     ()=>W.openReports('all'));
+  await run('go("insights")',         ()=>W.go('insights'));
+
+  // and the report still lands on the right view
+  W.absaReport('spending',false); await sleep(1500);
+  const RD=RW.document;
+  log('spending report is the visible view',
+      RD.getElementById('report-spending') && RD.getElementById('report-spending').offsetParent!==null);
+  // back arrow still returns to the list (the seed still happened)
+  const back=RD.querySelector('#view-spending .back'); back && back.click(); await sleep(800);
+  log('back arrow returns to the reports list',
+      RD.getElementById('view-reports') && RD.getElementById('view-reports').offsetParent!==null);
+
+  document.getElementById('o').textContent='RESULTS\n'+out.join('\n')+'\n\n'+
+    out.filter(l=>l.startsWith('PASS')).length+' passed, '+out.filter(l=>l.startsWith('FAIL')).length+' failed';
+});
+</script></body></html>

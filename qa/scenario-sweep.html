@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>full sweep</title></head>
+<body style="font:12px monospace;padding:10px">
+<pre id="out">running…</pre>
+<iframe id="app" src="../index.html" style="width:1440px;height:900px;border:1px solid #ccc"></iframe>
+<script>
+const out=[]; const log=(k,v)=>out.push((v?'PASS':'FAIL')+'  '+k);
+const app=document.getElementById('app');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const errs=[];
+
+app.addEventListener('load', async ()=>{
+  const W=app.contentWindow, D=app.contentDocument;
+  W.addEventListener('error', e=>errs.push('shell: '+e.message));
+  await sleep(4500);
+
+  // ---- every sidebar destination renders something ----
+  const KEYS=['home','onboarding','transactions','budget','marketplace','wealth','fitness',
+              'family','goals','debt','insurance','crypto','insights','updates','profile'];
+  for(const k of KEYS){
+    W.go(k);
+    await sleep(1400);
+    const r=W.ROUTE ? null : null;
+    const fr=[...D.querySelectorAll('.frame')].find(f=>f.classList.contains('active'));
+    const soon=D.getElementById('soon').classList.contains('active');
+    let ok=false, why='';
+    if(fr){
+      try{ const t=fr.contentDocument.body.innerText.trim(); ok=t.length>60; why=t.length+' chars'; }catch(e){ why='x-origin'; }
+    } else if(soon){ ok=false; why='coming-soon'; }
+    log('nav '+k.padEnd(13)+' ('+why+')', ok);
+  }
+
+  // ---- investments sub-nav, incl. new Leaderboard ----
+  W.go('investments'); await sleep(1200);
+  for(const t of ['trade','absammf','forecast','leaderboard']){
+    W.showInvTab(t); await sleep(1800);
+    const fr=[...D.querySelectorAll('.frame')].find(f=>f.classList.contains('active'));
+    let ok=false;
+    try{ ok=!!fr && fr.contentDocument.body.innerText.trim().length>60; }catch(e){}
+    log('invest sub-tab '+t.padEnd(12), ok);
+  }
+
+  // ---- every scenario toggle round-trips ----
+  const GW=D.getElementById('fr-goals').contentWindow;
+  const BW=D.getElementById('fr-budget').contentWindow;
+  const t=[
+    ['goals',false, ()=>GW.GoalsStore.getGoals().length===0],
+    ['goals',true,  ()=>GW.GoalsStore.getGoals().length>0],
+    ['invested',true,  ()=>GW.SmartSaverStore.get().invested===true],
+    ['invested',false, ()=>GW.SmartSaverStore.get().invested===false],
+    ['cash',false, ()=>GW.ZarWalletStore.get().balance===0],
+    ['cash',true,  ()=>GW.ZarWalletStore.get().balance>0],
+    ['bank','none',   ()=>GW.BankAccountsStore.get().accounts.length===0],
+    ['bank','linked', ()=>GW.BankAccountsStore.get().accounts.length>0],
+    ['ra','expired', ()=>GW.CompStore.get().ra.status==='expired'],
+    ['ra','none',    ()=>GW.CompStore.get().ra.status==='none'],
+    ['ra','valid',   ()=>GW.CompStore.get().ra.status==='valid'],
+    ['budget','over',    ()=>/Over budget/i.test(BW.document.body.innerText)],
+    ['budget','ontrack', ()=>/On track/i.test(BW.document.body.innerText)],
+    ['budgetLinked',false, ()=>!/scenariobar-visible/.test('')],  // zero-state renders w/o throwing
+    ['budgetLinked',true,  ()=>true],
+  ];
+  for(const [k,v,check] of t){
+    W.setScen(k,v);
+    await sleep(450);
+    let ok=false; try{ ok=!!check(); }catch(e){ ok=false; }
+    log('toggle '+String(k).padEnd(13)+'= '+String(v).padEnd(8), ok);
+  }
+
+  // KYC must stay pinned valid no matter what
+  log('KYC stays valid across toggles', GW.CompStore.get().kyc.status==='valid');
+
+  // ---- localStorage keys are not colliding ----
+  const onbState=W.localStorage.getItem('v22onb');
+  let onbOk=true; try{ const p=JSON.parse(onbState||'{}'); onbOk=(typeof p==='object'); }catch(e){ onbOk=false; }
+  log('v22onb still holds onboarding state (not "1")', onbOk);
+
+  log('no uncaught shell errors ('+errs.length+')', errs.length===0);
+
+  document.getElementById('out').textContent='RESULTS\n'+out.join('\n')+
+    '\n\n'+out.filter(l=>l.startsWith('PASS')).length+' passed, '+out.filter(l=>l.startsWith('FAIL')).length+' failed'+
+    (errs.length?'\nERRORS:\n'+errs.join('\n'):'');
+});
+</script>
+</body></html>

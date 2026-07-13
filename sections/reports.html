@@ -586,7 +586,7 @@ html.absa-embedded .sidebar,html.absa-embedded aside.sidebar{width:0!important;m
 html.absa-embedded .logo,html.absa-embedded .header-logo,html.absa-embedded .logomark,html.absa-embedded .app-logo,html.absa-embedded .brand-logo{display:none!important}
 html.absa-embedded .topbar,html.absa-embedded header.topbar,html.absa-embedded .header,html.absa-embedded .app-header{display:none!important}
 html.absa-embedded .main,html.absa-embedded .page,html.absa-embedded .content,html.absa-embedded main{margin-left:0!important;width:auto!important;max-width:none!important;flex:1 1 auto!important}
-html.absa-embedded .app,html.absa-embedded .layout,html.absa-embedded .shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
+html.absa-embedded .app,html.absa-embedded .shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
 html.absa-embedded body{overflow-x:hidden}
 </style>
 <script>if(window.self!==window.top){document.documentElement.classList.add('absa-embedded');}</script>
@@ -808,7 +808,7 @@ html.absa-embedded body{overflow-x:hidden}
         <div class="pf-grid">
           <div class="pf">
             <div class="tags"><span class="tg p-green">Conservative</span><span class="tg p-gray">SA</span></div>
-            <h3>Vault22 Conservative Portfolio</h3>
+            <h3>Absa Conservative Portfolio</h3>
             <div class="by">▾ Vault22</div>
             <p>A South African-focussed, conservative fixed-income portfolio investing in ETFs and unit trusts. The neutral asset allocation is &gt;90% in income assets.</p>
             <div class="bf">Best For</div><div class="bft">Testing with ZAR currency</div>
@@ -816,7 +816,7 @@ html.absa-embedded body{overflow-x:hidden}
           </div>
           <div class="pf">
             <div class="tags"><span class="tg p-green">Shariah Compliant</span><span class="tg" style="background:var(--blue-soft);color:var(--blue)">Conservative</span><span class="tg p-gray">Global</span></div>
-            <h3>Vault22 Global Conservative</h3>
+            <h3>Absa Global Conservative</h3>
             <div class="by">▾ Vault22</div>
             <p>A low-risk portfolio focused on capital preservation. It invests mainly in bonds and cash-equivalents, with minimal equity exposure.</p>
             <div class="bf">Best For</div><div class="bft">Wealth product using USD currency · UAE</div>
@@ -824,7 +824,7 @@ html.absa-embedded body{overflow-x:hidden}
           </div>
           <div class="pf">
             <div class="tags"><span class="tg p-green">Conservative</span><span class="tg p-gray">North American</span></div>
-            <h3>Vault22 North American Conservative</h3>
+            <h3>Absa North American Conservative</h3>
             <div class="by">▾ Vault22</div>
             <p>Designed for capital preservation, this portfolio invests primarily in high-quality bonds and money market instruments. It suits cautious investors.</p>
             <div class="bf">Best For</div><div class="bft">Wealth product using USD currency · UAE</div>
@@ -1226,7 +1226,7 @@ html.absa-embedded body{overflow-x:hidden}
               <div>
                 <div class="tag">Tara · Cost of investing</div>
                 <h4>Two of your funds are costing you more than they should</h4>
-                <p>Your <b>Allan Gray Balanced Fund</b> (1.70% p.a.) and <b>Coronation Equity Fund</b> (1.85% p.a.) are your two highest-cost holdings - together about <b>R2,565 a year</b> in fees. A comparable <b>Vault22 Balanced Index Portfolio</b> charges roughly <b>0.45% all-in</b>. Switching the <b>R146,640</b> in these two funds could cut their annual fees from ~R2,565 to about <b>R660</b> - saving you roughly <b>R1,905 every year</b>, which compounds to over <b>R34,000</b> in tax-advantaged growth across 10 years.</p>
+                <p>Your <b>Allan Gray Balanced Fund</b> (1.70% p.a.) and <b>Coronation Equity Fund</b> (1.85% p.a.) are your two highest-cost holdings - together about <b>R2,565 a year</b> in fees. A comparable <b>Absa Balanced Index Portfolio</b> charges roughly <b>0.45% all-in</b>. Switching the <b>R146,640</b> in these two funds could cut their annual fees from ~R2,565 to about <b>R660</b> - saving you roughly <b>R1,905 every year</b>, which compounds to over <b>R34,000</b> in tax-advantaged growth across 10 years.</p>
                 <button class="btn mini" onclick="toast('Opening Vault22 fund comparison')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Compare in Vault22</button>
               </div>
             </div>
@@ -1990,7 +1990,7 @@ html.absa-embedded body{overflow-x:hidden}
           <div class="tx-chip on" data-acct="all" onclick="filterTx(this)">All accounts</div>
           <div class="tx-chip" data-acct="Absa Cheque" onclick="filterTx(this)">Absa Cheque</div>
           <div class="tx-chip" data-acct="Absa Credit Card" onclick="filterTx(this)">Absa Credit Card</div>
-          <div class="tx-chip" data-acct="Vault22 Wallet" onclick="filterTx(this)">Vault22 Wallet</div>
+          <div class="tx-chip" data-acct="Absa Wallet" onclick="filterTx(this)">Absa Wallet</div>
         </div>
         <div class="sec-head"><h2>Recent transactions</h2><a class="see-all" onclick="toast('Full history is available in the live app')">See all</a></div>
         <div id="txList"></div>
@@ -2038,10 +2038,10 @@ html.absa-embedded body{overflow-x:hidden}
         <div class="acct-grp"><h3>Cash &amp; bank <span style="font-weight:700;color:#168335" data-zar="146820">R146,820</span></h3>
           <div class="acct-row"><div class="acct-ic">🏦</div><div style="flex:1"><b>Absa Cheque Account</b><div style="font-size:12.5px;color:#6B6B6B">•••• 4821 · Absa</div></div><div class="acct-val" data-zar="82420">R82,420</div></div>
           <div class="acct-row"><div class="acct-ic">💰</div><div style="flex:1"><b>Absa Savings Pocket</b><div style="font-size:12.5px;color:#6B6B6B">•••• 7730 · Absa</div></div><div class="acct-val" data-zar="55600">R55,600</div></div>
-          <div class="acct-row"><div class="acct-ic">👛</div><div style="flex:1"><b>Vault22 Wallet</b><div style="font-size:12.5px;color:#6B6B6B">Cash available to invest</div></div><div class="acct-val" data-zar="8800">R8,800</div></div>
+          <div class="acct-row"><div class="acct-ic">👛</div><div style="flex:1"><b>Absa Wallet</b><div style="font-size:12.5px;color:#6B6B6B">Cash available to invest</div></div><div class="acct-val" data-zar="8800">R8,800</div></div>
         </div>
         <div class="acct-grp"><h3>Investments <span style="font-weight:700;color:#168335" data-zar="512300">R512,300</span></h3>
-          <div class="acct-row"><div class="acct-ic">📈</div><div style="flex:1"><b>Vault22 Wealth Portfolio</b><div style="font-size:12.5px;color:#6B6B6B">ETFs, stocks &amp; model portfolios</div></div><div class="acct-val" data-zar="418300">R418,300</div></div>
+          <div class="acct-row"><div class="acct-ic">📈</div><div style="flex:1"><b>Absa Wealth Portfolio</b><div style="font-size:12.5px;color:#6B6B6B">ETFs, stocks &amp; model portfolios</div></div><div class="acct-val" data-zar="418300">R418,300</div></div>
           <div class="acct-row"><div class="acct-ic">🏛️</div><div style="flex:1"><b>Absa Retirement Annuity</b><div style="font-size:12.5px;color:#6B6B6B">•••• 2201 · Absa</div></div><div class="acct-val" data-zar="94000">R94,000</div></div>
         </div>
         <div class="acct-grp"><h3>Property &amp; vehicles <span style="font-weight:700;color:#168335" data-zar="504498">R504,498</span></h3>
@@ -2185,7 +2185,7 @@ html.absa-embedded body{overflow-x:hidden}
 <!-- Marketplace "Get covered" modal - filtered to the needed insurance type (Stephen 29 Jun) -->
 <div class="modal-ov" id="quotesModal" onclick="if(event.target===this)closeQuotes()">
   <div class="modal">
-    <div class="modal-h"><h3 id="quotesTitle">Vault22 Marketplace</h3><div class="modal-x" onclick="closeQuotes()">✕</div></div>
+    <div class="modal-h"><h3 id="quotesTitle">Absa Marketplace</h3><div class="modal-x" onclick="closeQuotes()">✕</div></div>
     <div class="modal-b" id="quotesBody"></div>
     <div class="modal-f"><button class="btn" onclick="closeQuotes()">Close</button></div>
   </div>
@@ -2256,7 +2256,7 @@ html.absa-embedded body{overflow-x:hidden}
     {ic:'📱',m:'Vodacom Airtime',cat:'Utilities',acct:'Absa Cheque',amt:-399,d:'30 Jun'},
     {ic:'🍽️',m:'Ocean Basket',cat:'Dining',acct:'Absa Credit Card',amt:-612,d:'29 Jun'},
     {ic:'💡',m:'City of Cape Town',cat:'Utilities',acct:'Absa Cheque',amt:-1870,d:'28 Jun'},
-    {ic:'📈',m:'Vault22 · Invest order',cat:'Investment',acct:'Vault22 Wallet',amt:-2500,d:'27 Jun'},
+    {ic:'📈',m:'Vault22 · Invest order',cat:'Investment',acct:'Absa Wallet',amt:-2500,d:'27 Jun'},
     {ic:'🛡️',m:'Old Mutual Premium',cat:'Insurance',acct:'Absa Cheque',amt:-1250,d:'26 Jun'},
     {ic:'🏠',m:'Absa Home Loan',cat:'Debt',acct:'Absa Cheque',amt:-9800,d:'25 Jun'},
     {ic:'🎬',m:'Netflix',cat:'Subscriptions',acct:'Absa Credit Card',amt:-199,d:'24 Jun'}
@@ -2345,7 +2345,7 @@ html.absa-embedded body{overflow-x:hidden}
     openModal((isBuy?'Buy crypto':'Sell '+asset),
       '<label class="field-lbl">Asset</label><select class="inp" id="cxAsset"><option'+(asset==='Bitcoin'?' selected':'')+'>Bitcoin</option><option'+(asset==='Ethereum'?' selected':'')+'>Ethereum</option><option'+(asset==='USDC'?' selected':'')+'>USDC</option></select>'+
       '<label class="field-lbl" style="margin-top:12px">Amount (ZAR)</label><input class="inp" id="cxAmt" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,\'\')" placeholder="e.g. 1000">'+
-      '<p style="font-size:12px;color:#6B6B6B;margin-top:10px">Funded from your Vault22 Wallet. Custody and Travel-Rule compliance handled by Vault22.</p>',
+      '<p style="font-size:12px;color:#6B6B6B;margin-top:10px">Funded from your Absa Wallet. Custody and Travel-Rule compliance handled by Vault22.</p>',
       '<button class="btn" onclick="closeGenModal()">Cancel</button><button class="btn primary" onclick="doCryptoTrade(\''+(isBuy?'buy':'sell')+'\')">'+(isBuy?'Buy now':'Sell now')+'</button>');
   }
   window.openCryptoTrade=openCryptoTrade;
@@ -2392,6 +2392,24 @@ html.absa-embedded body{overflow-x:hidden}
     if(which==='bank' && typeof setCfiMode==='function') setCfiMode('user'); // B5: reset to customer view on open
   }
   function showReports(){showView('view-reports');setActiveNav(null);}
+
+  /* Entry point used by the Absa shell (Home's "Your Reports" cards, the topbar
+     dropdown, Budget's report button). Opens a report in a SINGLE view switch.
+     The shell used to fake this by calling showReports() and then showReport(),
+     purely so the report's back arrow returned to the list rather than this app's
+     orphan "home" - but that meant two view changes, two fade-in animations and
+     two scroll-to-tops per open. Set the back-target directly instead. */
+  window.openReportDirect = function(which){
+    const map={profile:'view-profile',spending:'view-spending',bank:'view-bank'};
+    const id = map[which];
+    if(!id){ showReports(); return; }
+    VIEW_HISTORY = ['view-reports'];        // back arrow -> the reports list
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({top:0});
+    setActiveNav(null);
+    if(which==='bank' && typeof setCfiMode==='function') setCfiMode('user');
+  };
   function switchTab(el){
     el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');

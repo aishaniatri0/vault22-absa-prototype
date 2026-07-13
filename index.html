@@ -5,10 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Absa · Powered by Vault22</title>
 <style>
+  /* Absa design tokens, sampled from the Absa Web Design source (ABSA Web Design/*.png):
+     sidebar #95052A flat, active nav #77021E, page bg #F8F6F6, primary button #95052A.
+     --absa-positive is Absa's own green for credit amounts (+ KES 39.00): the brand red
+     is NOT used for positive states in the real design, so gains / on-track keep a green. */
   :root{
     --absa-crimson:#95052A; --absa-crimson-dark:#77021E;
     --absa-red:#DC0032; --absa-red-hover:#B8002A;
+    --absa-positive:#168335; --absa-positive-soft:#E7F3EA;
     --absa-bg:#F8F6F6; --absa-card:#FFFFFF; --absa-ink:#1A1A1A; --absa-muted:#6B6B6B; --absa-line:#ECE7E8;
+    --absa-radius:16px; --absa-pill:9999px;
     --sidebar-w:270px; --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -16,9 +22,10 @@
   body{font-family:var(--font);background:var(--absa-bg);color:var(--absa-ink);display:flex;overflow:hidden}
 
   /* SIDEBAR - single, Absa-skinned, Vault22 live-app IA */
+  /* Absa's sidebar is a FLAT #95052A, not a gradient (sampled top/middle/bottom). */
   .sidebar{
     width:var(--sidebar-w);min-width:var(--sidebar-w);height:100vh;
-    background:linear-gradient(180deg,var(--absa-crimson) 0%,#8A0426 60%,var(--absa-crimson-dark) 100%);
+    background:var(--absa-crimson);
     color:#fff;display:flex;flex-direction:column;padding:20px 16px;z-index:10;
   }
   .logo{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
@@ -34,10 +41,12 @@
   }
   .nav-item svg{width:19px;height:19px;flex:none;stroke:#fff;stroke-width:2;fill:none}
   .nav-item:hover{background:rgba(255,255,255,.10)}
-  .nav-item.active{background:var(--absa-card);color:var(--absa-crimson);font-weight:600}
-  .nav-item.active svg{stroke:var(--absa-crimson)}
+  /* Absa's selected nav item is a DARKER maroon fill with white text (#77021E),
+     not the white pill this prototype used. */
+  .nav-item.active{background:var(--absa-crimson-dark);color:#fff;font-weight:700}
+  .nav-item.active svg{stroke:#fff}
   .nav-item .sub{font-size:11px;opacity:.6;font-weight:400;margin-left:2px}
-  .nav-item.active .sub{color:var(--absa-muted)}
+  .nav-item.active .sub{color:rgba(255,255,255,.72)}
   .nav-item .badge{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.4px;background:var(--absa-red);padding:3px 6px;border-radius:20px;color:#fff}
   .nav-bottom{border-top:1px solid rgba(255,255,255,.16);padding-top:8px;margin-top:6px}
   /* Investments left-sidebar sub-navigation (Trade / Absa MMF / Market Forecast) */
@@ -49,8 +58,8 @@
   .nav-subitem{display:flex;align-items:center;gap:12px;padding:9px 14px 9px 24px;border-radius:10px;color:rgba(255,255,255,.85);cursor:pointer;font-size:13.5px;font-weight:500;background:transparent;border:none;text-align:left;width:100%;transition:background .13s;font-family:inherit}
   .nav-subitem .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45);flex:none;transition:background .13s}
   .nav-subitem:hover{background:rgba(255,255,255,.10)}
-  .nav-subitem.on{background:var(--absa-card);color:var(--absa-crimson);font-weight:700}
-  .nav-subitem.on .dot{background:var(--absa-crimson)}
+  .nav-subitem.on{background:var(--absa-crimson-dark);color:#fff;font-weight:700}
+  .nav-subitem.on .dot{background:#fff}
 
   /* MAIN */
   .main{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -131,6 +140,52 @@
   #boot.on{display:flex}
   #boot .sp{width:40px;height:40px;border:4px solid #EAD9DE;border-top-color:var(--absa-red);border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ===================== GLOBAL SCENARIO DRAWER =====================
+     The single demo control for the whole merged prototype. Gear FAB bottom-right
+     (the onboarding prototype's pattern), opening a tabbed right-side drawer that
+     drives every embedded app. Not part of the product. */
+  .scen-fab{position:fixed;right:22px;bottom:22px;z-index:200;width:48px;height:48px;border-radius:50%;
+    background:var(--absa-crimson);color:#fff;display:flex;align-items:center;justify-content:center;border:none;
+    box-shadow:0 10px 26px -8px rgba(149,5,42,.62);transition:transform .16s,box-shadow .16s,opacity .16s;opacity:.66;cursor:pointer}
+  .scen-fab svg{width:22px;height:22px;stroke:#fff;stroke-width:2;fill:none}
+  .scen-fab:hover{transform:translateY(-2px) rotate(30deg);opacity:1;box-shadow:0 14px 30px -8px rgba(149,5,42,.8)}
+  #scenOv{position:fixed;inset:0;z-index:210;display:none}
+  #scenOv.open{display:block}
+  .scen-scrim{position:absolute;inset:0;background:rgba(20,8,12,.34);animation:scenFade .18s ease}
+  @keyframes scenFade{from{opacity:0}to{opacity:1}}
+  .scen-drawer{position:absolute;top:0;right:0;bottom:0;width:min(384px,95vw);background:#fff;
+    border-left:1px solid var(--absa-line);box-shadow:-18px 0 48px rgba(0,0,0,.18);
+    display:flex;flex-direction:column;animation:scenIn .22s cubic-bezier(.22,.7,.3,1)}
+  @keyframes scenIn{from{transform:translateX(26px);opacity:.5}to{transform:none;opacity:1}}
+  .scen-head{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 12px;border-bottom:1px solid var(--absa-line)}
+  .scen-head h3{font-size:15px;font-weight:800}
+  .scen-head p{font-size:11.5px;color:var(--absa-muted);margin-top:2px}
+  .scen-x{background:none;border:none;font-size:22px;line-height:1;color:var(--absa-muted);cursor:pointer;padding:0 2px}
+  .scen-x:hover{color:var(--absa-ink)}
+  .scen-tabs{display:flex;gap:2px;padding:10px 12px 0;border-bottom:1px solid var(--absa-line);overflow-x:auto;scrollbar-width:none}
+  .scen-tabs::-webkit-scrollbar{display:none}
+  .scen-tab{border:none;background:none;padding:8px 10px 10px;font-size:12.5px;font-weight:600;color:var(--absa-muted);
+    cursor:pointer;white-space:nowrap;border-bottom:2.5px solid transparent;font-family:inherit;transition:color .13s}
+  .scen-tab:hover{color:var(--absa-ink)}
+  .scen-tab.on{color:var(--absa-crimson);border-bottom-color:var(--absa-crimson)}
+  .scen-body{flex:1;overflow-y:auto;padding:4px 18px 20px}
+  .scen-grp{padding:14px 0;border-bottom:1px solid #F2EDEE}
+  .scen-grp:last-child{border-bottom:none}
+  .scen-grp .gl{font-size:12.5px;font-weight:700;margin-bottom:8px}
+  .scen-seg{display:flex;gap:6px;flex-wrap:wrap}
+  .scen-seg button{flex:1 1 0;min-width:84px;border:1px solid var(--absa-line);background:#fff;color:#5A5052;
+    border-radius:8px;padding:8px 6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s}
+  .scen-seg button:hover{border-color:#D9C2C8;background:#FDF7F8}
+  .scen-seg button.on{background:var(--absa-crimson);border-color:var(--absa-crimson);color:#fff}
+  .scen-grp .gd{font-size:11px;color:var(--absa-muted);line-height:1.45;margin-top:8px}
+  .scen-stack{display:flex;flex-direction:column;gap:6px}
+  .scen-stack button{width:100%;text-align:left;border:1px solid var(--absa-line);background:#fff;color:var(--absa-ink);
+    border-radius:9px;padding:10px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .12s}
+  .scen-stack button:hover{border-color:var(--absa-crimson);background:#FCEEF1;color:var(--absa-crimson)}
+  .scen-stack button.danger{color:#B8002A;border-color:#F2D3DA}
+  .scen-stack button.danger:hover{background:#FCEEF1}
+  .scen-foot{padding:12px 18px 16px;border-top:1px solid var(--absa-line);font-size:10.5px;color:var(--absa-muted);line-height:1.5}
 </style>
 </head>
 <body>
@@ -144,6 +199,9 @@
     <nav class="nav" id="nav">
       <button class="nav-item active" data-key="home">
         <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg> Home</button>
+      <!-- Onboarding is deliberately NOT a sidebar destination: it is a pre-login
+           journey, not a place in the product. It is reached from the Scenario
+           drawer (gear, bottom-right) instead. The route below still exists. -->
       <button class="nav-item" data-key="transactions">
         <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg> Transactions</button>
       <button class="nav-item" data-key="budget">
@@ -217,6 +275,8 @@
       <div id="boot"><div class="sp"></div></div>
       <div id="invTabs"><!-- Investments sub-nav injected by shell --></div>
       <iframe class="frame" id="fr-goals"   data-app="goals"></iframe>
+      <iframe class="frame" id="fr-onboarding" data-app="onboarding"></iframe>
+      <iframe class="frame" id="fr-leaderboard" data-app="leaderboard"></iframe>
       <iframe class="frame" id="fr-budget"  data-app="budget"></iframe>
       <iframe class="frame" id="fr-reports" data-app="reports"></iframe>
       <iframe class="frame" id="fr-live"    data-app="live"></iframe>
@@ -232,11 +292,29 @@
     </div>
   </div>
 
+  <!-- Global Scenario drawer: the one demo control for the merged prototype -->
+  <button class="scen-fab" id="scenFab" title="Scenario settings" aria-label="Scenario settings">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg>
+  </button>
+  <div id="scenOv">
+    <div class="scen-scrim" id="scenScrim"></div>
+    <aside class="scen-drawer" role="dialog" aria-label="Scenario settings">
+      <div class="scen-head">
+        <div><h3>Scenario</h3><p>Demo controls · not part of the product</p></div>
+        <button class="scen-x" id="scenClose" aria-label="Close">×</button>
+      </div>
+      <div class="scen-tabs" id="scenTabs"></div>
+      <div class="scen-body" id="scenBody"></div>
+      <div class="scen-foot">Absa · powered by Vault22 — figures are illustrative. This panel is for the review team only and would not ship.</div>
+    </aside>
+  </div>
+
 <script>
   /* ---- routing table: menu key -> which app + which inner screen ---- */
   const ROUTE = {
     // GOALS PROTOTYPE = SOURCE OF TRUTH: every native goals screen routes to the real goals.html
     home:         {app:'goals',   drive:'home',        label:'Home'},
+    onboarding:   {app:'onboarding', drive:null,       label:'Onboarding'},
     transactions: {app:'live',    drive:'transactions',label:'Transactions'},
     budget:       {app:'budget',  drive:null,          label:'Budget'},
     investments:  {app:'goals',   drive:'investments', label:'Investments'},
@@ -253,7 +331,7 @@
     profile:      {app:'goals',   drive:'profile',     label:'Profile'},
   };
   const BUILD = Date.now();  // cache-bust: always fetch the latest section files
-  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD, invest:'sections/investments.html?v='+BUILD, modelport:'sections/model-portfolio.html?v='+BUILD, forecast:'sections/forecast.html?v='+BUILD, marketplace:'sections/marketplace.html?v='+BUILD};
+  const SRC = {goals:'sections/goals.html?v='+BUILD, budget:'sections/budget.html?v='+BUILD, reports:'sections/reports.html?v='+BUILD, live:'sections/live.html?v='+BUILD, invest:'sections/investments.html?v='+BUILD, modelport:'sections/model-portfolio.html?v='+BUILD, forecast:'sections/forecast.html?v='+BUILD, marketplace:'sections/marketplace.html?v='+BUILD, onboarding:'sections/onboarding/index.html?v='+BUILD, leaderboard:'sections/leaderboard/index.html?v='+BUILD};
 
   /* CSS injected into every embedded app: hide its OWN sidebar + topbar so only the Absa rail shows */
   const HIDE_CHROME = `
@@ -264,7 +342,12 @@
     img[alt*="vault" i],img[src*="vault" i]{display:none!important}
     .main,main.content{margin:0!important;width:auto!important;max-width:none!important;flex:1 1 auto!important;display:block!important}
     .page,.content,main,.view.active{margin-left:auto!important;margin-right:auto!important;max-width:1180px!important;width:100%!important;padding-left:30px!important;padding-right:30px!important;box-sizing:border-box!important}
-    .app,.layout,.shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
+    /* Collapse an embedded app's own sidebar column. NOTE: ".layout" must NOT be in
+       this list - it is not a shell grid anywhere. reports.html uses .layout as its
+       REPORT content grid (1fr 320px = report + sticky insights), so forcing it to
+       "0px 1fr" collapsed the report to zero width and gave the insights aside the
+       full width, which is why it rendered on top of the header. */
+    .app,.shell{grid-template-columns:0px minmax(0,1fr)!important;gap:0!important;margin-left:0!important}
     body{overflow-x:hidden}
     /* ONE consistent navigation pattern across every embedded app:
        page title only, no breadcrumbs. Drill-in screens keep their own
@@ -276,6 +359,18 @@
        their in-app "back" arrow (which returned to the reports app's orphan home)
        is removed - top-level pages get a title only, no back. */
     #view-insurance .back,#view-insights .back{display:none!important}
+    /* ONE demo control for the whole merged prototype. Each embedded app shipped
+       its own, in three different places and three different idioms: goals' bottom-LEFT
+       "Compliance Simulator" pill, budget's inline "Preview scenario" bar, and
+       onboarding's gear FAB. All three are hidden here; the shell's global Scenario
+       drawer (bottom-right) now drives every one of them. */
+    .v22-compliance-fab{display:none!important}
+    #scenariobar{display:none!important}
+    .proto-fab{display:none!important}
+    /* The shell's gear FAB sits bottom-right. The goals app pins its "Ask Tara"
+       launcher to exactly the same spot with an inline style, so shift it clear
+       (!important is required to beat the inline right:24px). */
+    button[title^="Ask Tara"]{right:92px!important}
   `;
 
   const frames = {
@@ -287,8 +382,10 @@
     modelport: document.getElementById('fr-modelport'),
     forecast: document.getElementById("fr-forecast"),
     marketplace: document.getElementById("fr-marketplace"),
+    onboarding: document.getElementById("fr-onboarding"),
+    leaderboard: document.getElementById("fr-leaderboard"),
   };
-  const loaded = {goals:false, budget:false, reports:false, live:false, invest:false, modelport:false, forecast:false, marketplace:false};
+  const loaded = {goals:false, budget:false, reports:false, live:false, invest:false, modelport:false, forecast:false, marketplace:false, onboarding:false, leaderboard:false};
   const boot = document.getElementById('boot');
   const soon = document.getElementById('soon');
   const crHome = document.getElementById('crHome');
@@ -510,17 +607,34 @@
     if(!ok && tries>0){ setTimeout(()=>drive(app,key,tries-1),160); }
   }
 
+  /* Callbacks waiting on an app whose load is already in flight. Without this,
+     a second ensureLoaded() call before the first finished would re-assign
+     fr.src and reload the iframe from scratch - which is what made the reports
+     app visibly refresh when you hit "See All" shortly after boot (the shell
+     preloads reports in the background, so a click could land mid-load). */
+  const pending = {};
+
   function ensureLoaded(app, cb){
     const fr=frames[app];
     if(loaded[app]){ cb&&cb(); return; }
+    if(pending[app]){ if(cb) pending[app].push(cb); return; }   // load in flight: queue, don't re-src
+    pending[app] = cb ? [cb] : [];
     boot.classList.add('on');
     fr.addEventListener('load', ()=>{
       loaded[app]=true;
       injectChrome(app);
       setTimeout(()=>injectChrome(app),300);   // re-assert after first render
       setTimeout(()=>injectChrome(app),900);
+      /* Sections lazy-load on first navigation, so an app booting now may have
+         missed scenario toggles flipped earlier. Re-apply on load, and again once
+         its stores exist (goals mounts React asynchronously). */
+      applyScenario(app);
+      setTimeout(()=>applyScenario(app),300);
+      setTimeout(()=>applyScenario(app),900);
       boot.classList.remove('on');
-      cb&&cb();
+      const queued = pending[app] || [];
+      delete pending[app];
+      queued.forEach(f=>{ try{ f(); }catch(e){} });
     }, {once:true});
     fr.src = SRC[app];
   }
@@ -530,7 +644,12 @@
     items.forEach(i=>i.classList.toggle('active', i.dataset.key===key));
     if(key!=='investments') closeInvSub();   // collapse the Investments sub-nav when leaving
     // stubs / non-content keys
-    if(key==='settings'||key==='logout'){ if(key==='logout'){ go('home'); } return; }
+    // Settings was a dead stub; it now opens the global Scenario drawer.
+    if(key==='settings'||key==='logout'){
+      if(key==='logout'){ go('home'); }
+      else { openScen(); items.forEach(i=>i.classList.remove('active')); }
+      return;
+    }
     if(!r){ Object.values(frames).forEach(f=>f.classList.remove('active')); soon.classList.add('active'); crumb.textContent='Coming soon'; return; }
     soon.classList.remove('active');
     crumb.textContent = r.label;
@@ -539,12 +658,16 @@
     document.getElementById('invTabs').classList.remove('on');
     // show only the target app frame
     Object.values(frames).forEach(f=>f.classList.remove('active'));
+    /* ensureLoaded already invokes the callback synchronously when the app is
+       loaded, so the old trailing `if(loaded[...]) drive(...)` ran everything a
+       SECOND time. Driving twice re-applies the target view, which restarts the
+       embedded app's view-enter animation and its scroll-to-top - the flicker
+       that looked like the page refreshing whenever you opened a report. */
     ensureLoaded(r.app, ()=>{
       frames[r.app].classList.add('active');
       injectChrome(r.app);
       drive(r.app, r.drive);
     });
-    if(loaded[r.app]){ frames[r.app].classList.add('active'); injectChrome(r.app); drive(r.app, r.drive); }
   }
 
   /* ---- Investments sub-navigation (Wallet/Trade/Portfolio/Money Market/Absa Money Market Fund/Model Portfolio) ---- */
@@ -552,6 +675,7 @@
     {id:'trade',     label:'Trade',          app:'goals',     drive:'invest_trade', ic:'<path d="M4 16l5-5 3 3 7-8"/><path d="M15 6h5v5"/>'},
     {id:'absammf',   label:'Absa MMF',       app:'invest',    drive:null,           ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M9 12h6"/>'},
     {id:'forecast',  label:'Market Forecast',app:'forecast',  drive:null,           ic:'<path d="M4 16l5-6 3 3 4-6 4 5"/><path d="M3 20h18"/>'},
+    {id:'leaderboard',label:'Leaderboard',   app:'leaderboard',drive:null,          ic:'<path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 5H4v2a3 3 0 003 3M17 5h3v2a3 3 0 01-3 3"/>'},
   ];
   let invTab=null;   // null = Investments landing (overview); else a sub-page id
   // Sub-nav lives in the LEFT sidebar, nested under "Investments".
@@ -585,11 +709,15 @@
         drive(t.app, t.drive);
       }
     };
-    ensureLoaded(t.app, doDrive);
-    if(loaded[t.app]) doDrive();
+    ensureLoaded(t.app, doDrive);   // fires synchronously if already loaded; do NOT also call it below
   }
 
-  function go(key){ const b=document.querySelector('.nav-item[data-key="'+key+'"]'); if(b) b.click(); }
+  /* Navigate by menu key. Some routes (onboarding) intentionally have no sidebar
+     button, so fall back to routing directly instead of no-op'ing. */
+  function go(key){
+    const b=document.querySelector('.nav-item[data-key="'+key+'"]');
+    if(b) b.click(); else if(ROUTE[key]) activate(key);
+  }
   window.go = go;  // let embedded home cards drive the Absa sidebar
 
   // ---- currency + region selector (mirrors budget prototype) ----
@@ -638,20 +766,59 @@
     crumb.textContent = 'User Reports';
     ensureLoaded('reports', ()=>{
       frames.reports.classList.add('active'); injectChrome('reports');
-      let seeded=false;
-      const run=()=>{ try{
-        const w=frames.reports.contentWindow;
-        if(rep==='all'){ w.showReports && w.showReports(); return; }
-        if(w.showReport){
-          // seed the reports LIST once so the report's back arrow returns to the
-          // list, never the reports app's orphan "home" (not an Absa page).
-          if(!seeded && w.showReports){ w.showReports(); seeded=true; }
-          w.showReport(rep);
-        } else if(w.showReports){ w.showReports(); }
-      }catch(e){} };
-      setTimeout(run,180); setTimeout(run,600);
+      /* Open the report in ONE synchronous pass, so the browser paints once.
+         This used to fire on setTimeout(180) AND setTimeout(600), and each pass
+         showed the reports LIST and then the report - so you saw the list flash
+         and the page repaint twice, which looked exactly like a refresh.
+         Seeding the list still matters (it is what the report's back arrow
+         returns to), but it must happen in the same tick as showReport so no
+         intermediate frame is ever painted. */
+      let tries=0;
+      const run=()=>{
+        try{
+          const w=frames.reports.contentWindow;
+          if(rep==='all'){
+            if(w.showReports){ w.showReports(); return true; }
+            return false;
+          }
+          if(w.openReportDirect){                // one view switch, one paint
+            w.openReportDirect(rep);
+            return true;
+          }
+          if(w.showReport){                      // fallback if the app predates that hook
+            if(w.showReports) w.showReports();
+            w.showReport(rep);
+            return true;
+          }
+        }catch(e){}
+        return false;
+      };
+      if(run()) return;                          // already booted: no timer, no flash
+      const t=setInterval(()=>{ if(run() || ++tries>50) clearInterval(t); }, 80);
     });
   }
+
+  /* Deep-link used by the "Your Reports" cards on the goals Home screen. View
+     opens the report; PDF opens it and then fires the reports app's own print
+     export, which needs that report's DOM mounted first - hence the poll. */
+  const REPORT_FILE={profile:'Absa-User-Profile-Aishani',spending:'Absa-Monthly-Spending-Feb-2026',bank:'Absa-Client-Financial-Intelligence-Aishani'};
+  function absaReport(rep, pdf){
+    openReports(rep);
+    if(!pdf) return;
+    let n=0;
+    const t=setInterval(()=>{
+      try{
+        const w=frames.reports.contentWindow;
+        if(w && typeof w.downloadPDF==='function' && w.document.getElementById('report-'+rep)){
+          w.downloadPDF('report-'+rep, REPORT_FILE[rep]||('Absa-Report-'+rep));
+          clearInterval(t); return;
+        }
+      }catch(e){}
+      if(++n>40) clearInterval(t);
+    },150);
+  }
+  window.absaReport = absaReport;
+  window.openReports = openReports;
 
   udrop.querySelectorAll('.udrop-item').forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -662,6 +829,196 @@
   });
 
   items.forEach(b=> b.addEventListener('click', ()=>activate(b.dataset.key)) );
+
+  /* =====================================================================
+     GLOBAL SCENARIO DRAWER
+     Every embedded prototype shipped its own demo control. They are hidden
+     (see HIDE_CHROME) and replaced by this one panel, which owns the scenario
+     state and pushes it down into each app through the app's own API.
+     ===================================================================== */
+  const SCEN_KEY='absa_scen_v1';
+  const SCEN_DEFAULT={
+    goals:true,            // Goals created vs the first-time zero state
+    ra:'valid',            // Risk Assessment: valid | expired | none
+    invested:false,        // Investment Status: Investment Made vs not
+    cash:true,             // Available Cash: has cash vs none
+    bank:'linked',         // Bank Account for withdrawals: linked | none
+    mmfHoldings:'holdings',// Absa MMF: funded vs the live account's zero-balance state
+    mmfSell:'success',     // Absa MMF sell outcome: success | network error
+    budget:'ontrack',      // Budget pacing: ontrack | over
+    budgetLinked:true,     // Budget: linked account vs new user
+    onbFail:'',            // Onboarding bank-link outcome: '' = success, else a FAILURES key
+  };
+  let SCEN;
+  try{ SCEN=Object.assign({},SCEN_DEFAULT,JSON.parse(localStorage.getItem(SCEN_KEY))||{}); }catch(e){ SCEN=Object.assign({},SCEN_DEFAULT); }
+  function saveScen(){ try{ localStorage.setItem(SCEN_KEY,JSON.stringify(SCEN)); }catch(e){} }
+
+  /* Push the scenario into ONE embedded app, by calling the demo API that app
+     already exposes. Called on every toggle AND on every iframe load: sections
+     lazy-load on first navigation, so a section first opened AFTER a toggle was
+     flipped would otherwise boot with its own defaults and silently ignore it. */
+  function applyScenario(app){
+    if(!loaded[app]) return;
+    try{
+      const w=frames[app] && frames[app].contentWindow;
+      if(!w) return;
+      if(app==='goals'){
+        /* KYC is deliberately NOT a drawer toggle. The shell already strips all KYC
+           UI out of the goals app (stripKyc) because Absa runs its own KYC, so a KYC
+           gate would block investing with no visible way to clear it. Pin it valid. */
+        if(w.CompStore){ w.CompStore.setGate('kyc','valid'); w.CompStore.setGate('ra',SCEN.ra); }
+        if(w.GoalsStore)        w.GoalsStore.setScenario(SCEN.goals);
+        if(w.SmartSaverStore)   w.SmartSaverStore.setScenario(SCEN.invested);
+        /* setCash AFTER setScenario: flipping Investment Status seeds its own wallet
+           figures, so cash is applied last to stay authoritative. */
+        if(w.ZarWalletStore)    w.ZarWalletStore.setCash(SCEN.cash?24850:0);
+        if(w.BankAccountsStore) w.BankAccountsStore.setScenario(SCEN.bank);
+      } else if(app==='budget'){
+        if(typeof w.setLinked==='function')   w.setLinked(SCEN.budgetLinked);
+        if(typeof w.setScenario==='function') w.setScenario(SCEN.budget);
+      } else if(app==='onboarding'){
+        if(w.__absaOnb) w.__absaOnb.setForceFail(SCEN.onbFail||null);
+      } else if(app==='invest'){
+        if(w.__absaMMF){ w.__absaMMF.setHoldings(SCEN.mmfHoldings); w.__absaMMF.setSellOutcome(SCEN.mmfSell); }
+      }
+    }catch(e){}
+  }
+  function applyAll(){ Object.keys(frames).forEach(applyScenario); }
+  window.__applyScenario = applyScenario;
+
+  function setScen(k,v){ SCEN[k]=v; saveScen(); applyAll(); renderScen(); }
+
+  /* Onboarding actions need the onboarding app on screen and booted. Navigate
+     first, then retry the call while the iframe finishes loading. */
+  function onbAction(fn){
+    go('onboarding'); closeScen();
+    let n=0;
+    const run=()=>{ try{ const w=frames.onboarding.contentWindow;
+      if(w && w.__absaOnb){ fn(w.__absaOnb); return true; } }catch(e){} return false; };
+    if(run()) return;
+    const t=setInterval(()=>{ if(run() || ++n>40) clearInterval(t); },120);
+  }
+
+  /* Bank-link failure states. These live in the onboarding app but were reachable
+     only by typing FORCE_FAIL into the console, so they could never be demoed.
+     Listed here so the drawer renders before the onboarding iframe has loaded. */
+  const ONB_FAILURES=[
+    ['','Success'],
+    ['wrong_credentials','Wrong credentials'],
+    ['bank_down','Bank temporarily unavailable'],
+    ['mfa_loop',"Verification didn't complete"],
+    ['no_accounts','No accounts found'],
+    ['timeout','Connection timed out'],
+    ['not_supported','Bank not supported yet'],
+    ['already_linked','Already linked'],
+    ['partial_sync','Some accounts synced'],
+    ['generic','Something went wrong'],
+  ];
+  const SCEN_TABS=[
+    ['onboarding','Onboarding'],
+    ['goals','Goals'],
+    ['investments','Investments'],
+    ['budget','Budget'],
+    ['risk','Risk Assessment'],
+  ];
+  let scenTab='onboarding';
+
+  // a segmented control bound to one scenario key
+  function seg(label, key, opts, desc){
+    return `<div class="scen-grp"><div class="gl">${label}</div><div class="scen-seg">`+
+      opts.map(([v,l])=>`<button class="${SCEN[key]===v?'on':''}" data-k="${key}" data-v="${v}">${l}</button>`).join('')+
+      `</div>${desc?`<div class="gd">${desc}</div>`:''}</div>`;
+  }
+  function stack(label, btns, desc){
+    return `<div class="scen-grp"><div class="gl">${label}</div><div class="scen-stack">`+
+      btns.map(b=>`<button data-act="${b[0]}" data-arg="${b[1]||''}" class="${b[2]||''}">${b[3]||b[1]}</button>`).join('')+
+      `</div>${desc?`<div class="gd">${desc}</div>`:''}</div>`;
+  }
+
+  function scenBodyHTML(){
+    if(scenTab==='onboarding'){
+      return stack('Onboarding journey',[
+          ['open','','','Open the onboarding journey'],
+        ],'Onboarding is a pre-login journey rather than a place in the product, so it lives here instead of in the sidebar.')
+        + stack('Demo presets',[
+          ['demoA','','','Demo A — budgeting, no link (income-only)'],
+          ['demoB','','','Demo B — multi-select, linked'],
+        ],'Each preset loads a complete onboarding state and drops you on the adaptive dashboard.')
+        + stack('Jump to a screen',[
+          ['screen','login','','Login'],['screen','region','','Region'],['screen','about','','About you'],
+          ['screen','fork','','The fork'],['screen','dashboard','','Dashboard'],
+        ])
+        + stack('Start a journey',[
+          ['journey','understand','','Understand my finances'],
+          ['journey','spending','','Get control of my spending'],
+          ['journey','health','','Improve my financial health'],
+          ['journey','debt','','Get out of debt'],
+          ['journey','wealth','','Grow my wealth'],
+          ['journey','save','','Save for a goal'],
+          ['journey','retirement','','Plan for retirement'],
+        ],"Runs the intake for that intent, as if it were the fork's #1 pick.")
+        + seg('Bank-link outcome','onbFail',ONB_FAILURES,
+            'Forces the result of the next Connect-your-bank attempt, so the failure and recovery states are demoable.')
+        + stack('Reset',[['reset','','danger','Reset onboarding to the start']]);
+    }
+    if(scenTab==='goals'){
+      return seg('Goals','goals',[[true,'Goals created'],[false,'No goals yet']],
+        '"No goals yet" shows the first-time evidence card as the entry point. "Goals created" shows the sample goals.');
+    }
+    if(scenTab==='investments'){
+      return seg('Investment Status','invested',[[false,'No Investment Made'],[true,'Investment Made']],
+          'Switches Smart Saver and My Savings between the acquisition and invested experiences.')
+        + seg('Available Cash','cash',[[true,'Has cash'],[false,'No cash']],
+          "Sets your available wallet cash so Smart Saver's cash-dependent scenarios are testable.")
+        + seg('Bank Account (for withdrawals)','bank',[['linked','Linked'],['none','None']],
+          '"Linked" shows a bank-account dropdown on Withdraw. "None" shows the "set up a bank account" CTA.')
+        + seg('Absa MMF holdings','mmfHoldings',[['holdings','Has holdings'],['none','No holdings']],
+          '"No holdings" mirrors the live Uganda account (UGX 0.00): Sell shows the "No active holdings" zero-state.')
+        + seg('Absa MMF sell outcome','mmfSell',[['success','Success'],['error','Network error']],
+          '"Network error" shows the design\'s "There seems to be a problem" screen with Retry on Withdraw.');
+    }
+    if(scenTab==='budget'){
+      return seg('Budget pacing','budget',[['ontrack','On track'],['over','Over budget']],
+          'Scales the discretionary categories so the forecast card, donut, category bars and Tara insights all recompute.')
+        + seg('Account state','budgetLinked',[[true,'Linked'],[false,'New user']],
+          '"New user" shows the zero state with the link-account prompt instead of the funded dashboard.');
+    }
+    if(scenTab==='risk'){
+      return seg('Risk Assessment (annual review)','ra',[['valid','Valid'],['expired','Expired'],['none','Never']],
+        'Investing locks when the Risk Assessment is expired or was never completed. Selling, goal creation and browsing are never blocked.');
+    }
+    return '';
+  }
+
+  function renderScen(){
+    const tabsEl=document.getElementById('scenTabs'), bodyEl=document.getElementById('scenBody');
+    tabsEl.innerHTML=SCEN_TABS.map(([k,l])=>`<button class="scen-tab${k===scenTab?' on':''}" data-tab="${k}">${l}</button>`).join('');
+    tabsEl.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{ scenTab=b.dataset.tab; renderScen(); });
+    bodyEl.innerHTML=scenBodyHTML();
+    // segmented controls -> scenario state
+    bodyEl.querySelectorAll('.scen-seg button').forEach(b=>b.onclick=()=>{
+      let v=b.dataset.v;
+      if(v==='true') v=true; else if(v==='false') v=false;
+      setScen(b.dataset.k, v);
+    });
+    // onboarding action buttons
+    bodyEl.querySelectorAll('.scen-stack button').forEach(b=>b.onclick=()=>{
+      const a=b.dataset.act, arg=b.dataset.arg;
+      if(a==='open')        { go('onboarding'); closeScen(); }
+      else if(a==='demoA')  onbAction(o=>o.demoA());
+      else if(a==='demoB')  onbAction(o=>o.demoB());
+      else if(a==='reset')  onbAction(o=>o.reset());
+      else if(a==='screen') onbAction(o=>o.goScreen(arg));
+      else if(a==='journey')onbAction(o=>o.startJourney(arg));
+    });
+  }
+  const scenOv=document.getElementById('scenOv');
+  function openScen(){ scenOv.classList.add('open'); renderScen(); }
+  function closeScen(){ scenOv.classList.remove('open'); }
+  document.getElementById('scenFab').addEventListener('click', openScen);
+  document.getElementById('scenClose').addEventListener('click', closeScen);
+  document.getElementById('scenScrim').addEventListener('click', closeScen);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeScen(); });
 
   // hash deep-link + default landing
   function routeHash(){ const k=(location.hash||'').replace('#',''); if(k && ROUTE[k]) go(k); }
