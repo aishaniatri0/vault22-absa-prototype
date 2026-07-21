@@ -124,6 +124,46 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
 .disc svg{width:16px;flex:none;margin-top:1px}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:120;box-shadow:var(--shadow-lg);opacity:0;transition:.25s}
 .toast.show{opacity:1}
+
+/* ===== Fact sheet + Risk-profile inline views ===== */
+.sheetview{position:fixed;inset:0;background:var(--bg);z-index:70;overflow-y:auto;display:none}
+.sheetview.show{display:block}
+.sheet-wrap{max-width:1180px;margin:0 auto;padding:22px 30px 60px}
+.sheet-back{display:inline-flex;align-items:center;gap:6px;color:var(--absa);font-weight:600;font-size:14px;margin-bottom:16px}
+.sheet-back:hover{text-decoration:underline}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.sheet-head h1{font-size:24px;line-height:1.25;max-width:760px}
+.sheet-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+@media(max-width:900px){.sheet-grid{grid-template-columns:1fr}}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:640px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat .k{font-size:11.5px;color:var(--muted)}.stat .v{font-weight:700;font-size:18px;margin-top:3px}
+.stat .v.pos{color:var(--green)}
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:16px;box-shadow:var(--shadow)}
+.panel h3{font-size:15px;margin-bottom:14px}
+.alloc-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.alloc-row .lbl{width:120px;font-size:13px;color:var(--ink-2);flex:none}
+.alloc-row .track{flex:1;height:9px;background:var(--tile);border-radius:9999px;overflow:hidden}
+.alloc-row .fill{height:100%;border-radius:9999px}
+.alloc-row .pct{width:44px;text-align:right;font-weight:700;font-size:13px;flex:none}
+.perf-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.perf-tbl th{text-align:left;color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;padding:8px 8px}
+.perf-tbl td{padding:9px 8px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.perf-tbl td.pos{color:var(--green);font-weight:600}.perf-tbl td.neg{color:var(--aggr);font-weight:600}
+.style-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:6px 0 22px}
+@media(max-width:900px){.style-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.style-grid{grid-template-columns:1fr}}
+.style-card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:.16s;text-align:left}
+.style-card:hover{border-color:var(--line-2);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.style-card.sel{border-color:var(--absa);box-shadow:0 0 0 1px var(--absa)}
+.style-band{padding:7px 14px;font-size:12px;font-weight:700;letter-spacing:.2px}
+.style-body{padding:14px 16px 16px;display:flex;gap:12px}
+.style-body .ic{width:40px;height:40px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:19px}
+.style-body .st{font-weight:700;font-size:15px;margin-bottom:4px}
+.style-body .sd{font-size:12.5px;color:var(--muted);line-height:1.45}
+.progress{height:6px;background:var(--tile);border-radius:9999px;overflow:hidden;margin:14px 0 20px}
+.progress .p{height:100%;background:var(--absa);border-radius:9999px;transition:width .3s}
 </style>
 </head>
 <body>
@@ -135,7 +175,7 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
   </div>
   <div class="intro-card">
     <div><div class="t">Let us help you choose the right investments for your goals</div><div class="s">Set your risk profile and see portfolios matched to you. Takes about 60 seconds.</div></div>
-    <button class="btn" onclick="toast('Risk profiling - coming soon in this prototype')">Start here</button>
+    <button class="btn" onclick="openRisk()">Start here</button>
   </div>
   <div class="filterbar">
     <h2 id="listTitle">All Investment Products</h2>
@@ -148,6 +188,9 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
 </div>
 <div class="scrim" id="scrim" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer"><div id="dwin"></div></div>
+<!-- Fact sheet (item 5) and Risk-profile flow (item 6): full inline views, Absa-skinned, ZAR -->
+<div class="sheetview" id="sheet"></div>
+<div class="sheetview" id="risk"></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -260,11 +303,16 @@ function renderDetail(){
     <button class="btn btn-primary btn-lg btn-block" style="margin:14px 0 6px" onclick="openInvest('${p.id}')">Invest</button>
     <svg viewBox="0 0 360 120" style="width:100%;height:120px;margin-top:8px"><defs><linearGradient id="mg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#95052A" stop-opacity=".18"/><stop offset="1" stop-color="#95052A" stop-opacity="0"/></linearGradient></defs><path d="${sp.area}" fill="url(#mg)"/><path d="${sp.line}" fill="none" stroke="#95052A" stroke-width="2.2"/></svg>
     <div class="chart-tf">${['3M','6M','1Y','3Y','5Y','ALL'].map((t,i)=>`<button class="${i===2?'on':''}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${t}</button>`).join('')}</div>
-    <div class="factsheet" onclick="toast('Fact sheet downloaded')"><span class="pdf">PDF</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Fact sheet</div><div class="muted" style="font-size:12px">Monthly performance &amp; portfolio</div></div><span class="link">↓</span></div>
+    <div class="factsheet" onclick="openSheet('${p.id}')"><span class="pdf">PDF</span><div style="flex:1"><div style="font-weight:600;font-size:14px">Fact sheet</div><div class="muted" style="font-size:12px">Monthly performance &amp; portfolio</div></div><span class="link">View ›</span></div>
   </div>`;
 }
 function render(){renderFilters();renderList();renderDetail();}
-function setTab(t){state.tab=t;state.sel=null;render();}
+/* "My Investments" hands back to the Investments landing so Explore Portfolios reads
+   as one page with two tabs; "Explore Portfolios" stays on this list. */
+function setTab(t){
+  if(t==='mine'){ try{ window.parent.go('investments'); return; }catch(e){} }
+  state.tab=t;state.sel=null;render();
+}
 function setFilter(f){state.filter=f;render();}
 function select(id){state.sel=id;render();window.scrollTo({top:0,behavior:'smooth'});}
 function deselect(){state.sel=null;$('#detailCol').classList.remove('mobile-show');render();}
@@ -302,6 +350,114 @@ function renderDrawer(){
 }
 function onAmt(v){const n=parseInt(String(v).replace(/[^0-9]/g,''))||0;const el=$('#ia');if(el)el.value=n?n.toLocaleString('en-US'):'';state.invest.amount=n;const p=PRODUCTS.find(x=>x.id===state.sel);$('#sa').textContent=zar(n);$('#st').textContent=zar(n);$('#ic').disabled=n<p.min;document.querySelectorAll('.qc .chip').forEach(c=>c.classList.remove('on'));}
 function setAmt(c){state.invest.amount=c;renderDrawer();}
+
+/* ===== item 5: Fact sheet (inline view, mirrors the live portfolio fact-sheet) ===== */
+const ALLOC={
+  Conservative:[['Equity',8],['Fixed income',82],['Cash',8],['Property',2]],
+  'Cautious Risk':[['Equity',25],['Fixed income',65],['Cash',7],['Property',3]],
+  Balanced:[['Equity',50],['Fixed income',40],['Cash',5],['Property',5]],
+  Growth:[['Equity',72],['Fixed income',20],['Cash',3],['Property',5]],
+  Aggressive:[['Equity',88],['Fixed income',6],['Cash',2],['Property',4]],
+};
+const ALLOC_COL={'Equity':'#95052A','Fixed income':'#C2410C','Cash':'#0E7490','Property':'#B45309'};
+const RET={Conservative:['8.2%','7.6%','7.1%'],'Cautious Risk':['9.4%','8.5%','8.0%'],Balanced:['11.8%','10.2%','9.6%'],Growth:['14.6%','12.1%','11.3%'],Aggressive:['17.2%','13.8%','12.7%']};
+const MONTHS3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function monthly(seed,r){
+  let a=(seed*2654435761)>>>0;const rnd=()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};
+  const vol=/Aggressive|Growth/.test(r)?2.6:(/Balanced/.test(r)?1.6:0.9), drift=/Conservative|Cautious/.test(r)?0.5:0.8;
+  return MONTHS3.map(m=>({m,v:+(drift+(rnd()-0.42)*vol*2).toFixed(2)}));
+}
+function openSheet(id){
+  const p=PRODUCTS.find(x=>x.id===id)||PRODUCTS.find(x=>x.id===state.sel); if(!p)return;
+  const sp=seriesPath(p.seed,true,600,180);
+  const rets=RET[p.risk]||RET.Balanced, alloc=ALLOC[p.risk]||ALLOC.Balanced, mp=monthly(p.seed,p.risk);
+  const bars=alloc.map(([n,v])=>`<div class="alloc-row"><span class="lbl">${n}</span><span class="track"><span class="fill" style="width:${v}%;background:${ALLOC_COL[n]}"></span></span><span class="pct">${v}%</span></div>`).join('');
+  const rows=mp.map(x=>`<tr><td>${x.m} 2026</td><td class="${x.v>=0?'pos':'neg'}">${x.v>=0?'+':''}${x.v.toFixed(2)}%</td></tr>`).join('');
+  $('#sheet').innerHTML=`<div class="sheet-wrap">
+    <button class="sheet-back" onclick="closeSheet()">‹ Back to portfolio</button>
+    <div class="sheet-head">
+      <div><div class="tags" style="margin-bottom:8px">${rtag(p.risk)}<span class="reg">${esc(p.reg)}</span></div>
+        <h1>${esc(p.name)}</h1>
+        <div class="prov"><span class="plogo">${esc(p.pl)}</span>${esc(p.prov)} · Fact sheet</div></div>
+      <button class="btn btn-primary" onclick="closeSheet();openInvest('${p.id}')">Invest</button>
+    </div>
+    <div class="sheet-grid">
+      <div>
+        <div class="stat-row">
+          <div class="stat"><div class="k">1-Year return</div><div class="v pos">${rets[0]}</div></div>
+          <div class="stat"><div class="k">3-Year (p.a.)</div><div class="v pos">${rets[1]}</div></div>
+          <div class="stat"><div class="k">5-Year (p.a.)</div><div class="v pos">${rets[2]}</div></div>
+          <div class="stat"><div class="k">Min. investment</div><div class="v">${zar(p.min).replace('.00','')}</div></div>
+        </div>
+        <div class="panel"><h3>Performance</h3>
+          <svg viewBox="0 0 600 180" style="width:100%;height:180px"><defs><linearGradient id="fg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#95052A" stop-opacity=".16"/><stop offset="1" stop-color="#95052A" stop-opacity="0"/></linearGradient></defs><path d="${sp.area}" fill="url(#fg)"/><path d="${sp.line}" fill="none" stroke="#95052A" stroke-width="2.4"/></svg>
+          <div class="chart-tf">${['3M','6M','1Y','3Y','5Y','ALL'].map((t,i)=>`<button class="${i===2?'on':''}" onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));this.classList.add('on')">${t}</button>`).join('')}</div>
+        </div>
+        <div class="panel"><h3>Portfolio breakdown</h3>${bars}</div>
+      </div>
+      <div>
+        <div class="panel"><h3>About this portfolio</h3>
+          <div style="font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:6px">${esc(p.desc)}</div>
+          <div class="kv"><div class="k">Risk profile</div><div class="v">${esc(p.risk)}</div></div>
+          <div class="kv"><div class="k">Recommended term</div><div class="v">${esc(p.term)}</div></div>
+          <div class="kv"><div class="k">Region</div><div class="v">${esc(p.reg)}</div></div>
+        </div>
+        <div class="panel"><h3>Monthly performance</h3>
+          <table class="perf-tbl"><thead><tr><th>Month</th><th>Return</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="disc"><svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.8"/></svg><span>Illustrative prototype. Past performance does not guarantee future returns. Capital is at risk.</span></div>
+      </div>
+    </div>
+  </div>`;
+  $('#sheet').classList.add('show'); $('#sheet').scrollTop=0;
+}
+function closeSheet(){ $('#sheet').classList.remove('show'); }
+
+/* ===== item 6: Risk-profile flow (New Investment Goal -> investment style) ===== */
+const STYLES=[
+  {key:'Ultra-Low',band:['--consv','--consv-bg'],ic:'🛡️',t:'Safety First',d:'You value capital preservation and stability, opting for an enhanced savings solution that avoids equity markets entirely.',match:'Conservative'},
+  {key:'Conservative',band:['--consv','--consv-bg'],ic:'🌱',t:'Stability First',d:'You prefer a cautious approach, focusing on protecting your capital and keeping your investments as stable as possible.',match:'Conservative'},
+  {key:'Cautious',band:['--caut','--caut-bg'],ic:'🧭',t:'Protect & Preserve',d:"You're comfortable with some market movement, but preserving your capital remains your priority, with steady growth over time.",match:'Cautious Risk'},
+  {key:'Balanced',band:['--bal','--bal-bg'],ic:'⚖️',t:'Balanced Approach',d:"You're comfortable balancing growth and stability, accepting normal market ups and downs to support long-term goals.",match:'Balanced'},
+  {key:'Growth',band:['--grow','--grow-bg'],ic:'📈',t:'Growth-Orientated',d:"You're willing to accept higher volatility in pursuit of stronger long-term returns, while maintaining diversification.",match:'Growth'},
+  {key:'Aggressive',band:['--aggr','--aggr-bg'],ic:'🚀',t:'Build for the Future',d:"You're focused on long-term capital growth and are comfortable with significant short-term market fluctuations along the way.",match:'Aggressive'},
+];
+let riskSel=null;
+function openRisk(){ riskSel=null; renderRisk(); $('#risk').classList.add('show'); $('#risk').scrollTop=0; }
+function closeRisk(){ $('#risk').classList.remove('show'); }
+function selectStyle(k){ riskSel=k; renderRisk(); }
+function renderRisk(){
+  const cards=STYLES.map(s=>`<button class="style-card ${riskSel===s.key?'sel':''}" onclick="selectStyle('${s.key}')">
+    <div class="style-band" style="color:var(${s.band[0]});background:var(${s.band[1]})">${s.key}</div>
+    <div class="style-body"><div class="ic" style="background:var(${s.band[1]})">${s.ic}</div><div><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>
+  </button>`).join('');
+  const pct=riskSel?66:33;
+  $('#risk').innerHTML=`<div class="sheet-wrap">
+    <button class="sheet-back" onclick="closeRisk()">‹ New Investment Goal</button>
+    <h1 style="font-size:24px;margin-bottom:2px">What is your investment style?</h1>
+    <div class="progress"><div class="p" style="width:${pct}%"></div></div>
+    <div class="style-grid">${cards}</div>
+    <div style="display:flex;gap:12px;justify-content:center;max-width:640px;margin:0 auto">
+      <button class="btn btn-primary btn-lg" style="flex:1" ${riskSel?'':'disabled'} onclick="confirmRisk()">Continue</button>
+      <button class="btn btn-outline btn-lg" style="flex:1" onclick="selectStyle('Balanced')">I'm not sure, help me</button>
+    </div>
+  </div>`;
+}
+function confirmRisk(){
+  const s=STYLES.find(x=>x.key===riskSel)||STYLES[3];
+  closeRisk(); state.tab='explore'; setFilter(s.match);
+  toast('Showing portfolios matched to your '+s.key+' style');
+  window.scrollTo({top:0});
+}
+
+/* Journey-aware Back (item 2): let the shell's Back close the deepest open surface. */
+window.__absaBack=function(){
+  if($('#risk').classList.contains('show')){ closeRisk(); return true; }
+  if($('#sheet').classList.contains('show')){ closeSheet(); return true; }
+  if($('#drawer').classList.contains('show')){ closeDrawer(); return true; }
+  if(state.sel){ deselect(); return true; }
+  return false;
+};
+window.__openRisk=openRisk;
 
 render();
 </script>
