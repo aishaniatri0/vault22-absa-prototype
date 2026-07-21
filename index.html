@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-1<html lang="en">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,7 +18,7 @@
     --absa-positive:#168335; --absa-positive-soft:#E7F3EA;
     --absa-bg:#F8F6F6; --absa-card:#FFFFFF; --absa-ink:#1A1A1A; --absa-muted:#6B6B6B; --absa-line:#ECE7E8;
     --absa-radius:16px; --absa-pill:9999px;
-    --sidebar-w:270px; --font:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+    --sidebar-w:270px; --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -422,12 +422,17 @@
   const UNIFY_CSS = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root{ --u-maroon:#95052A; --u-maroon-d:#77021E; }
-    /* ONE typeface across every module so nothing reads like a different app (item 3). */
+    /* ONE typeface across every module so nothing reads like a different app (item 3).
+       Matches the Leaderboard section's system stack (Segoe UI / system-ui) so the
+       whole prototype renders in the same face the Leaderboard already uses. */
     html, body, button, input, select, textarea, .card, h1,h2,h3,h4,h5,h6, p, div, span, a, li, td, th, label{
-      font-family:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif !important;
+      font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif !important;
     }
     html,body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
     h1,h2,h3{ letter-spacing:-0.01em; }
+    /* ONE page-title size across every module: match the Market Forecast heading
+       (25px / 800 / -0.5px letter-spacing) so every screen's H1 reads identically. */
+    h1{ font-size:25px !important; font-weight:800 !important; letter-spacing:-0.5px !important; line-height:1.25 !important; }
     /* consistent focus ring */
     a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
       outline:2px solid #95052A !important; outline-offset:2px !important; border-radius:6px;
@@ -442,12 +447,77 @@
     /* consistent press feedback + pointer on all buttons */
     button{ cursor:pointer; }
     button:not(:disabled):active{ transform:translateY(0.5px); }
+
+    /* ---- Unified card surface (item 3) --------------------------------------
+       The Budget and Leaderboard prototypes are the visual reference: white
+       cards on #F8F6F6, 16px radius, a soft layered shadow, and a subtle lift
+       on hover. Applied to EVERY plain card across all modules (both the vanilla
+       sections' .card and the goals React app's .home-card) so the stitched
+       sections read as one product. Gradient hero cards (Net worth / Smart
+       Saver / wallet bars) are excluded via :not([style*="gradient"]) so their
+       bespoke inline treatment (and their maroon recolour) is preserved. */
+    .card:not([style*="gradient"]):not([style*="linear-gradient"]),
+    .home-card:not([style*="gradient"]):not([style*="linear-gradient"]){
+      border-radius:16px !important;
+      box-shadow:0 1px 2px rgba(26,10,14,.04), 0 12px 30px -20px rgba(26,10,14,.16) !important;
+      border:1px solid #ECE7E8 !important;
+      transition:box-shadow .18s ease, transform .18s ease !important;
+    }
+    .card:not([style*="gradient"]):not([style*="linear-gradient"]):hover,
+    .home-card.clickable:not([style*="gradient"]):hover{
+      box-shadow:0 4px 12px rgba(26,10,14,.07), 0 20px 46px -24px rgba(26,10,14,.22) !important;
+      transform:translateY(-2px) !important;
+    }
+    /* ---- Unified section header (Leaderboard/Budget scale) -------------------
+       Every "SECTION LABEL" eyebrow across the app renders identically. */
+    .section-eyebrow{
+      font-size:12px !important; font-weight:700 !important; letter-spacing:.06em !important;
+      text-transform:uppercase !important; color:#8A7F82 !important; margin-bottom:10px !important;
+    }
+    /* One maroon primary action across every module, whatever the section named
+       its main button - so a primary CTA looks identical everywhere. */
+    .btn-primary,.btn.primary,button.primary,.primary-btn,.cta-primary,.btn-maroon{
+      background:#95052A !important; border-color:#95052A !important; color:#fff !important;
+    }
+    .btn-primary:hover,.btn.primary:hover,button.primary:hover,.primary-btn:hover,.cta-primary:hover,.btn-maroon:hover{
+      background:#77021E !important; border-color:#77021E !important;
+    }
+    /* Consistent maroon focus/selected accent for pill toggles & tabs that some
+       sections still render in the old Vault22 teal. */
+    ::selection{ background:rgba(149,5,42,.18); }
   `;
+
+  /* Per-app content-width normalisation (see injectChrome). The reference box is
+     the live/marketplace ".wrap": max-width:1180px, centred, 30px L/R padding. */
+  const SPACE_BOX = 'max-width:1180px!important;margin-left:auto!important;margin-right:auto!important;padding-left:30px!important;padding-right:30px!important;width:100%!important;box-sizing:border-box!important';
+  const SPACE_CSS = {
+    // Budget ships its own "embedded" full-bleed rule (html.absa-embedded .content
+    // {max-width:none}, specificity 0,2,1) that beats a plain main.content selector,
+    // so match that specificity + one to re-cap it (html.absa-embedded main.content = 0,2,2).
+    budget:   'html.absa-embedded main.content,main.content{'+SPACE_BOX+'}',
+    forecast: 'html.absa-embedded main.content,main.content{'+SPACE_BOX+'}',
+    // Only the Investments landing / Trade views are flagged narrow; Home is left untouched.
+    goals:    'body.absa-narrow .app{'+SPACE_BOX+'}',
+  };
+  /* Flag the goals app's current view as the narrow (1180px) Investments/Trade box. */
+  function setGoalsNarrow(on){
+    try{ frames.goals.contentDocument.body.classList.toggle('absa-narrow', !!on); }catch(e){}
+  }
 
   function injectChrome(app){
     try{
       const doc = frames[app].contentDocument;
       if(!doc) return;
+      // Guarantee ONE typeface (Inter) in every embedded iframe. Some sections
+      // (leaderboard/live) never load Inter and one (reports) ships 'Onest', so an
+      // @import alone was unreliable - inject a real stylesheet <link> so Inter is
+      // actually available and the forced font-family below has a font to resolve to.
+      if(!doc.getElementById('absa-font')){
+        const fl = doc.createElement('link');
+        fl.id='absa-font'; fl.rel='stylesheet';
+        fl.href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap';
+        doc.head.appendChild(fl);
+      }
       if(!doc.getElementById('absa-hide')){
         const st = doc.createElement('style');
         st.id='absa-hide'; st.textContent=HIDE_CHROME;
@@ -460,6 +530,19 @@
         const u = doc.createElement('style');
         u.id='absa-unify'; u.textContent=UNIFY_CSS;
         doc.head.appendChild(u);
+      }
+      // Per-app spacing normalisation: give Budget, Market Forecast and the
+      // Investments landing / Trade pages the SAME centred 1180px content box
+      // (30px L/R) that Transactions, Goals, My Wealth, Marketplace etc. use.
+      // Budget & Forecast render their content in <main class="content">, which
+      // the HIDE_CHROME shell-expander rule (main.content{max-width:none}) was
+      // stretching full-width; re-cap it here (injected last, so it wins).
+      // Goals' landing/trade views fill their .app column, so cap it only when
+      // the shell has flagged that view (body.absa-narrow), leaving Home as-is.
+      if(SPACE_CSS[app] && !doc.getElementById('absa-space')){
+        const sp = doc.createElement('style');
+        sp.id='absa-space'; sp.textContent=SPACE_CSS[app];
+        doc.head.appendChild(sp);
       }
       // NOTE: the old per-app injected "‹ Back" (injectGoalsBack) is intentionally
       // NOT used any more - the shell top-bar Back is the single, unified Back control
@@ -525,6 +608,17 @@
         if(/1, 195, 141|0, 195, 137|20, 184, 166|2, 199, 141|0, 224, 160/.test(s.boxShadow)) el.style.setProperty('box-shadow','none','important');
         // green gradient backgrounds (Smart Saver etc.)
         if(/1, 195, 141|0, 195, 137|16, 185, 129|5, 150, 105|4, 120, 87/.test(s.backgroundImage)) el.style.setProperty('background-image','linear-gradient(120deg,#95052A,#77021E)','important');
+        // SVG rings/charts: recolour brand-green stroke/fill (e.g. the Financial
+        // Fitness / health-score donut rgb(52,211,153)). Semantic gain-green
+        // rgb(22,131,53) is NOT in G, so it is preserved.
+        if(G.includes(s.stroke)) el.style.setProperty('stroke',A,'important');
+        if(G.includes(s.fill)) el.style.setProperty('fill',A,'important');
+      });
+      // SVG gradient stops (donut rings often stroke with a <linearGradient>): recolour
+      // any green stop to maroon so the ring reads Absa, not Vault22 teal.
+      doc.querySelectorAll('linearGradient stop, radialGradient stop').forEach(st=>{
+        const c=getComputedStyle(st).stopColor;
+        if(G.includes(c)) st.style.setProperty('stop-color',A,'important');
       });
     }catch(e){}
   }
@@ -697,6 +791,9 @@
     const r = ROUTE[key];
     forceBack=false;   // reset any app-forced Back; the target app re-asserts if still deep
     items.forEach(i=>i.classList.toggle('active', i.dataset.key===key));
+    // Leaving the Investments landing/Trade: drop the narrow (1180px) flag so Home
+    // and the other goals views render at their own width again.
+    if(key!=='investments') setGoalsNarrow(false);
     if(key!=='investments') closeInvSub();   // collapse the Investments sub-nav when leaving
     // stubs / non-content keys
     // Settings was a dead stub; it now opens the global Scenario drawer.
@@ -759,6 +856,8 @@
     Object.values(frames).forEach(f=>f.classList.remove('active'));
     const doDrive=()=>{
       frames[t.app].classList.add('active'); injectChrome(t.app);
+      // Investments landing + Trade use the narrow (1180px, centred) content box.
+      if(t.app==='goals'){ setGoalsNarrow(true); setTimeout(()=>setGoalsNarrow(true),400); }
       if(t.app==='goals'){
         // Investments landing (id null) vs the Trade page = Discover / browse-and-trade (id 'trade')
         const v = (id==='trade') ? 'discover' : 'landing';
@@ -792,6 +891,7 @@
     Object.values(frames).forEach(f=>f.classList.remove('active'));
     ensureLoaded('goals', ()=>{
       frames.goals.classList.add('active'); injectChrome('goals');
+      setGoalsNarrow(true); setTimeout(()=>setGoalsNarrow(true),400);
       const call=()=>{ try{ frames.goals.contentWindow.__gotoWallet(ccy||'ZAR'); }catch(e){} };
       call(); setTimeout(call,300);
     });
