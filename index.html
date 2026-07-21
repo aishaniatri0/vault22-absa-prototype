@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Absa · Powered by Vault22</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
   /* Absa design tokens, sampled from the Absa Web Design source (ABSA Web Design/*.png):
      sidebar #95052A flat, active nav #77021E, page bg #F8F6F6, primary button #95052A.
@@ -15,7 +18,7 @@
     --absa-positive:#168335; --absa-positive-soft:#E7F3EA;
     --absa-bg:#F8F6F6; --absa-card:#FFFFFF; --absa-ink:#1A1A1A; --absa-muted:#6B6B6B; --absa-line:#ECE7E8;
     --absa-radius:16px; --absa-pill:9999px;
-    --sidebar-w:270px; --font:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+    --sidebar-w:270px; --font:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -417,17 +420,27 @@
      approved modules) - it harmonises the interaction + chrome details that made the
      sections feel like different apps. Absa maroon throughout. */
   const UNIFY_CSS = `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     :root{ --u-maroon:#95052A; --u-maroon-d:#77021E; }
+    /* ONE typeface across every module so nothing reads like a different app (item 3). */
+    html, body, button, input, select, textarea, .card, h1,h2,h3,h4,h5,h6, p, div, span, a, li, td, th, label{
+      font-family:'Inter','Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif !important;
+    }
     html,body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
+    h1,h2,h3{ letter-spacing:-0.01em; }
+    /* consistent focus ring */
     a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
       outline:2px solid #95052A !important; outline-offset:2px !important; border-radius:6px;
     }
     ::selection{ background:rgba(149,5,42,.18); }
     ::-moz-selection{ background:rgba(149,5,42,.18); }
+    /* consistent thin scrollbars */
     *{ scrollbar-width:thin; scrollbar-color:#D9C2C8 transparent; }
     *::-webkit-scrollbar{ width:10px; height:10px; }
     *::-webkit-scrollbar-thumb{ background:#D9C2C8; border-radius:9999px; border:2px solid transparent; background-clip:content-box; }
     *::-webkit-scrollbar-thumb:hover{ background:#B98A98; }
+    /* consistent press feedback + pointer on all buttons */
+    button{ cursor:pointer; }
     button:not(:disabled):active{ transform:translateY(0.5px); }
   `;
 
@@ -448,7 +461,9 @@
         u.id='absa-unify'; u.textContent=UNIFY_CSS;
         doc.head.appendChild(u);
       }
-      if(app==='goals') injectGoalsBack(doc);
+      // NOTE: the old per-app injected "‹ Back" (injectGoalsBack) is intentionally
+      // NOT used any more - the shell top-bar Back is the single, unified Back control
+      // for the whole product, delegating into the app via __absaBack. One back button.
       setupKyc(doc);
       deGreen(doc); fixSmartSaver(doc);
       setTimeout(()=>{deGreen(doc);fixSmartSaver(doc);},500);
@@ -680,6 +695,7 @@
 
   function activate(key){
     const r = ROUTE[key];
+    forceBack=false;   // reset any app-forced Back; the target app re-asserts if still deep
     items.forEach(i=>i.classList.toggle('active', i.dataset.key===key));
     if(key!=='investments') closeInvSub();   // collapse the Investments sub-nav when leaving
     // stubs / non-content keys
@@ -758,10 +774,30 @@
   /* Navigate by menu key. Some routes (onboarding) intentionally have no sidebar
      button, so fall back to routing directly instead of no-op'ing. */
   function go(key){
+    if(key==='wallet'){ openWallet(); return; }   // Wallet is a goals page, not a sidebar route
     const b=document.querySelector('.nav-item[data-key="'+key+'"]');
     if(b) b.click(); else if(ROUTE[key]) activate(key);
   }
   window.go = go;  // let embedded home cards drive the Absa sidebar
+
+  /* Open the Investment Wallet as a first-class page (from the Home Wallet card / quick
+     action). Recorded in the nav history so the single shell Back returns to Home. */
+  function openWallet(ccy){
+    items.forEach(i=>i.classList.toggle('active', i.dataset.key==='investments'));
+    soon.classList.remove('active');
+    crumb.textContent='Wallet';
+    openInvSub();
+    invTab=null; renderInvTabs();
+    document.getElementById('invTabs').classList.remove('on');
+    Object.values(frames).forEach(f=>f.classList.remove('active'));
+    ensureLoaded('goals', ()=>{
+      frames.goals.classList.add('active'); injectChrome('goals');
+      const call=()=>{ try{ frames.goals.contentWindow.__gotoWallet(ccy||'ZAR'); }catch(e){} };
+      call(); setTimeout(call,300);
+    });
+    pushNav('wallet');
+  }
+  window.openWallet = openWallet;
 
   /* Explore Portfolios is a TAB inside the Investments page, not a sidebar entry.
      The goals landing "Explore Portfolios" tab hands off here; model-portfolio.html
@@ -791,24 +827,29 @@
      open invest drawer) is given first chance to consume Back via __absaBack. */
   let navStack=['home'];
   let backNav=false;
+  let forceBack=false;   // an embedded app can force-show Back while deep in its own flow
   function pushNav(key){
     if(backNav) return;
+    if(key==='home'){ navStack=['home']; updateBackBtn(); return; }  // Home is the root: fresh journey, no Back
     if(navStack[navStack.length-1]===key) return;   // ignore same-page re-entry
     navStack.push(key);
     updateBackBtn();
   }
+  // Embedded apps report whether they are deep in an internal flow (shows the one Back).
+  function setForceBack(b){ forceBack=!!b; updateBackBtn(); }
+  window.__absaSetBack = setForceBack;
   function updateBackBtn(){
     const btn=document.getElementById('backBtn');
-    if(btn) btn.style.display = navStack.length>1 ? 'inline-flex' : 'none';
+    if(btn) btn.style.display = (navStack.length>1 || forceBack) ? 'inline-flex' : 'none';
   }
   function goBack(){
-    // 1) let the active embedded app consume Back first (close drawer / deselect)
+    // 1) let the active embedded app consume Back first (close drawer / deselect / drill-out)
     try{
       const active=Object.keys(frames).find(a=>frames[a].classList.contains('active'));
       const w=active && frames[active].contentWindow;
       if(w && typeof w.__absaBack==='function' && w.__absaBack()===true) return;
     }catch(e){}
-    // 2) otherwise pop the shell history
+    // 2) otherwise pop the shell history to the previous page
     if(navStack.length<=1){ return; }
     navStack.pop();
     const prev=navStack[navStack.length-1];
