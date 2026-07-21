@@ -412,6 +412,25 @@
   };
   const items = document.querySelectorAll('.nav-item');
 
+  /* Shared cross-section design tokens/normalisation (item 3). Kept deliberately
+     safe (no layout-affecting overrides of card/type/spacing that could regress the
+     approved modules) - it harmonises the interaction + chrome details that made the
+     sections feel like different apps. Absa maroon throughout. */
+  const UNIFY_CSS = `
+    :root{ --u-maroon:#95052A; --u-maroon-d:#77021E; }
+    html,body{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; text-rendering:optimizeLegibility; }
+    a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+      outline:2px solid #95052A !important; outline-offset:2px !important; border-radius:6px;
+    }
+    ::selection{ background:rgba(149,5,42,.18); }
+    ::-moz-selection{ background:rgba(149,5,42,.18); }
+    *{ scrollbar-width:thin; scrollbar-color:#D9C2C8 transparent; }
+    *::-webkit-scrollbar{ width:10px; height:10px; }
+    *::-webkit-scrollbar-thumb{ background:#D9C2C8; border-radius:9999px; border:2px solid transparent; background-clip:content-box; }
+    *::-webkit-scrollbar-thumb:hover{ background:#B98A98; }
+    button:not(:disabled):active{ transform:translateY(0.5px); }
+  `;
+
   function injectChrome(app){
     try{
       const doc = frames[app].contentDocument;
@@ -420,6 +439,14 @@
         const st = doc.createElement('style');
         st.id='absa-hide'; st.textContent=HIDE_CHROME;
         doc.head.appendChild(st);
+      }
+      // Shared design-language normalisation applied to EVERY embedded section so the
+      // stitched-together prototypes read as one product (item 3): consistent focus
+      // rings, text selection, thin scrollbars, font smoothing and button press.
+      if(!doc.getElementById('absa-unify')){
+        const u = doc.createElement('style');
+        u.id='absa-unify'; u.textContent=UNIFY_CSS;
+        doc.head.appendChild(u);
       }
       if(app==='goals') injectGoalsBack(doc);
       setupKyc(doc);

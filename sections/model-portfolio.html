@@ -164,6 +164,13 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
 .style-body .sd{font-size:12.5px;color:var(--muted);line-height:1.45}
 .progress{height:6px;background:var(--tile);border-radius:9999px;overflow:hidden;margin:14px 0 20px}
 .progress .p{height:100%;background:var(--absa);border-radius:9999px;transition:width .3s}
+.quiz-list{display:flex;flex-direction:column;gap:10px;max-width:720px}
+.quiz-opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:16px 18px;font-size:14.5px;font-weight:500;color:var(--ink);transition:.14s}
+.quiz-opt:hover{border-color:var(--absa);background:#FBF0F3}
+.quiz-opt.sel{border-color:var(--absa);background:#FBF0F3;box-shadow:0 0 0 1px var(--absa)}
+.quiz-opt .qradio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-2);flex:none;transition:.14s;position:relative}
+.quiz-opt.sel .qradio{border-color:var(--absa)}
+.quiz-opt.sel .qradio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--absa)}
 </style>
 </head>
 <body>
@@ -421,40 +428,112 @@ const STYLES=[
   {key:'Growth',band:['--grow','--grow-bg'],ic:'📈',t:'Growth-Orientated',d:"You're willing to accept higher volatility in pursuit of stronger long-term returns, while maintaining diversification.",match:'Growth'},
   {key:'Aggressive',band:['--aggr','--aggr-bg'],ic:'🚀',t:'Build for the Future',d:"You're focused on long-term capital growth and are comfortable with significant short-term market fluctuations along the way.",match:'Aggressive'},
 ];
-let riskSel=null;
-function openRisk(){ riskSel=null; renderRisk(); $('#risk').classList.add('show'); $('#risk').scrollTop=0; }
+/* Risk-assessment questionnaire (item 1) - questions/options/scoring VERBATIM from the
+   live SA app's window.RA_RISK_QS / scoreRiskProfile (goals bundle). 3 Qs x 5 opts,
+   score 0-4; sum 0-12 maps onto the six styles in the same buckets. Not a second set. */
+const QUIZ_QS=[
+  {q:'What is your primary investment goal?',opts:[
+    {t:'I want to preserve my capital',s:0},
+    {t:'I want moderate growth with low risk',s:1},
+    {t:'I want balanced growth with moderate risk',s:2},
+    {t:'I want aggressive growth with higher risk',s:3},
+    {t:'I want to maximise returns and accept the highest risk',s:4}]},
+  {q:'What is your attitude towards investment risk?',opts:[
+    {t:'I prefer to avoid risk as much as possible',s:0},
+    {t:"I'm willing to accept some risk for potential returns",s:1},
+    {t:"I'm comfortable with moderate risk for higher potential returns",s:2},
+    {t:"I'm willing to take significant risks for potentially higher returns",s:3},
+    {t:'I actively seek high-risk opportunities for maximum returns',s:4}]},
+  {q:'How would you react if your investments fell in value by 20% over the next 6 months?',opts:[
+    {t:'I would sell immediately to limit my losses',s:0},
+    {t:'I would be concerned but hold onto my investments',s:1},
+    {t:'I would not be concerned and continue holding my investments',s:2},
+    {t:'I would view it as an opportunity to buy more of the same investments',s:3},
+    {t:'I would become more aggressive to take advantage of future growth',s:4}]},
+];
+function scoreStyle(ans){
+  const raw=ans.reduce((a,i,idx)=>a+(i==null?0:QUIZ_QS[idx].opts[i].s),0);
+  const idx=raw<=1?0:raw<=3?1:raw<=5?2:raw<=7?3:raw<=9?4:5;   // same buckets as scoreRiskProfile
+  return {style:STYLES[idx],score:Math.round(raw/12*100)};
+}
+let riskSel=null, rmode='style', qIdx=0, qAns=[null,null,null], quizRes=null;
+function openRisk(){ riskSel=null; rmode='style'; qIdx=0; qAns=[null,null,null]; quizRes=null; renderRisk(); $('#risk').classList.add('show'); $('#risk').scrollTop=0; }
 function closeRisk(){ $('#risk').classList.remove('show'); }
 function selectStyle(k){ riskSel=k; renderRisk(); }
+function startQuiz(){ rmode='quiz'; qIdx=0; qAns=[null,null,null]; renderRisk(); $('#risk').scrollTop=0; }
+function answerQuiz(i){
+  qAns[qIdx]=i;
+  if(qIdx<QUIZ_QS.length-1){ qIdx++; } else { quizRes=scoreStyle(qAns); rmode='result'; }
+  renderRisk(); $('#risk').scrollTop=0;
+}
+function applyMatch(style){
+  closeRisk(); state.tab='explore'; setFilter(style.match);
+  toast('Showing portfolios matched to your '+style.key+' style');
+  window.scrollTo({top:0});
+}
+function confirmRisk(){ applyMatch(STYLES.find(x=>x.key===riskSel)||STYLES[3]); }
 function renderRisk(){
+  const el=$('#risk');
+  if(rmode==='quiz'){
+    const q=QUIZ_QS[qIdx], pct=Math.round((qIdx+1)/QUIZ_QS.length*100);
+    const opts=q.opts.map((o,i)=>`<button class="quiz-opt ${qAns[qIdx]===i?'sel':''}" onclick="answerQuiz(${i})"><span class="qradio"></span><span>${esc(o.t)}</span></button>`).join('');
+    el.innerHTML=`<div class="sheet-wrap" style="max-width:720px">
+      <button class="sheet-back" onclick="__absaBack()">‹ Back</button>
+      <div class="muted" style="font-size:13px;font-weight:600;margin-bottom:2px">Risk assessment · Question ${qIdx+1} of ${QUIZ_QS.length}</div>
+      <h1 style="font-size:22px;margin-bottom:2px">${esc(q.q)}</h1>
+      <div class="progress"><div class="p" style="width:${pct}%"></div></div>
+      <div class="quiz-list">${opts}</div>
+    </div>`; return;
+  }
+  if(rmode==='result'){
+    const s=quizRes.style;
+    el.innerHTML=`<div class="sheet-wrap" style="max-width:640px">
+      <button class="sheet-back" onclick="__absaBack()">‹ Back</button>
+      <div class="progress"><div class="p" style="width:100%"></div></div>
+      <div style="text-align:center;margin:6px 0 20px">
+        <div class="muted" style="font-size:13px;font-weight:600">Based on your answers, your investment style is</div>
+        <div style="font-size:26px;font-weight:800;margin-top:4px;color:var(${s.band[0]})">${s.key}</div>
+      </div>
+      <div class="style-card sel" style="cursor:default">
+        <div class="style-band" style="color:var(${s.band[0]});background:var(${s.band[1]})">${s.key} · ${quizRes.score}% risk appetite</div>
+        <div class="style-body"><div class="ic" style="background:var(${s.band[1]})">${s.ic}</div><div><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:20px">
+        <button class="btn btn-outline btn-lg" style="flex:1" onclick="startQuiz()">Retake</button>
+        <button class="btn btn-primary btn-lg" style="flex:2" onclick="applyMatch(STYLES[${STYLES.indexOf(s)}])">See matched portfolios</button>
+      </div>
+    </div>`; return;
+  }
+  // rmode === 'style'
   const cards=STYLES.map(s=>`<button class="style-card ${riskSel===s.key?'sel':''}" onclick="selectStyle('${s.key}')">
     <div class="style-band" style="color:var(${s.band[0]});background:var(${s.band[1]})">${s.key}</div>
     <div class="style-body"><div class="ic" style="background:var(${s.band[1]})">${s.ic}</div><div><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>
   </button>`).join('');
-  const pct=riskSel?66:33;
-  $('#risk').innerHTML=`<div class="sheet-wrap">
+  el.innerHTML=`<div class="sheet-wrap">
     <button class="sheet-back" onclick="closeRisk()">‹ New Investment Goal</button>
     <h1 style="font-size:24px;margin-bottom:2px">What is your investment style?</h1>
-    <div class="progress"><div class="p" style="width:${pct}%"></div></div>
+    <div class="progress"><div class="p" style="width:${riskSel?50:25}%"></div></div>
     <div class="style-grid">${cards}</div>
     <div style="display:flex;gap:12px;justify-content:center;max-width:640px;margin:0 auto">
       <button class="btn btn-primary btn-lg" style="flex:1" ${riskSel?'':'disabled'} onclick="confirmRisk()">Continue</button>
-      <button class="btn btn-outline btn-lg" style="flex:1" onclick="selectStyle('Balanced')">I'm not sure, help me</button>
+      <button class="btn btn-outline btn-lg" style="flex:1" onclick="startQuiz()">I'm not sure, help me</button>
     </div>
   </div>`;
 }
-function confirmRisk(){
-  const s=STYLES.find(x=>x.key===riskSel)||STYLES[3];
-  closeRisk(); state.tab='explore'; setFilter(s.match);
-  toast('Showing portfolios matched to your '+s.key+' style');
-  window.scrollTo({top:0});
-}
 
-/* Journey-aware Back (item 2): let the shell's Back close the deepest open surface. */
+/* Journey-aware Back (item 2): consume ONE step at a time, deepest first, so Back
+   follows the real path: fact sheet -> portfolio detail -> Explore list ->
+   Investments landing -> (shell pops) Home. Returns true when it handled a step. */
 window.__absaBack=function(){
-  if($('#risk').classList.contains('show')){ closeRisk(); return true; }
-  if($('#sheet').classList.contains('show')){ closeSheet(); return true; }
-  if($('#drawer').classList.contains('show')){ closeDrawer(); return true; }
-  if(state.sel){ deselect(); return true; }
+  if($('#risk').classList.contains('show')){
+    if(rmode==='result'){ rmode='quiz'; qIdx=QUIZ_QS.length-1; renderRisk(); return true; }
+    if(rmode==='quiz'){ if(qIdx>0){ qIdx--; renderRisk(); return true; } rmode='style'; renderRisk(); return true; }
+    closeRisk(); return true;                                   // style step -> close overlay
+  }
+  if($('#sheet').classList.contains('show')){ closeSheet(); return true; }   // fact sheet -> detail
+  if($('#drawer').classList.contains('show')){ closeDrawer(); return true; } // invest drawer -> detail
+  if(state.sel){ deselect(); return true; }                    // portfolio detail -> Explore list
+  try{ window.parent.go('investments'); return true; }catch(e){}// Explore list -> Investments landing
   return false;
 };
 window.__openRisk=openRisk;
