@@ -1,3 +1,7 @@
 QA-REPORT.md
 .DS_Store
 qa/ABSA-MMF-REFERENCE.md
+
+# secrets / local captures - never push (live auth tokens + credentials)
+qa/sa-portfolio-capture/
+SA-PORTFOLIO-DETAILS-FIX-PROMPT.md

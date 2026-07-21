@@ -101,6 +101,19 @@ h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.3px}
 .qc{display:flex;gap:8px;flex-wrap:wrap}
 .acct{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:14px 16px;margin-bottom:16px}
 .acct .an{font-weight:600;font-size:14px}.acct .am{font-size:12px;color:var(--muted)}.acct .ab{margin-left:auto;font-weight:600;font-size:13px;color:var(--ink-2)}
+/* CASA account selector - mirrors the Absa MMF Buy flow account picker (sections/investments.html) */
+.selbox{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line-2);border-radius:12px;padding:15px 16px;cursor:pointer}
+.selbox.open{border-color:var(--absa)}
+.selbox .an{font-weight:700;font-size:14.5px}.selbox .am{font-size:13px;color:var(--muted);margin-top:1px}
+.selbox .ab{margin-left:auto;font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.selbox .cv{color:var(--absa);display:inline-flex}.selbox .cv svg{width:20px;height:20px;transition:.2s}
+.acct-list{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow-lg);z-index:5;overflow:hidden}
+.acct-opt{display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;border-bottom:1px solid var(--line)}
+.acct-opt:last-child{border-bottom:none}
+.acct-opt:hover{background:var(--tile)}
+.acct-opt.on{background:var(--absa);color:#fff}
+.acct-opt .an{font-weight:700;font-size:14px}.acct-opt .am{font-size:12px;opacity:.85}
+.acct-opt .ab{margin-left:auto;font-weight:700;font-size:13.5px}
 .sumc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:2px 16px}
 .sl{display:flex;justify-content:space-between;padding:13px 0;font-size:14px;border-bottom:1px solid var(--line)}.sl:last-child{border:none}.sl.tot{font-weight:700}.sl .k{color:var(--muted)}
 .success{text-align:center;padding:34px 18px}
@@ -175,8 +188,24 @@ const PRODUCTS=[
   desc:"WHAT IS THE FUND'S OBJECTIVE? The fund aims to give investors access to the best opportunities in global equity markets. The fund is biased to developed markets and actively seeks out attractively valued shares to buy."}
 ];
 const FILTERS=['All','Conservative','Cautious Risk','Balanced','Growth','Aggressive','SA','Global'];
-const state={tab:'explore',filter:'All',sel:null,invest:{step:1,amount:0}};
-const ACCOUNT={name:'Absa Cheque Account',mask:'9012',balance:48250};
+const state={tab:'explore',filter:'All',sel:null,invest:{step:1,amount:0,acctOpen:false}};
+/* Funding is ALWAYS the CASA account. There is no generic / alternative funding
+   method in the portfolio flow - the selector below mirrors the Absa MMF Buy flow
+   account picker, with the CASA account as its only option. */
+const ACCOUNTS=[{name:'Absa Cheque Account',mask:'9012',balance:48250}];
+const ACCOUNT=ACCOUNTS[0];
+const chevD='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+/* CASA account selector, styled + behaving like the MMF Buy flow's acctSelector. */
+function acctSelector(label){
+  const a=ACCOUNT, open=state.invest.acctOpen;
+  return `${label?`<div class="fl">${label}</div>`:''}<div style="position:relative;margin-bottom:16px">
+    <div class="selbox${open?' open':''}" onclick="state.invest.acctOpen=!state.invest.acctOpen;renderDrawer()">
+      <div style="flex:1"><div class="an">${esc(a.name)}</div><div class="am">••••${a.mask}</div></div>
+      <div class="ab dnum">${zar(a.balance).replace('.00','')}</div>
+      <span class="cv" style="transform:rotate(${open?180:0}deg)">${chevD}</span></div>
+    ${open?`<div class="acct-list">${ACCOUNTS.map((x,i)=>`<div class="acct-opt ${i===0?'on':''}" onclick="event.stopPropagation();state.invest.acctOpen=false;renderDrawer()"><div style="flex:1"><div class="an">${esc(x.name)}</div><div class="am">••••${x.mask}</div></div><div class="ab dnum">${zar(x.balance).replace('.00','')}</div></div>`).join('')}</div>`:''}
+  </div>`;
+}
 
 function filtered(){
   let l=PRODUCTS.slice();
@@ -241,7 +270,7 @@ function select(id){state.sel=id;render();window.scrollTo({top:0,behavior:'smoot
 function deselect(){state.sel=null;$('#detailCol').classList.remove('mobile-show');render();}
 
 /* invest drawer */
-function openInvest(id){state.sel=id;state.invest={step:1,amount:0};renderDrawer();$('#scrim').classList.add('show');$('#drawer').classList.add('show');}
+function openInvest(id){state.sel=id;state.invest={step:1,amount:0,acctOpen:false};renderDrawer();$('#scrim').classList.add('show');$('#drawer').classList.add('show');}
 function closeDrawer(){$('#scrim').classList.remove('show');$('#drawer').classList.remove('show');}
 function renderDrawer(){
   const p=PRODUCTS.find(x=>x.id===state.sel);const iv=state.invest;
@@ -262,8 +291,7 @@ function renderDrawer(){
   const chips=[500,1000,5000,10000],ok=iv.amount>=p.min;
   dwin.innerHTML=`<div class="dh"><span style="width:34px"></span><h3>Invest - ${esc(p.prov)}</h3><button onclick="closeDrawer()">✕</button></div>
     <div class="db">
-      <div class="fl">From account</div>
-      <div class="acct"><div><div class="an">${esc(ACCOUNT.name)}</div><div class="am">••••${ACCOUNT.mask}</div></div><div class="ab dnum">${zar(ACCOUNT.balance).replace('.00','')}</div></div>
+      ${acctSelector('From account')}
       <div class="fl">Investment amount</div>
       <div class="amt"><span class="c">R</span><input id="ia" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="${iv.amount?iv.amount.toLocaleString('en-US'):''}" onkeypress="if(!/[0-9]/.test(event.key))event.preventDefault()" onpaste="event.preventDefault();onAmt((event.clipboardData||window.clipboardData).getData('text'))" oninput="onAmt(this.value)"></div>
       <div class="qc">${chips.map(c=>`<button class="chip ${iv.amount===c?'on':''}" onclick="setAmt(${c})">R${c.toLocaleString()}</button>`).join('')}</div>

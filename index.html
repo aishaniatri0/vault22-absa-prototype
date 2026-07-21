@@ -673,6 +673,7 @@
   /* ---- Investments sub-navigation (Wallet/Trade/Portfolio/Money Market/Absa Money Market Fund/Model Portfolio) ---- */
   const INV_TABS = [
     {id:'trade',     label:'Trade',          app:'goals',     drive:'invest_trade', ic:'<path d="M4 16l5-5 3 3 7-8"/><path d="M15 6h5v5"/>'},
+    {id:'modelport', label:'Explore Portfolios', app:'modelport', drive:null,       ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 12V3.5A8.5 8.5 0 0120.5 12z"/>'},
     {id:'absammf',   label:'Absa MMF',       app:'invest',    drive:null,           ic:'<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M9 12h6"/>'},
     {id:'forecast',  label:'Market Forecast',app:'forecast',  drive:null,           ic:'<path d="M4 16l5-6 3 3 4-6 4 5"/><path d="M3 20h18"/>'},
     {id:'leaderboard',label:'Leaderboard',   app:'leaderboard',drive:null,          ic:'<path d="M8 21h8M12 17v4"/><path d="M7 4h10v5a5 5 0 01-10 0z"/><path d="M7 5H4v2a3 3 0 003 3M17 5h3v2a3 3 0 01-3 3"/>'},
@@ -719,6 +720,18 @@
     if(b) b.click(); else if(ROUTE[key]) activate(key);
   }
   window.go = go;  // let embedded home cards drive the Absa sidebar
+
+  /* Single portfolio journey: the goals landing "Explore Portfolios" tab and the
+     sidebar sub-item both land on model-portfolio.html (select -> amount -> CASA
+     account -> submit). Exposed so the embedded goals app can hand off to it. */
+  function openModelPortfolios(){
+    items.forEach(i=>i.classList.toggle('active', i.dataset.key==='investments'));
+    soon.classList.remove('active');
+    crumb.textContent='Investments';
+    openInvSub();
+    showInvTab('modelport');
+  }
+  window.openModelPortfolios = openModelPortfolios;
 
   // ---- currency + region selector (mirrors budget prototype) ----
   const CUR={ZAR:{sym:'R',pill:'R&nbsp;ZAR',name:'S. African Rand'},USD:{sym:'$',pill:'$&nbsp;USD',name:'US Dollar'},
