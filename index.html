@@ -64,6 +64,12 @@
   .nav-subitem.on{background:var(--absa-crimson-dark);color:#fff;font-weight:700}
   .nav-subitem.on .dot{background:#fff}
 
+  /* Onboarding is a PRE-LOGIN journey, not a place in the product: while it is on
+     screen the authenticated app chrome (left sidebar + topbar) must not show, so
+     the onboarding flow renders full-screen the way a real pre-login wizard would. */
+  body.onb-active .sidebar,
+  body.onb-active .topbar{display:none!important}
+
   /* MAIN */
   .main{flex:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
   .topbar{height:60px;min-height:60px;background:var(--absa-card);border-bottom:1px solid var(--absa-line);
@@ -387,6 +393,19 @@
     button[title^="Ask Tara"]{right:92px!important}
   `;
 
+  /* Onboarding is the exception to HIDE_CHROME. Unlike the other sections (which the
+     shell embeds as content-only and wraps in its OWN sidebar/topbar), onboarding
+     runs full-screen (body.onb-active, no shell chrome) and renders the full product
+     view itself, including its own sidebar + topbar. So it must NOT have those
+     collapsed - it only needs its own bottom-corner demo FAB hidden, because the
+     shell's global Scenario drawer drives it instead. */
+  const HIDE_CHROME_ONB = `
+    .v22-compliance-fab{display:none!important}
+    #scenariobar{display:none!important}
+    .proto-fab{display:none!important}
+    body{overflow-x:hidden}
+  `;
+
   const frames = {
     goals:  document.getElementById('fr-goals'),
     budget: document.getElementById('fr-budget'),
@@ -520,7 +539,7 @@
       }
       if(!doc.getElementById('absa-hide')){
         const st = doc.createElement('style');
-        st.id='absa-hide'; st.textContent=HIDE_CHROME;
+        st.id='absa-hide'; st.textContent=(app==='onboarding')?HIDE_CHROME_ONB:HIDE_CHROME;
         doc.head.appendChild(st);
       }
       // Shared design-language normalisation applied to EVERY embedded section so the
@@ -790,6 +809,8 @@
   function activate(key){
     const r = ROUTE[key];
     forceBack=false;   // reset any app-forced Back; the target app re-asserts if still deep
+    // Pre-login onboarding = no app chrome; every other route restores the sidebar/topbar.
+    document.body.classList.toggle('onb-active', key==='onboarding');
     items.forEach(i=>i.classList.toggle('active', i.dataset.key===key));
     // Leaving the Investments landing/Trade: drop the narrow (1180px) flag so Home
     // and the other goals views render at their own width again.
@@ -1176,7 +1197,10 @@
 
   function scenBodyHTML(){
     if(scenTab==='onboarding'){
-      return stack('Onboarding journey',[
+      return stack('Main dashboard',[
+          ['home','','','← Back to the main dashboard'],
+        ],'Returns to the main product dashboard, exactly as it looks when the prototype first opens.')
+        + stack('Onboarding journey',[
           ['open','','','Open the onboarding journey'],
         ],'Onboarding is a pre-login journey rather than a place in the product, so it lives here instead of in the sidebar.')
         + stack('Demo presets',[
@@ -1243,7 +1267,8 @@
     // onboarding action buttons
     bodyEl.querySelectorAll('.scen-stack button').forEach(b=>b.onclick=()=>{
       const a=b.dataset.act, arg=b.dataset.arg;
-      if(a==='open')        { go('onboarding'); closeScen(); }
+      if(a==='home')        { go('home'); closeScen(); }
+      else if(a==='open')   { go('onboarding'); closeScen(); }
       else if(a==='demoA')  onbAction(o=>o.demoA());
       else if(a==='demoB')  onbAction(o=>o.demoB());
       else if(a==='reset')  onbAction(o=>o.reset());
@@ -1259,12 +1284,28 @@
   document.getElementById('scenScrim').addEventListener('click', closeScen);
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeScen(); });
 
-  // hash deep-link + default landing
-  function routeHash(){ const k=(location.hash||'').replace('#',''); if(k && ROUTE[k]) go(k); }
+  // hash deep-link + default landing. Besides the sidebar routes, #demoA / #demoB
+  // boot straight onto the adaptive demo dashboard (same as the Scenario drawer
+  // presets), so those states are directly linkable and openable by URL.
+  // Apply a demo preset onto the onboarding app. Re-asserted a few times because the
+  // onboarding iframe resets itself to the Login screen on its own DOMContentLoaded,
+  // which can land just after the first apply during a cold page load - the repeats
+  // guarantee the preset wins the race and we settle on the demo dashboard.
+  function openDemo(which){
+    const run=()=> onbAction(o=> which==='demoA'?o.demoA():o.demoB());
+    run(); setTimeout(run,700); setTimeout(run,1500);
+  }
+  function routeHash(){
+    const k=(location.hash||'').replace('#','');
+    if(k==='demoA'||k==='demoB'){ openDemo(k); return; }
+    if(k && ROUTE[k]) go(k);
+  }
   window.addEventListener('hashchange', routeHash);
   // preload the three apps in the background so switching is instant
   ['reports','budget','live','goals'].forEach(a=> ensureLoaded(a) );
-  activate((location.hash||'').replace('#','') || 'home');
+  const bootHash=(location.hash||'').replace('#','');
+  if(bootHash==='demoA' || bootHash==='demoB') openDemo(bootHash);
+  else activate(bootHash || 'home');
 </script>
 </body>
 </html>

@@ -146,7 +146,10 @@ function go(screen, opts){
 }
 function render(opts){
   const fn = SCREENS[current] || SCREENS.login;
-  root().innerHTML = fn(opts||{});
+  const r = root();
+  r.innerHTML = fn(opts||{});
+  // MI-2: gentle eased screen transition between steps (respects reduced-motion via CSS)
+  r.classList.remove('screen-anim'); void r.offsetWidth; r.classList.add('screen-anim');
   bindDev();
   if(SCREEN_AFTER[current]) SCREEN_AFTER[current](opts||{});
 }
@@ -159,6 +162,7 @@ function onbShell({body, step, segs, back, logo}){
       <svg class="bmark" viewBox="0 0 64 64" aria-hidden="true"><use href="#v22mark-white"/></svg>
       <div class="bword">Absa</div>
       <div class="brand-tagline">One place for your whole financial life, read back to you by Tara, your AI money coach.</div>
+      <div class="brand-illus">${illus('welcome')}</div>
       <div class="shareholders">
         <div class="sh-label">Our Shareholders</div>
         <div class="sh-row"><span>SC Ventures</span><span>Old Mutual</span><span>Franklin Templeton</span></div>
@@ -172,7 +176,7 @@ function onbShell({body, step, segs, back, logo}){
     <div class="onb__logo">
       <svg class="mark" viewBox="0 0 64 64"><use href="#v22mark"/></svg>
       <h1>Welcome to Absa</h1>
-      <div class="sub">Your all-in-one smart finance app which is intelligent, simple, and personalized for you</div>
+      <div class="sub">Your all-in-one smart finance app which is intelligent, simple, and personalised for you</div>
     </div>` : '';
   return `<div class="onb">
     <div class="onb__form">
@@ -199,7 +203,7 @@ SCREENS.login = () => {
       <h2 class="screen-title" style="margin-top:22px">Get started</h2>
       <div class="field" style="margin-top:12px">
         <label>Email ID</label>
-        <input class="input" id="f-email" type="email" placeholder="johndoe@gmail.com" value="${state.email||''}" oninput="state.email=this.value">
+        <input class="input" id="f-email" type="email" placeholder="Enter your email address" oninput="state.email=this.value">
       </div>
       <div class="field">
         <label>Password</label>
@@ -247,13 +251,13 @@ SCREENS.region = (opts0) => {
       <div class="screen-sub">Your banking location and preferred investment region. This sets your currency, which banks and providers you can link, your KYC checks and the products you'll see.</div>
       <div class="opt-list">
         ${opts.map(o=>`
-          <button class="opt ${state.region===o.k?'sel':''}" onclick="pickRegion('${o.k}',${edit})">
+          <button class="opt ${state.region===o.k?'sel':''}" data-rk="${o.k}" onclick="pickRegion('${o.k}',${edit})">
             <span class="opt-ic">${flagFor(o.k)}</span>
             <span class="opt-body"><span class="opt-t">${o.t}</span><span class="opt-d">${o.d}</span></span>
             <span class="opt-check">${icon('check')}</span>
           </button>`).join('')}
       </div>
-      ${state.region && !isConfirmedMarket() ? `<div class="callout flag">${icon('info')} Great, we'll set Absa up for ${market().label}. The flow and dashboard work the same everywhere; a few local figures stay indicative until you link your accounts.</div>`:''}
+      <div id="region-callout">${regionCallout()}</div>
       ${edit?'':`<div class="legalnote">By clicking on continue you agree to our <a onclick="legalDoc('Terms and conditions')">Terms and conditions</a> and okay with our <a onclick="legalDoc('Privacy Policy')">Privacy</a></div>`}
       <div class="actions"><button class="btn btn-primary" ${state.region?'':'disabled'} onclick="${edit?'afterRegionEdit()':'afterRegion()'}">${edit?'Save region':'Continue'}</button></div>
       ${edit?'':`<div class="center-link small">${icon('info',' ')} You can change your region later.</div>`}
@@ -262,7 +266,20 @@ SCREENS.region = (opts0) => {
 };
 function editRegion(){ go('region',{edit:true}); }
 function afterRegionEdit(){ if(!state.region) return; track('region_changed',{region:state.region}); save(); go('dashboard'); }
-function pickRegion(k, edit){ state.region=k; save(); go('region', edit?{edit:true}:{}); }
+function regionCallout(){
+  return (state.region && !isConfirmedMarket())
+    ? `<div class="callout flag">${icon('info')} Great, we'll set Absa up for ${market().label}. The flow and dashboard work the same everywhere; a few local figures stay indicative until you link your accounts.</div>`
+    : '';
+}
+function pickRegion(k, edit){
+  state.region=k; save();
+  const list=document.querySelector('.opt-list');
+  if(!list){ go('region', edit?{edit:true}:{}); return; } // fallback if DOM not present
+  // Update selection IN PLACE, no full re-render, so the page never flashes or scroll-jumps.
+  list.querySelectorAll('.opt').forEach(b=>b.classList.toggle('sel', b.dataset.rk===k));
+  const cta=document.querySelector('.onb__form .actions .btn-primary'); if(cta) cta.disabled=false;
+  const co=document.getElementById('region-callout'); if(co) co.innerHTML=regionCallout();
+}
 function afterRegion(){ if(!state.region) return; track('region_selected',{region:state.region}); save(); go('about'); }
 
 /* 1.3 About you, name, age/dob, household (opt), confidence (opt). Country NOT re-asked. Life-stage derived. */
@@ -283,8 +300,10 @@ SCREENS.about = () => {
         <input class="input" id="a-name" placeholder="Your name" value="${state.name||''}" oninput="state.name=this.value">
       </div>
       <div class="field">
-        <label>Date of birth <span class="hint">· required</span></label>
-        <input class="input" id="a-dob" aria-label="Date of birth" type="date" value="${state.dob||''}" oninput="onDob(this.value)">
+        <label>Your age ${tip('A range is all we need to tailor your plan. Your exact date of birth is only asked later, at account opening, where it is legally required.')} <span class="hint">· required</span></label>
+        <div class="chips age-chips" id="age-chips">
+          ${AGE_BANDS.map(b=>`<button class="chip ${state.ageBand===b.k?'sel':''}" onclick="setAgeBand('${b.k}',${b.mid})">${b.k}</button>`).join('')}
+        </div>
         <div id="dob-msg" class="hint" style="margin-top:6px"></div>
       </div>
       <div class="field">
@@ -304,20 +323,16 @@ SCREENS.about = () => {
     `
   });
 };
-SCREEN_AFTER.about = () => {
-  const d=document.getElementById('a-dob');
-  if(d){ const t=new Date(); const iso=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; d.max=iso; }
-  if(state.dob) onDob(state.dob); updateLsNote();
-};
-function onDob(v){
-  state.dob=v;
-  const msg=document.getElementById('dob-msg');
-  if(!v){ state.age=null; if(msg)msg.textContent=''; updateLsNote(); return; }
-  const d=new Date(v), now=new Date();
-  let age=now.getFullYear()-d.getFullYear();
-  if(now< new Date(now.getFullYear(), d.getMonth(), d.getDate())) age--;
-  state.age=age;
-  if(msg){ msg.textContent=''; }
+SCREEN_AFTER.about = () => { updateLsNote(); };
+/* MI-1: age captured as a single-tap range. Finer near retirement (55-59 / 60-64)
+   so a long-horizon plan is sized properly. Exact DOB deferred to account opening (KYC). */
+const AGE_BANDS = [
+  {k:'Under 18', mid:16}, {k:'18–24', mid:21}, {k:'25–34', mid:30}, {k:'35–44', mid:40},
+  {k:'45–54', mid:50}, {k:'55–59', mid:57}, {k:'60–64', mid:62}, {k:'65+', mid:68},
+];
+function setAgeBand(k, mid){
+  state.ageBand=k; state.age=mid;
+  document.querySelectorAll('#age-chips .chip').forEach(c=>c.classList.toggle('sel',c.textContent===k));
   updateLsNote(); save();
 }
 function setHH(h){ state.household=h; save(); document.querySelectorAll('#hh-chips .chip').forEach(c=>c.classList.toggle('sel',c.textContent===h)); updateLsNote(); }
@@ -329,9 +344,9 @@ function updateLsNote(){
 }
 function afterAbout(){
   if(!state.name){ shake('a-name'); return; }
-  if(!state.dob){ shake('a-dob'); return; }
+  if(!state.ageBand){ const c=document.getElementById('age-chips'); if(c){ c.animate?.([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'none'}],{duration:220}); } toast('Pick your age range'); return; }
   state.lifeStage=deriveLifeStage();
-  track('about_you_completed',{has_age:!!state.dob, has_household:!!state.household, confidence:state.confidence||null});
+  track('about_you_completed',{has_age:!!state.ageBand, has_household:!!state.household, confidence:state.confidence||null});
   save(); go('fork');
 }
 
@@ -359,6 +374,90 @@ function shake(id){ const el=document.getElementById(id); if(!el)return; el.styl
 function googleG(){ return `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2-1.9 3.2-4.7 3.2-7.8z"/><path fill="#34A853" d="M12 23c2.9 0 5.4-1 7.2-2.6l-3.6-2.7c-1 .7-2.3 1.1-3.6 1.1-2.8 0-5.1-1.9-6-4.4H2.3v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M6 14.4a6.6 6.6 0 0 1 0-4.2V7.4H2.3a11 11 0 0 0 0 9.8z"/><path fill="#EA4335" d="M12 5.5c1.6 0 3 .5 4.1 1.6l3.1-3.1A11 11 0 0 0 12 1a11 11 0 0 0-9.7 6l3.7 2.8c.9-2.5 3.2-4.3 6-4.3z"/></svg>`; }
 function appleA(){ return `<svg width="17" height="17" viewBox="0 0 24 24" fill="#111"><path d="M16.4 12.9c0-2.6 2.1-3.8 2.2-3.9-1.2-1.7-3-1.9-3.7-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.8-1.7 0-3.3 1-4.1 2.5-1.8 3-.5 7.6 1.2 10 .8 1.2 1.8 2.6 3.1 2.5 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.2-1.2 3-2.5.6-.9.9-1.4 1.4-2.4-3.6-1.4-2.4-4.7-2.4-4.8zM14 5.9c.7-.8 1.1-2 1-3.1-1 0-2.1.6-2.8 1.4-.6.7-1.2 1.9-1 3 1.1.1 2.2-.5 2.8-1.3z"/></svg>`; }
 function flagFor(k){ const map={SA:'🇿🇦',UAE:'🇦🇪',GLOBAL:'🌍'}; return `<span style="font-size:20px">${map[k]||'🌍'}</span>`; }
+
+/* ============================================================================
+   ENHANCEMENT LAYER (Patrick's 3-lens round: Tooltips · Imagery · Micro-interactions)
+   ============================================================================ */
+
+/* --- LENS 1: TOOLTIPS. Reusable plain-English explainer. Hover on desktop,
+   tap on mobile. Accessible (button + aria-label). --- */
+let TIP_SEQ=0;
+function tip(text){
+  const t=String(text).replace(/"/g,'&quot;');
+  const id='tt'+(++TIP_SEQ);
+  return `<button type="button" class="tip" id="${id}" aria-label="More info: ${t}" onclick="event.stopPropagation();toggleTip('${id}')">
+    <span class="tip-i">${icon('info')}</span><span class="tip-bubble" role="tooltip">${text}</span></button>`;
+}
+function toggleTip(id){
+  const el=document.getElementById(id); if(!el) return;
+  const open=el.classList.contains('open');
+  document.querySelectorAll('.tip.open').forEach(t=>t.classList.remove('open'));
+  if(!open) el.classList.add('open');
+}
+document.addEventListener('click',e=>{ if(!e.target.closest('.tip')) document.querySelectorAll('.tip.open').forEach(t=>t.classList.remove('open')); });
+/* TT-4: one-line explainer per Financial Fitness sub-score (each area is out of 200). */
+const SUB_TIPS = {
+  'Savings':'How much of a cushion you hold, an emergency buffer plus regular saving. Out of 200.',
+  'Investments':'Money working for the long term, retirement and market investments. Out of 200.',
+  'Insurance':'Your protection cover, life, medical, disability and short-term. Out of 200.',
+  'Spending':'How your outgoings sit against your income, room left each month. Out of 200.',
+  'Debt clearance':'How manageable your debt is and how steadily it is coming down. Out of 200.',
+  'Debt':'How manageable your debt is and how steadily it is coming down. Out of 200.',
+  'Protection':'Your protection cover, life, medical, disability and short-term. Out of 200.'
+};
+function subTip(k){ return SUB_TIPS[k] ? tip(SUB_TIPS[k]) : ''; }
+
+/* --- LENS 2: IMAGERY. Consistent flat vector illustrations (no photos, no AI faces),
+   clearly a friendly placeholder. One visual language across every screen. --- */
+function illus(name){
+  const g='var(--v-green)', d='#cdeee1', n='var(--navy)';
+  const S=s=>`<svg class="illus-svg" viewBox="0 0 96 72" fill="none" aria-hidden="true">${s}</svg>`;
+  const M={
+    understand:`<circle cx="48" cy="36" r="20" fill="${d}"/><path d="M40 36h16M48 28v16" stroke="${g}" stroke-width="3.5" stroke-linecap="round"/>`,
+    spending:`<rect x="24" y="40" width="10" height="16" rx="2" fill="${g}"/><rect x="42" y="30" width="10" height="26" rx="2" fill="${d}"/><rect x="60" y="20" width="10" height="36" rx="2" fill="${g}"/>`,
+    health:`<path d="M48 56s-18-10-18-24a11 11 0 0 1 18-6 11 11 0 0 1 18 6c0 14-18 24-18 24Z" fill="${d}"/><path d="M34 40h8l4-8 5 14 4-6h7" stroke="${g}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    debt:`<circle cx="48" cy="36" r="18" fill="${d}"/><path d="M40 30c0-3 3.5-5 8-5s8 2 8 5-3.5 5-8 5-8 2-8 5 3.5 5 8 5 8-2 8-5" stroke="${g}" stroke-width="3" stroke-linecap="round"/><path d="M48 20v4M48 48v4" stroke="${n}" stroke-width="3" stroke-linecap="round"/>`,
+    wealth:`<path d="M26 50l12-12 8 8 20-22" stroke="${g}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M60 24h10v10" stroke="${g}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="26" cy="50" r="3" fill="${n}"/>`,
+    save:`<rect x="28" y="30" width="40" height="26" rx="6" fill="${d}"/><circle cx="58" cy="43" r="3" fill="${g}"/><path d="M38 30v-4a6 6 0 0 1 12 0v4" stroke="${g}" stroke-width="3"/>`,
+    retirement:`<circle cx="48" cy="30" r="9" fill="${d}"/><path d="M30 56c2-10 8-14 18-14s16 4 18 14" fill="${d}"/><path d="M42 30h12" stroke="${g}" stroke-width="3" stroke-linecap="round"/>`,
+    tara:`<circle cx="48" cy="36" r="20" fill="url(#taraGrad)"/><circle cx="41" cy="33" r="3" fill="#fff"/><circle cx="55" cy="33" r="3" fill="#fff"/><path d="M40 44c3 3 13 3 16 0" stroke="#fff" stroke-width="3" stroke-linecap="round"/><defs><linearGradient id="taraGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2ecb86"/><stop offset="1" stop-color="#0e9d6f"/></linearGradient></defs>`,
+    link:`<rect x="26" y="28" width="44" height="26" rx="5" fill="${d}"/><rect x="26" y="34" width="44" height="6" fill="${g}"/><circle cx="34" cy="47" r="2.5" fill="${g}"/><rect x="42" y="45" width="20" height="4" rx="2" fill="#fff"/>`,
+    loading:`<rect x="24" y="26" width="48" height="8" rx="4" fill="${d}"/><rect x="24" y="40" width="34" height="8" rx="4" fill="${d}"/><rect x="24" y="54" width="42" height="6" rx="3" fill="#e9edf1"/>`,
+    // IMG-8: calm, supportive debt visual, never alarming (a hand steadying a falling stack)
+    debtcalm:`<path d="M24 54h48" stroke="${g}" stroke-width="3" stroke-linecap="round"/><rect x="34" y="40" width="12" height="12" rx="2" fill="${d}"/><rect x="50" y="34" width="12" height="18" rx="2" fill="${d}"/><path d="M30 34c4-2 8-2 12 1" stroke="${g}" stroke-width="3" stroke-linecap="round"/>`,
+    // IMG-3: portfolio aha, allocation ring + rising line, feels like real product data-viz
+    portfolio:`<circle cx="36" cy="38" r="15" fill="none" stroke="${d}" stroke-width="7"/><circle cx="36" cy="38" r="15" fill="none" stroke="${g}" stroke-width="7" stroke-dasharray="60 94" stroke-linecap="round" transform="rotate(-90 36 38)"/><path d="M58 46l6-8 5 4 7-12" stroke="${g}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    // IMG-1: login hero, a phone showing a friendly dashboard
+    welcome:`<rect x="34" y="14" width="28" height="46" rx="6" fill="${n}"/><rect x="38" y="20" width="20" height="8" rx="2" fill="${g}"/><rect x="38" y="32" width="20" height="4" rx="2" fill="${d}"/><rect x="38" y="40" width="14" height="4" rx="2" fill="${d}"/><circle cx="66" cy="24" r="4" fill="${g}"/>`
+  };
+  return `<div class="illus">${S(M[name]||M.understand)}</div>`;
+}
+/* IMG-7: a small level badge per Financial Fitness tier (Dependent -> Free). */
+function levelBadge(level){
+  const tiers=['Dependent','Surviving','Stable','Building','Free'];
+  const i=Math.max(0,tiers.indexOf(level));
+  const fill=['#c4b5fd','#93c5fd','#6ee7b7','#34d399','#01c38d'][i]||'#01c38d';
+  const stars=i+1;
+  const row=Array.from({length:5},(_,n)=>`<circle cx="${18+n*15}" cy="20" r="5" fill="${n<stars?fill:'rgba(255,255,255,.28)'}"/>`).join('');
+  return `<svg class="lvl-badge" viewBox="0 0 96 40" aria-hidden="true"><rect x="2" y="6" width="92" height="28" rx="14" fill="rgba(255,255,255,.14)"/>${row}</svg>`;
+}
+/* IMG-3/IMG-4: allocation donut, real-feel product data-viz for the portfolio aha. */
+function donutSVG(growth, defensive){
+  const r=26, c=2*Math.PI*r, g=Math.max(0,Math.min(100,growth));
+  const gLen=c*g/100;
+  return `<svg class="donut" viewBox="0 0 72 72" aria-hidden="true">
+    <circle cx="36" cy="36" r="${r}" fill="none" stroke="#e6ebf0" stroke-width="11"/>
+    <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--v-green)" stroke-width="11" stroke-linecap="round"
+      stroke-dasharray="${gLen} ${c-gLen}" transform="rotate(-90 36 36)"/>
+    <text x="36" y="34" text-anchor="middle" class="donut-n">${g}%</text>
+    <text x="36" y="46" text-anchor="middle" class="donut-l">growth</text>
+  </svg>`;
+}
+/* IMG-5: real-feel bank logo tile (monogram on brand colour) instead of a bare dot */
+function bankLogo(name, color){
+  const initials=name.split(/[\s]+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `<span class="bank-logo" style="background:${color||'#334155'}">${initials}</span>`;
+}
 
 /* ---------------------------------------------------------------- dev toolbar (prototype aid) */
 /* Single unobtrusive Prototype Settings button, opens a drawer. Not part of the product. */
@@ -427,15 +526,15 @@ SCREENS.fork = () => {
     body:`
       <div class="onb__logo" style="margin-top:6px"><svg class="mark" viewBox="0 0 64 64"><use href="#v22mark"/></svg></div>
       <h2 class="screen-title">What would you like Tara to help you with today?</h2>
-      <div class="screen-sub">Pick up to three. The order you tap sets your priority, and we'll walk you through each one to set it up.</div>
+      <div class="screen-sub">Pick up to three. The order you tap sets your priority ${tip('Your first tap is priority #1, your second is #2, and so on. We walk you through them in that order.')}, and we'll walk you through each one to set it up.</div>
       <div class="opt-list" id="fork-list">
         ${INTENTS.map(it=>forkCard(it)).join('')}
       </div>
-      <div id="plan-tray">${planTray()}</div>
-      <button class="callout explore-callout explore-btn" onclick="explorePlatform()">${icon('info')}<span><b>I want to explore the platform.</b> Show me my money first, with <b>Understand my finances</b> as my starting point.</span>${icon('chevRight','ex-chev')}</button>
-      <div class="actions" style="margin-top:12px">
-        <button class="btn btn-primary" onclick="afterFork()" id="fork-cta">${forkCtaLabel()}</button>
+      <div id="plan-tray" style="margin-top:18px">${planTray()}</div>
+      <div class="actions" style="margin-top:28px">
+        <button class="btn btn-primary" onclick="afterFork()" id="fork-cta" ${state.picks.length?'':'disabled'}>${forkCtaLabel()}</button>
       </div>
+      <div class="hint center" style="margin-top:12px">Only want to look around? Just tap the <b>Understand my finances</b> option at the top of the list.</div>
     `
   });
 };
@@ -443,8 +542,8 @@ function forkCard(it){
   const idx = state.picks.indexOf(it.key);
   const sel = idx>=0;
   const disabled = !sel && state.picks.length>=3;
-  return `<button class="opt ${sel?'sel':''}" ${disabled?'style="opacity:.45;pointer-events:none"':''} onclick="togglePick('${it.key}')">
-    <span class="opt-ic">${icon(it.icon)}</span>
+  return `<button class="opt ${sel?'sel':''} ${disabled?'capped':''}" data-key="${it.key}" onclick="togglePick('${it.key}')">
+    <span class="opt-ic opt-ic-illus">${illus(it.key)}</span>
     <span class="opt-body">
       <span class="opt-t">${it.label}</span>
       <span class="opt-d">${it.sub}</span>
@@ -454,18 +553,33 @@ function forkCard(it){
   </button>`;
 }
 function forkCtaLabel(){
-  if(state.picks.length===0) return 'Continue with Understand my finances';
+  if(state.picks.length===0) return 'Pick at least one to continue';
   const first = intent(state.picks[0]);
   return `Continue with ${first.label}` + (state.picks.length>1?` +${state.picks.length-1} more`:'');
 }
 function togglePick(k){
   const i = state.picks.indexOf(k);
   if(i>=0) state.picks.splice(i,1);
-  else { if(state.picks.length>=3) return; state.picks.push(k); }
+  else {
+    if(state.picks.length>=3){ toast('You can pick up to three, tap a selected one to swap it out'); return; } // friendly, never a dead card
+    state.picks.push(k);
+  }
   save();
-  // re-render just the list + cta (keep scroll)
-  const list=document.getElementById('fork-list'); if(list) list.innerHTML = INTENTS.map(it=>forkCard(it)).join('');
-  const cta=document.getElementById('fork-cta'); if(cta) cta.textContent = forkCtaLabel();
+  // Update each card IN PLACE (no node replacement) so the select/press micro-interaction
+  // actually animates and the tap feels responsive.
+  document.querySelectorAll('#fork-list .opt').forEach(btn=>{
+    const key=btn.dataset.key;
+    const idx=state.picks.indexOf(key);
+    const sel=idx>=0;
+    const wasSel = btn.classList.contains('sel');
+    btn.classList.toggle('sel', sel);
+    if(sel && !wasSel){ // just became selected: fire the confirmation pop
+      btn.classList.remove('just-picked'); void btn.offsetWidth; btn.classList.add('just-picked');
+    }
+    btn.classList.toggle('capped', !sel && state.picks.length>=3); // dimmed but still tappable (shows a hint)
+    const rank=btn.querySelector('.opt-rank'); if(rank) rank.textContent = sel? idx+1 : '';
+  });
+  const cta=document.getElementById('fork-cta'); if(cta){ cta.textContent = forkCtaLabel(); cta.disabled = !state.picks.length; }
   const tray=document.getElementById('plan-tray'); if(tray) tray.innerHTML = planTray();
 }
 function planTray(){
@@ -477,12 +591,11 @@ function planTray(){
       <span class="pr-t">${it.label}</span>
       <span class="pr-tag">${i===0?'we start here':'then this'}</span></div>`;}).join('')}</div>`;
 }
-/* "I want to explore the platform" — an explicit clickable option: skip choosing,
-   go straight in led by Understand my finances. */
-function explorePlatform(){ state.picks=[]; save(); track('focus_chosen',{interests:['understand'],count:0,explore:true}); afterFork(); }
 function afterFork(){
-  // no-priority default: tick nothing -> Understand
-  const picks = state.picks.length? state.picks.slice() : ['understand'];
+  // At least one pick is now required (the "explore the platform" / no-pick path was removed
+  // on Stephen's steer). Anyone who only wants to look picks "Understand my finances".
+  if(!state.picks.length){ toast('Pick at least one thing to get started'); return; }
+  const picks = state.picks.slice();
   state.picks = picks;
   track('focus_chosen',{interests:picks, count:picks.length});
   save();
@@ -554,11 +667,21 @@ function connectIntro(){
       <button class="mh-close" aria-label="Close" onclick="closeConnect()">✕</button>
     </div>
     <div class="modal-body">
+      <div class="connect-illus">${illus('link')}</div>
       <div class="connect-props">
         ${[['lock','Bank-grade, read-only','We can see transactions to categorise them. We can never move money.'],
            ['clock','Set up in about 60 seconds','Your account is verified and your picture is built instantly.'],
            ['spark','Tara does the work','Spending is sorted and insights appear automatically.']].map(x=>
           `<div class="cprop"><span class="cp-ic">${icon(x[0])}</span><div><div class="cp-t">${x[1]}</div><div class="cp-d">${x[2]}</div></div></div>`).join('')}
+      </div>
+      <div class="trust-strip">
+        <span class="ts-item">${icon('lock')} 256-bit encryption</span>
+        <span class="ts-item">${icon('eye')} Read-only</span>
+        <span class="ts-item">${icon('refresh')} Unlink anytime</span>
+      </div>
+      <div class="social-proof">${icon('spark')} Trusted by thousands of Absa members across South Africa.</div>
+      <div class="bank-strip" aria-label="Supported banks">
+        ${(isConfirmedMarket()?BANKS_SA:BANKS_TC).filter(b=>!b.disabled).slice(0,6).map(b=>`<span class="bank-chip">${bankLogo(b.n,b.c)}<span class="bc-n">${b.n}</span></span>`).join('')}
       </div>
       <div class="actions"><button class="btn btn-primary" onclick="connectStep('form')">${icon('bank')} Add account details</button></div>
       <div class="connect-alt"><button class="btn-link" onclick="connectStep('statement')">Forward a statement</button><span class="dotsep">·</span><button class="btn-link" onclick="connectStep('income')">Just enter my income</button></div>
@@ -602,10 +725,29 @@ function connectSubmit(){
   connectStep('verify'); simulateLink(CONNECT.chosenBank);
 }
 function connectVerify(){
+  setTimeout(runConnectSequence,40);
   return `<div class="modal-body center" style="padding:38px 24px 40px">
     <div class="spin" style="width:38px;height:38px;border-width:4px;margin:0 auto 18px"></div>
-    <h3 style="font-size:17px;font-weight:800">Verifying your ${CONNECT.chosenBank} account</h3>
-    <div class="md muted small" style="margin-top:8px">Confirming the account details and building your picture. This takes a few seconds.</div></div>`;
+    <h3 style="font-size:17px;font-weight:800" id="cv-stage">Connecting to ${CONNECT.chosenBank}…</h3>
+    <div class="cv-steps" id="cv-steps">
+      <span class="cv-step on" data-i="0">Connecting</span>
+      <span class="cv-step" data-i="1">Verifying</span>
+      <span class="cv-step" data-i="2">Pulling your accounts</span>
+    </div>
+    <div class="md muted small" style="margin-top:12px">This takes a few seconds, your details are read-only and encrypted.</div></div>`;
+}
+/* MI-5: step the "connecting / verifying / pulling" labels while the link resolves. */
+function runConnectSequence(){
+  const stages=[['Connecting to '+(CONNECT?CONNECT.chosenBank:'your bank')+'…',0],['Verifying your account…',1],['Pulling your accounts…',2]];
+  let i=0;
+  const step=()=>{
+    const t=document.getElementById('cv-stage'); const wrap=document.getElementById('cv-steps');
+    if(!t||!wrap) return; // modal moved on
+    t.textContent=stages[i][0];
+    wrap.querySelectorAll('.cv-step').forEach(el=>el.classList.toggle('on', +el.dataset.i<=stages[i][1]));
+    if(i<stages.length-1){ i++; setTimeout(step,430); }
+  };
+  step();
 }
 function connectDone(){
   const f=CONNECT;
@@ -668,8 +810,10 @@ function connectIncome(){
       <button class="mh-close" aria-label="Close" onclick="closeConnect()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="field"><label>Monthly income (after tax)</label>
-        <input class="input" id="ci-income" aria-label="Monthly income after tax" type="number" placeholder="${market().cur}0" value="${state.income||''}"></div>
+      <div class="field money-field"><label>Monthly income (after tax)</label>
+        <div class="money-wrap ${state.income>0?'ok':''}"><input class="input" id="ci-income" aria-label="Monthly income after tax" type="number" placeholder="${market().cur}0" value="${state.income||''}" oninput="moneyEcho(this)">
+          <span class="money-ok" aria-hidden="true">${icon('check')}</span></div>
+        <div class="money-echo" id="ci-income-echo">${state.income>0?cur(state.income):''}</div></div>
       <label class="opt" style="cursor:pointer"><input type="checkbox" id="ci-varies" ${state.incomeVaries?'checked':''} style="width:18px;height:18px;accent-color:var(--v-green)">
         <span class="opt-body"><span class="opt-t" style="font-size:14px">My income varies</span><span class="opt-d">Self-employed / commission, we'll use a typical month and a lighter-touch read</span></span></label>
       <div class="actions" style="margin-top:14px"><button class="btn btn-primary" onclick="saveIncomeFloor()">Continue with income only</button></div>
@@ -750,7 +894,7 @@ function showMeetTara(){
   const first = intent(primaryPick());
   const mr=document.getElementById('modal-root'); if(!mr) return;
   mr.innerHTML = `<div class="modal-back"><div class="modal meet-tara">
-    <div class="mt-ava">${icon('spark')}<span class="mt-dot"></span></div>
+    <div class="mt-orb">${illus('tara')}<span class="mt-dot"></span></div>
     <div class="mt-eyebrow">Meet Tara · your AI money coach</div>
     <h3 class="mt-title">Hi ${state.name||'there'}, I'm Tara</h3>
     <div class="mt-msg">${line}</div>
@@ -852,7 +996,7 @@ function heroYourMoney(fed){
       ${heroAdjustBtn('understand','Manage connection')}`;
   }
   if(fed==='income'){
-    return `${heroNum((state.income||0)*4.5)}<div class="hero-sub">Income-anchored estimate${state.incomeVaries?' · income varies, lighter read':''}. Link a bank for your real worth.</div>
+    return `${heroNum((state.income||0)*4.5)}<div class="hero-sub">Income-anchored estimate${state.incomeVaries?' · income varies, lighter read':''}. Link a bank for your real worth. ${tip('This is an estimate based on your income only, not a measured figure. It stays marked as estimated until you link an account, which replaces it with your real balances.')}</div>
       <button class="hero-cta" onclick="pushLink()">${icon('bank')} Link an account</button>
       ${heroAdjustBtn('understand','Adjust my details')}`;
   }
@@ -903,7 +1047,7 @@ function heroDebt(fed){
 }
 function heroBuckets(on){
   const items=[['manageable','Manageable'],['stretched','Stretched'],['heavy','Heavy']];
-  return `<div class="hero-chips" style="margin-top:18px">
+  return `<div class="hero-debt-illus">${illus('debtcalm')}</div><div class="hero-chips" style="margin-top:18px">
     ${items.map(([k,l])=>`<div class="hero-chip ${on===k?'':'locked'}"><div class="hc-l">${on===k?'Where you are':''}</div><div class="hc-v">${l}</div></div>`).join('')}
   </div><div class="hero-sub" style="margin-top:10px">Directional only, no verdict labels. DTI is computed by the Debt module from self-declared income.</div>`;
 }
@@ -911,7 +1055,7 @@ function heroWealth(fed){
   const w=state.plan||state.answers.wealth||{};
   if(w.portfolio||w.name){
     const band=w.risk||3;
-    return `<div class="hero-num" style="font-size:36px">${w.name||w.portfolioName||'Balanced Growth'}</div>
+    return `<div class="hero-wealth-viz">${donutSVG(band*15+10,100-(band*15+10))}<div class="hero-num" style="font-size:36px">${w.name||w.portfolioName||'Balanced Growth'}</div></div>
       <div class="hero-sub">Suggested portfolio · risk ${band}/5 · ${w.shariah?'Shariah':'Conventional'}</div>
       <div class="hero-stats">
         <div class="hero-stat"><div class="hs-label">Recommended term</div><div class="hs-val">${band<=2?'1–3 yrs':band===3?'3–5 yrs':'5+ yrs'}</div></div>
@@ -956,10 +1100,11 @@ function heroFitness(fed){
     <circle cx="66" cy="66" r="58" stroke="rgba(255,255,255,.28)" stroke-width="11" fill="none"/>
     <circle class="val" cx="66" cy="66" r="58" stroke="#fff" stroke-width="11" fill="none" stroke-linecap="round" stroke-dasharray="${c}" data-len="${c}" data-off="${c-(c*pct/100)}" style="stroke-dashoffset:${c}"/>
     </svg><div class="hd-mid"><div class="hd-num js-count" data-count="${sc.score}">0</div><div class="hd-lvl">${sc.levelLabel}</div></div></div>`;
-  const chips=Object.entries(sc.subs).map(([k,v])=>`<div class="hero-chip ${v==null?'locked':''}"><div class="hc-l">${k}</div><div class="hc-v">${v==null?'—':v+'/200'}</div></div>`).join('');
+  const chips=Object.entries(sc.subs).map(([k,v])=>`<div class="hero-chip ${v==null?'locked':''}"><div class="hc-l">${k} ${subTip(k)}</div><div class="hc-v">${v==null?'—':v+'/200'}</div></div>`).join('');
   return `<div class="hero-score">${dial}
     <div style="flex:1;min-width:230px">
-      <div class="hero-sub" style="margin-bottom:12px">${sc.level==='partial'?'A firm score, still building. Add investments & insurance to unlock the rest.':'Your full score and five sub-scores.'}</div>
+      <div class="lvl-badge-wrap" title="${sc.levelLabel}">${levelBadge(sc.levelLabel)}<span class="lvl-badge-txt">${sc.levelLabel}</span></div>
+      <div class="hero-sub" style="margin-bottom:12px">${sc.level==='partial'?'A firm score, still building. Add investments & insurance to unlock the rest.':'Your full score and five sub-scores.'} ${tip('Your Financial Fitness Score runs 0 to 1000 and moves through five levels: Dependent, Surviving, Stable, Building, Free. It is built from five areas, each out of 200: Savings, Investments, Insurance, Spending and Debt clearance.')}</div>
       <div class="hero-chips">${chips}</div>
     </div></div>
     <button class="hero-cta" style="margin-top:20px" onclick="moduleToast('The Financial Fitness module')">${icon('heart')} ${sc.level==='full'?'View your plan':'Improve your score'}</button>
@@ -1194,7 +1339,7 @@ function renderZone(z, opts){
   return `<div class="${cls}">${zoneHead(z,opts)}${body}</div>`;
 }
 function loadingSkeleton(lines){ return Array.from({length:lines||3}).map(()=>`<div class="skel skel-line" style="width:${60+Math.random()*35}%"></div>`).join(''); }
-function fetchingNote(){ return `<div class="fetching-note"><span class="spin"></span> Fetching your accounts…</div>`; }
+function fetchingNote(){ return `<div class="fetching-note"><span class="fn-illus">${illus('loading')}</span><span class="spin"></span> Pulling your accounts, this stays live as they arrive…</div>`; }
 
 function zbYourMoney(fed){
   if(fed==='feed'){
@@ -1348,7 +1493,7 @@ function zbFitness(fed, opts){
   return `<div class="ff-top"><div class="ff-level">${sc.levelLabel}</div><span class="vpill outline">Beta</span></div>
     <div class="ff-num"><span class="js-count" data-count="${sc.score}">0</span> <span class="ff-max">/1000</span></div>
     <div class="ff-bar"><i data-w="${pct}" style="width:${pct}%"></i></div>
-    <div class="ff-subs">${Object.entries(sc.subs).map(([k,v])=>`<span class="ff-sub ${v==null?'locked':''}"><i style="background:${v==null?'#d5dbe1':'var(--v-green)'}"></i>${k}${v!=null?' · '+v:''}</span>`).join('')}</div>
+    <div class="ff-subs">${Object.entries(sc.subs).map(([k,v])=>`<span class="ff-sub ${v==null?'locked':''}"><i style="background:${v==null?'#d5dbe1':'var(--v-green)'}"></i>${k}${v!=null?' · '+v:''} ${subTip(k)}</span>`).join('')}</div>
     <button class="ff-btn" onclick="${state.linked?"moduleToast('The Financial Fitness module')":'pushLink()'}">${sc.level==='partial'?'Add investments & insurance to unlock the rest':sc.level==='full'?'Level up':'Improve your score'}</button>
     ${sc.level==='partial'?'<div class="hint" style="margin-top:8px">A firm score, still building. Add investments and insurance to complete it.</div>':''}`;
 }
@@ -1357,7 +1502,8 @@ function renderStub(z){
   // Whole card is the single tappable action (no duplicate CTA button; the actionable
   // checklist lives in "Complete your setup").
   const k = {whereItGoes:'spending',whatYouOwe:'debt',yourWealth:'wealth',aimingFor:'save'}[z];
-  return `<button class="stub stub-click"${k?` onclick="startJourneyFromDash('${k}')"`:' disabled'}><span class="si">${icon(Z.icon)}</span>
+  const stubIllus = {whereItGoes:'spending',whatYouOwe:'debtcalm',yourWealth:'wealth',aimingFor:'save'}[z];
+  return `<button class="stub stub-click"${k?` onclick="startJourneyFromDash('${k}')"`:' disabled'}><span class="si si-illus">${stubIllus?illus(stubIllus):icon(Z.icon)}</span>
     <div class="stub-text"><div class="st">${Z.t}</div><div class="sd">${stubCopy(z)}</div></div>
     ${k?`<span class="sr-go">${icon('chevRight')}</span>`:''}</button>`;
 }
@@ -1436,14 +1582,14 @@ function toggleHideAmounts(btn){
 /* ---- dashboard demo presets (3.6) ---- */
 function loadDemoA(){ // single-pick budgeting, will not link (income-only)
   state = structuredClone(DEFAULT_STATE);
-  Object.assign(state,{email:'demo@vault22.io',name:'Aishani',region:'SA',age:31,dob:'1995-06-15',household:'2',confidence:'Somewhat confident',
+  Object.assign(state,{email:'demo@vault22.com',name:'Aishani',region:'SA',age:31,ageBand:'25–34',dob:'1995-06-15',household:'2',confidence:'Somewhat confident',
     picks:['spending'], income:32000, budgetStyle:'50/30/20',
     answers:{spending:{q1:'Monthly spending limits',q2:'Saving more'}}, linked:false, fed:{yourMoney:'income',whereItGoes:'income'}, onboardingComplete:true, metTara:true});
   save(); go('dashboard');
 }
 function loadDemoB(){ // multi budgeting+investing+goals, linked
   state = structuredClone(DEFAULT_STATE);
-  Object.assign(state,{email:'demo@vault22.io',name:'Aishani',region:'SA',age:31,dob:'1995-06-15',household:'2',confidence:'Very confident',
+  Object.assign(state,{email:'demo@vault22.com',name:'Aishani',region:'SA',age:31,ageBand:'25–34',dob:'1995-06-15',household:'2',confidence:'Very confident',
     picks:['spending','wealth','save'], income:32000, budgetStyle:'50/30/20',
     answers:{spending:{q1:'Pay Yourself First',q2:'Saving more'}, wealth:{risk:3,shariah:false,portfolio:true,portfolioName:'Balanced Growth'}},
     goal:{type:'Home',target:600000,year:'2031',monthly:4200,probability:'On track'},
@@ -1639,13 +1785,13 @@ function jSpending(step){
       sub:'Six summary numbers give you a rough starter. Thin by design, link any time for the real feed.',
       body:`
         ${sixField('sp-income','Monthly income (after tax)', state.income)}
-        <div class="field"><label>Budgeting style</label>
+        <div class="field"><label>Budgeting style ${tip('50/30/20: half on needs, a third on wants, the rest saved. Zero-based: every rand has a job before the month starts. Pay Yourself First: savings come off the top, spend what is left.')}</label>
           <div class="chips">${['50/30/20 (default)','Zero-based','Pay Yourself First'].map(s=>`<button class="chip ${a.q1s===s?'sel':''}" onclick="setAns('spending','q1s','${s}')">${s}</button>`).join('')}</div>
           <div class="hint" style="margin-top:6px">Prefer a custom split? You can set that later in Budget.</div></div>
         ${sixField('sp-exp','Rough monthly expenses')}
         ${sixField('sp-sav','Current savings')}
         ${sixField('sp-debt','Total debt owed')}
-        <div class="field"><label>Pay-day (day of month)</label><input class="input" id="sp-payday" type="number" min="1" max="31" placeholder="25"></div>
+        <div class="field"><label>Pay-day (day of month) ${tip('The day you are paid sets your "this period" window, so budgets and what-is-left figures line up with your actual pay cycle instead of the calendar month.')}</label><input class="input" id="sp-payday" type="number" min="1" max="31" placeholder="25"></div>
       `,
       cta:'See my budget', onNext:"spendingFallbackDone()",
       extra:`<div class="hint center" style="margin-top:6px">You can fine-tune categories and targets any time in Budget.</div>`
@@ -1653,7 +1799,16 @@ function jSpending(step){
   }
 }
 function spendingNext(){ const a=ans('spending'); if(!a.q1){ toast('Pick how you\'d like to budget'); return;} track('budget_style_chosen',{style:a.q1}); jGo(1); }
-function sixField(id,label,val){ return `<div class="field"><label>${label}</label><input class="input" id="${id}" aria-label="${label}" type="number" placeholder="${market().cur}0" value="${val||''}"></div>`; }
+function sixField(id,label,val){ return `<div class="field money-field"><label>${label}</label>
+  <div class="money-wrap ${val>0?'ok':''}"><input class="input" id="${id}" aria-label="${label}" type="number" placeholder="${market().cur}0" value="${val||''}" oninput="moneyEcho(this)">
+    <span class="money-ok" aria-hidden="true">${icon('check')}</span></div>
+  <div class="money-echo" id="${id}-echo">${val>0?cur(val):''}</div></div>`; }
+/* MI-6: live currency echo + gentle green tick when a positive amount is entered. Field stays type=number so every parser reads a clean value. */
+function moneyEcho(el){
+  const v=parseFloat(el.value); const ok=!isNaN(v)&&v>0;
+  const w=el.closest('.money-wrap'); if(w) w.classList.toggle('ok',ok);
+  const e=document.getElementById(el.id+'-echo'); if(e) e.textContent=ok?cur(v):'';
+}
 function spendingFallbackDone(){
   const inc=parseFloat((document.getElementById('sp-income')||{}).value);
   if(!isNaN(inc) && inc>0) state.income = inc;             // ignore blank / 0 / negative
@@ -1694,7 +1849,7 @@ function jHealth(step){
       sub:'These are unlinkable, so we always ask them, even if you linked.',
       body:`
         ${riskBlock}
-        <div class="field"><label>Which of these do you have? <span class="hint">· a light nudge, this does not itself score</span></label>
+        <div class="field"><label>Which of these do you have? ${tip('Ticking these does not change your score by itself. It points us at your protection profile, cover amounts and tiers, which is what we score once you complete it.')} <span class="hint">· a light nudge, this does not itself score</span></label>
           <div class="chips">${['Life','Medical','Disability','Short-term'].map(t=>{const a=ans('health');const s=(a.ins||[]).includes(t);return `<button class="chip ${s?'sel':''}" onclick="setAns('health','ins','${t}',true)">${t}</button>`;}).join('')}</div>
           <div class="callout">${icon('info')} Having cover is a good start. We'll help you complete your protection profile, cover amounts and tiers, to score it.</div>
         </div>
@@ -1726,7 +1881,7 @@ function jDebt(step){
     body:
       qBlock('debt','types','What types of debt do you have?',['Credit cards','Personal loans','Car finance','Mortgage','Student loans'],true)+
       qBlock('debt','priority','What is your biggest priority?',['Lower monthly payments','Become debt free','Improve credit score'])+
-      qBlock('debt','band', debtBandLabel(), debtBands())+
+      qBlock('debt','band', debtBandLabel()+tip('Pick the range your total debt falls in. A range keeps this calm and directional, we never need the exact figure to shape your plan.'), debtBands())+
       `<div class="hint" style="margin-top:-8px">A rough range is all we need here, this stays directional.</div>`,
     cta:'Continue', onNext:"debtNext()"
   });
@@ -1783,7 +1938,7 @@ function debtQuickRead(){
   a.bucket=bucket; save();
   const label={manageable:'Manageable',stretched:'Stretched',heavy:'Heavy'}[bucket];
   document.getElementById('d-read').innerHTML =
-    `<div class="qr-verdict">Your read at ${cur(inc)}/month: <b>${label}</b></div>` +
+    `<div class="qr-verdict">Your read at ${cur(inc)}/month: <b>${label}</b> ${tip('A directional sense of how heavy your debt looks against your income, not a credit score or a verdict. Manageable, stretched or heavy just guides where Tara starts.')}</div>` +
     debtBuckets(bucket) +
     `<div class="hint" style="margin-top:8px">Directional read from about ${cur(debtMid)} of debt against ${cur(inc)}/month income.</div>`;
 }
@@ -1842,7 +1997,7 @@ function wealthEngine(k, step, overlay){
     if(reused && a.risk==null) a.risk=state.riskBand;          // carry the earlier read forward
     const showChips = !reused || a.editRisk;                   // don't re-ask unless they choose to change
     const riskField = showChips
-      ? `<div class="field qblock" style="margin-bottom:0"><label class="qlabel">Your risk &amp; style</label>
+      ? `<div class="field qblock" style="margin-bottom:0"><label class="qlabel">Your risk &amp; style ${tip('This slider only previews a more cautious or more adventurous mix, nothing is invested yet. It sets how much ups and downs you are comfortable with, from Ultra-Low (steadiest) to Aggressive (most growth, most movement). Not sure? Tap Help me decide for a short quiz.')}</label>
            <div class="chips">${[1,2,3,4,5].map(b=>`<button class="chip ${a.risk===b?'sel':''}" onclick="setAns('${k}','risk',${b})">${bandNames[b-1]}</button>`).join('')}</div>
            <div class="center" style="margin-top:10px"><button class="btn-link" onclick="openRiskQuiz('${k}')">Help me decide (quiz) ›</button></div></div>`
       : `<div class="setup-card"><div class="sc-head">${icon('shield')} <b>Risk profile carried over</b></div>
@@ -1863,7 +2018,7 @@ function wealthEngine(k, step, overlay){
         ${overlay!=='retirement'?`<div class="field"><label>Target amount</label><input class="input" id="w-target" type="number" placeholder="${market().cur}0" value="${(ans(k).amt)||''}"></div>`:''}
         <div class="field"><label>Lump sum (optional)</label><input class="input" id="w-lump" type="number" placeholder="${market().cur}0"></div>
         <div class="field"><label>Monthly contribution</label><input class="input" id="w-monthly" type="number" placeholder="${market().cur}0" value="1800"></div>
-        <div class="callout">${icon('target')} Live read: on current inputs you're <b>on track</b> to your goal. Nudge the numbers to watch it change.</div>
+        <div class="callout">${icon('target')} Live read: on current inputs you're <b>on track</b> to your goal ${tip('This is a projection based on the numbers you enter and illustrative returns, not a guarantee. Markets move, so treat on track as a guide, not a promise.')}. Nudge the numbers to watch it change.</div>
       `,
       cta:'See my recommended portfolio', onNext:`wealthSetupNext('${k}','${overlay||''}')`});
   }
@@ -2066,6 +2221,7 @@ function openFactSheet(k){
        <button class="rhs-close" onclick="closeFactSheet()" aria-label="Close">✕</button>
      </div>
      <div class="rhs-body">
+       <div class="fs-hero-illus">${donutSVG(growth,defensive)}<div class="fs-hero-cap"><div class="fs-hero-big">+${ret}%</div><div class="fs-hero-sub">5-yr illustrative p.a.</div></div></div>
        <div class="fs-badges"><span class="vpill green">Risk ${band}/5</span><span class="vpill outline">${term}</span>${a.shariah?'<span class="vpill green">Shariah-compliant</span>':''}</div>
        <div class="fs-sec"><div class="fs-l">Objective</div><div class="fs-v">${a.objective||a.goalType||'Long-term growth'} · ${market().curName}</div></div>
        <div class="fs-sec"><div class="fs-l">Asset allocation</div>
@@ -2165,25 +2321,18 @@ window.addEventListener('popstate', ()=>{          // H3: keep Back inside the p
 
 /* ---------------------------------------------------------------- boot */
 window.addEventListener('DOMContentLoaded', ()=>{
-  // Resume a mid-journey session on reload, so a refresh never loses the user's place.
-  if(!state.onboardingComplete && state._resume && state._resume.key){
-    JRUN={key:state._resume.key, step:state._resume.step||0, fromDash:!!state._resume.fromDash, picIndex:state._resume.picIndex||0};
-    go('journey'); return;
-  }
-  go(state.onboardingComplete?'dashboard': (state.region? (state.name?'fork':'about') :'login'));
+  // Review prototype: always start clean at the Login page on a fresh load, so a
+  // leftover session (e.g. a demo that set region/name/picks) never boots you
+  // mid-flow onto the fork or dashboard. Demos are still available via the ⚙ panel.
+  state = structuredClone(DEFAULT_STATE); JRUN=null; save();
+  go('login');
 });
 
 /* ===========================================================================
-   ABSA SHELL BRIDGE
-   This prototype is embedded in the Absa shell, whose single global Scenario
-   drawer replaces this app's own gear FAB. The shell drives onboarding through
-   the hooks below.
-
-   FORCE_FAIL is a top-level `let`, i.e. a lexical binding, NOT a property of
-   window, so the parent frame cannot assign it directly. setForceFail closes
-   over it and is the only way in. Previously this was reachable only by typing
-   FORCE_FAIL = '...' into the console, so the bank-link failure states were
-   undemoable; the shell now exposes them as real toggles.
+   Demo API for the shell's Scenario drawer (⚙ FAB). The onboarding prototype
+   shipped its own demo controls; the shell hides those and drives these instead.
+   Re-added after the 2026-07-23 onboarding rebuild dropped this block, which had
+   left every Demo A/B / Reset / Jump-to-screen / journey button in the drawer dead.
    =========================================================================== */
 window.__absaOnb = {
   // bank-link failure injection: null = success, else a FAILURES key
